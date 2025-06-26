@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Statistiques -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Employés Total</h5>
+                    <h2 class="card-text">{{ total_employes }}</h2>
+                    <p class="card-text">Total des employés enregistrés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Employés Actifs</h5>
+                    <h2 class="card-text">{{ employes_actifs }}</h2>
+                    <p class="card-text">Employés actuellement actifs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pointages Aujourd'hui</h5>
+                    <h2 class="card-text">{{ pointages_jour }}</h2>
+                    <p class="card-text">Pointages effectués aujourd'hui</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Nouveau Pointage</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'gestion_employes:pointage' %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="employe" class="form-label">Employé</label>
+                            <select name="employe" class="form-select" required>
+                                <option value="">Sélectionnez un employé</option>
+                                {% for employe in employes %}
+                                <option value="{{ employe.id }}">{{ employe }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="heure_entree" class="form-label">Heure d'entrée</label>
+                            <input type="time" name="heure_entree" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Derniers Pointages</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employé</th>
+                                    <th>Date</th>
+                                    <th>Heure Entrée</th>
+                                    <th>Heure Sortie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pointage in derniers_pointages %}
+                                <tr>
+                                    <td>{{ pointage.employe }}</td>
+                                    <td>{{ pointage.date }}</td>
+                                    <td>{{ pointage.heure_entree }}</td>
+                                    <td>{{ pointage.heure_sortie }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
