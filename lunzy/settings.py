@@ -95,6 +95,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Configuration de l'email
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # Configuration de la redirection après la connexion
 LOGIN_REDIRECT_URL = 'gestion_employes:dashboard'

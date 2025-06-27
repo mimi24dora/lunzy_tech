@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_auth.html" %}
 {% load static %}
 
 {% block content %}
@@ -13,21 +13,22 @@
                     <form method="post">
                         {% csrf_token %}
                         {% if form.errors %}
-                            <div class="alert alert-danger">
-                                <ul>
-                                    {% for field in form %}
-                                        {% if field.errors %}
-                                            <li>{{ field.label }} : {{ field.errors|striptags }}</li>
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% if form.non_field_errors %}
-                                        <li>{{ form.non_field_errors|striptags }}</li>
-                                    {% endif %}
-                                </ul>
-                            </div>
+                        <div class="alert alert-danger">
+                            <ul>
+                                {% for field in form %}
+                                {% if field.errors %}
+                                <li>{{ field.label }} : {{ field.errors|striptags }}</li>
+                                {% endif %}
+                                {% endfor %}
+                                {% if form.non_field_errors %}
+                                <li>{{ form.non_field_errors|striptags }}</li>
+                                {% endif %}
+                            </ul>
+                        </div>
                         {% endif %}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="username" name="username" required>
+                            <input type="text" class="form-control form-control-lg" id="username" name="username"
+                                required>
                             <label for="username">Nom d'utilisateur</label>
                         </div>
                         <div class="form-floating mb-3">
@@ -35,24 +36,29 @@
                             <label for="email">Email</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="first_name" name="first_name" required>
+                            <input type="text" class="form-control form-control-lg" id="first_name" name="first_name"
+                                required>
                             <label for="first_name">Prénom</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="last_name" name="last_name" required>
+                            <input type="text" class="form-control form-control-lg" id="last_name" name="last_name"
+                                required>
                             <label for="last_name">Nom</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control form-control-lg" id="password1" name="password1" required>
+                            <input type="password" class="form-control form-control-lg" id="password1" name="password1"
+                                required>
                             <label for="password1">Mot de passe</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control form-control-lg" id="password2" name="password2" required>
+                            <input type="password" class="form-control form-control-lg" id="password2" name="password2"
+                                required>
                             <label for="password2">Confirmer le mot de passe</label>
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">S'inscrire</button>
-                            <a href="{% url 'gestion_employes:login' %}" class="btn btn-outline-success btn-lg">Retour à la connexion</a>
+                            <a href="{% url 'gestion_employes:login' %}" class="btn btn-outline-success btn-lg">Retour à
+                                la connexion</a>
                         </div>
                     </form>
                 </div>

@@ -1,0 +1,336 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+
+{% block title %}Gestion des Utilisateurs{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="mb-4">Gestion des Utilisateurs</h2>
+                
+                <!-- Bouton pour ajouter un utilisateur -->
+                <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalAjouter">
+                    <i class="fas fa-plus"></i> Ajouter un utilisateur
+                </button>
+
+                <!-- Tableau des utilisateurs -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Prénom</th>
+                                        <th>Email</th>
+                                        <th>Username</th>
+                                        <th>Rôle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.last_name }}</td>
+                                        <td>{{ user.first_name }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-danger">Super Admin</span>
+                                            {% elif user.is_staff %}
+                                                <span class="badge bg-warning">Staff</span>
+                                            {% else %}
+                                                <span class="badge bg-info">Utilisateur</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalModifier{{ user.id }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalSupprimer{{ user.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter -->
+    <div class="modal fade" id="modalAjouter" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un utilisateur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{% url 'gestion_employes:ajouter_utilisateur' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {{ user_form.as_p }}
+                        {{ employe_form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals de modification et suppression -->
+    {% for user in users %}
+        <!-- Modal Modifier -->
+        <div class="modal fade" id="modalModifier{{ user.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier l'utilisateur</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'gestion_employes:modifier_utilisateur' pk=user.id %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Prénom</label>
+                                        {{ user_form.first_name }}
+                                        {% if user_form.first_name.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.first_name.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Nom</label>
+                                        {{ user_form.last_name }}
+                                        {% if user_form.last_name.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.last_name.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.email.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.username.id_for_label }}" class="form-label">Username</label>
+                                        {{ user_form.username }}
+                                        {% if user_form.username.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.username.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.password1.id_for_label }}" class="form-label">Mot de passe</label>
+                                        {{ user_form.password1 }}
+                                        {% if user_form.password1.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.password1.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.password2.id_for_label }}" class="form-label">Confirmation du mot de passe</label>
+                                        {{ user_form.password2 }}
+                                        {% if user_form.password2.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ user_form.password2.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ employe_form.matricule.id_for_label }}" class="form-label">Matricule</label>
+                                        {{ employe_form.matricule }}
+                                        {% if employe_form.matricule.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ employe_form.matricule.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ employe_form.statut.id_for_label }}" class="form-label">Statut</label>
+                                        {{ employe_form.statut }}
+                                        {% if employe_form.statut.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ employe_form.statut.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ employe_form.date_embauche.id_for_label }}" class="form-label">Date d'embauche</label>
+                                        {{ employe_form.date_embauche }}
+                                        {% if employe_form.date_embauche.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ employe_form.date_embauche.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ employe_form.telephone.id_for_label }}" class="form-label">Téléphone</label>
+                                        {{ employe_form.telephone }}
+                                        {% if employe_form.telephone.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ employe_form.telephone.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Supprimer -->
+        <div class="modal fade" id="modalSupprimer{{ user.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Supprimer l'utilisateur</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'gestion_employes:supprimer_utilisateur' user.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <p>Etes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ user.username }}</strong> ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Charger le formulaire d'ajout
+    $('#modalAjouter').on('shown.bs.modal', function() {
+        $.get('{% url "gestion_employes:ajouter_utilisateur" %}', function(data) {
+            $('#formAjouter').html(data);
+        });
+    });
+
+    // Gérer la soumission du formulaire d'ajout
+    $('#formAjouter').on('submit', '#formAjouter', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '{% url "gestion_employes:ajouter_utilisateur" %}',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    $('#formAjouter').html(response);
+                }
+            }
+        });
+    });
+
+    // Charger le formulaire de modification
+    $('.btn-update').on('click', function() {
+        const userId = $(this).data('id');
+        $.get(`{% url "gestion_employes:modifier_utilisateur" 0 %}`.replace('0', userId), function(data) {
+            $('#formModifier').html(data);
+            $('#modalModifier').modal('show');
+        });
+    });
+
+    // Gérer la soumission du formulaire de modification
+    $('#formModifier').on('submit', '#formModifier', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    $('#formModifier').html(response);
+                }
+            }
+        });
+    });
+
+    // Charger la vue détaillée
+    $('.btn-view').on('click', function() {
+        const userId = $(this).data('id');
+        $.get(`{% url "gestion_employes:voir_utilisateur" 0 %}`.replace('0', userId), function(data) {
+            $('#formVoir').html(data);
+            $('#modalVoir').modal('show');
+        });
+    });
+
+    // Charger le formulaire de suppression
+    $('.btn-delete').on('click', function() {
+        const userId = $(this).data('id');
+        $.get(`{% url "gestion_employes:supprimer_utilisateur" 0 %}`.replace('0', userId), function(data) {
+            $('#formSupprimer').html(data);
+            $('#modalSupprimer').modal('show');
+        });
+    });
+
+    // Gérer la soumission du formulaire de suppression
+    $('#formSupprimer').on('submit', 'form', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

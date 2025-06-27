@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Accueil</title>
-  </head>
-  <body>
-    <h1>Bienvenue sur Lunzy !</h1>
-    <a href="{% url 'login' %}">Login</a> |
-    <a href="{% url 'signup' %}">Register</a>
-  </body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h1 class="display-4">Bienvenue sur Lunzy</h1>
+                <p class="lead">Gestion des employés et pointage</p>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 me-md-2">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Connexion
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-success btn-lg px-4">
+                    <i class="bi bi-person-plus me-2"></i>Inscription
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

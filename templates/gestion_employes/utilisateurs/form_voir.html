@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+    <div class="col-md-6">
+        <h5>Informations Utilisateur</h5>
+        <p><strong>Nom:</strong> {{ user.last_name }}</p>
+        <p><strong>Prénom:</strong> {{ user.first_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Statut:</strong> 
+            {% if user.is_superuser %}
+                Super Admin
+            {% else %}
+                Utilisateur
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-md-6">
+        <h5>Informations Employé</h5>
+        {% if employe %}
+            <p><strong>Matricule:</strong> {{ employe.matricule }}</p>
+            <p><strong>Statut:</strong> {{ employe.get_statut_display }}</p>
+            <p><strong>Date d'embauche:</strong> {{ employe.date_embauche }}</p>
+            <p><strong>Téléphone:</strong> {{ employe.telephone }}</p>
+            <h5>Historique des Pointages</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Heure d'entrée</th>
+                            <th>Heure de sortie</th>
+                            <th>Temps travaillé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pointage in pointages %}
+                        <tr>
+                            <td>{{ pointage.date }}</td>
+                            <td>{{ pointage.heure_entree }}</td>
+                            <td>{{ pointage.heure_sortie }}</td>
+                            <td>{{ pointage.temps_travaille }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
