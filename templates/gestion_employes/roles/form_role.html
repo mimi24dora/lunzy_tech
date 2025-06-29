@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ title }}</h2>
+        <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="{{ form.nom.id_for_label }}" class="form-label">Nom du rôle</label>
+                    {{ form.nom }}
+                    {% if form.nom.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.nom.errors|join:"<br>" }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors|join:"<br>" }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

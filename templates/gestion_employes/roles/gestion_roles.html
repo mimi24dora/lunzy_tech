@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load permission_filters %}
+
+{% block extra_css %}
+<style>
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+    
+    .table th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .table thead th {
+        border-top: 0;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Gestion des Rôles</h5>
+                    <a href="{% url 'gestion_employes:ajouter_role' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter un rôle
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom du Rôle</th>
+                                    <th>Description</th>
+                                    <th>Permissions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for role in roles %}
+                                <tr>
+                                    <td>{{ role.nom }}</td>
+                                    <td>{{ role.description }}</td>
+                                    <td>
+                                        <div class="badge bg-secondary text-wrap" style="width: 150px;">
+                                            {% for module, perms in role.permissions.items %}
+                                                <span class="badge bg-primary me-1 mb-1">{{ module|title }}</span>
+                                                {% for perm in perms %}
+                                                    <span class="badge bg-light text-dark me-1 mb-1">{{ perm|title }}</span>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'gestion_employes:modifier_role' role.pk %}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                            <a href="{% url 'gestion_employes:gestion_permissions' role.pk %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-key"></i> Permissions
+                                            </a>
+                                            <a href="{% url 'gestion_employes:supprimer_role' role.pk %}" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ role.pk }}">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de confirmation -->
+{% for role in roles %}
+<div class="modal fade" id="deleteModal{{ role.pk }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supprimer le rôle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment supprimer le rôle "{{ role.nom }}" ?</p>
+                <p class="text-danger">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <form method="post" action="{% url 'gestion_employes:supprimer_role' role.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+    permissionsInput.type = 'hidden';
+    permissionsInput.name = 'permissions';
+    permissionsInput.value = document.querySelector(`input[name="permissions_${roleId}"]`).value;
+    form.appendChild(permissionsInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+        console.error('Error:', error);
+        alert('Une erreur est survenue lors de la mise à jour des permissions');
+    });
+}
+</script>
+{% block extra_js %}
+<script>
+function updateRolePermissions(roleId) {
+    const checkboxes = document.querySelectorAll(`input[id^='perm_${roleId}']`);
+    const permissions = {};
+    
+    checkboxes.forEach(checkbox => {
+        const [module, perm] = checkbox.value.split('.');
+        if (!permissions[module]) {
+            permissions[module] = [];
+        }
+        if (checkbox.checked) {
+            permissions[module].push(perm);
+        }
+    });
+    
+    document.getElementById(`permissions_${roleId}`).value = JSON.stringify(permissions);
+}
+
+function saveRolePermissions(event, roleId) {
+    const form = document.querySelector('form');
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
+    
+    form.submit();
+}
+</script>
+{% endblock %}

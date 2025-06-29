@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load permission_filters %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestion des permissions pour {{ role.get_nom_display }}</h2>
+        <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    {% for module in modules %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">{{ module|title }}</h5>
+                            </div>
+                            <div class="card-body">
+                                {% for perm in permissions|get_dict_item:module %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="{{ module }}_{{ perm }}"
+                                           name="{{ module }}_{{ perm }}"
+                                           value="on"
+                                           {% if perm in current_permissions|get_dict_item:module %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ module }}_{{ perm }}">
+                                        {{ perm|title }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Sauvegarder les permissions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

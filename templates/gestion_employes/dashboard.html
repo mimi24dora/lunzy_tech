@@ -1,90 +1,328 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard{% endblock %}
+
+<!-- Styles pour les boutons -->
+{% block extra_css %}
+<style>
+    /* Styles pour le tableau */
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+
+    .table th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table thead th {
+        border-top: 0;
+    }
+
+    /* Styles pour les boutons */
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Styles pour les modales */
+    .modal {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .modal.show {
+        display: block;
+        opacity: 1;
+    }
+
+    .modal-backdrop {
+        opacity: 0.5;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+
+    .modal-dialog {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: none;
+    }
+
+    /* Styles pour les cartes */
+    .stats-card {
+        height: 100%;
+        transition: transform 0.2s;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .display-6 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-top: 1rem;
+    }
+
+    /* Icônes */
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Liste des Utilisateurs{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <!-- Statistiques -->
-        <div class="col-md-3 mb-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Employés Total</h5>
-                    <h2 class="card-text">{{ total_employes }}</h2>
-                    <p class="card-text">Total des employés enregistrés</p>
+<div class="container-fluid mt-5">
+    <!-- Statistiques principales -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card stats-card bg-primary text-white">
+                        <div class="card-body">
+                            <i class="fas fa-users card-icon"></i>
+                            <h5 class="card-title">Total Employés</h5>
+                            <p class="card-text display-6">{{ total_profiles }}</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Employés Actifs</h5>
-                    <h2 class="card-text">{{ employes_actifs }}</h2>
-                    <p class="card-text">Employés actuellement actifs</p>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-success text-white">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle card-icon"></i>
+                            <h5 class="card-title">Employés Actifs</h5>
+                            <p class="card-text display-6">{{ profiles_actifs }}</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Pointages Aujourd'hui</h5>
-                    <h2 class="card-text">{{ pointages_jour }}</h2>
-                    <p class="card-text">Pointages effectués aujourd'hui</p>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-info text-white">
+                        <div class="card-body">
+                            <i class="fas fa-times-circle card-icon"></i>
+                            <h5 class="card-title">Employés Inactifs</h5>
+                            <p class="card-text display-6">{{ profiles_inactifs }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card bg-warning text-dark">
+                        <div class="card-body">
+                            <i class="fas fa-user-tag card-icon"></i>
+                            <h5 class="card-title">Nombre de Rôles</h5>
+                            <p class="card-text display-6">{{ nombre_roles }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Actions Rapides -->
-    <div class="row mt-4">
-        <div class="col-md-6 mb-4">
+    <!-- Statistiques sur les rôles -->
+    <div class="row mb-4">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Nouveau Pointage</h5>
+                    <h5 class="card-title mb-0">Distribution des Rôles</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{% url 'gestion_employes:pointage' %}" method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="employe" class="form-label">Employé</label>
-                            <select name="employe" class="form-select" required>
-                                <option value="">Sélectionnez un employé</option>
-                                {% for employe in employes %}
-                                <option value="{{ employe.id }}">{{ employe }}</option>
-                                {% endfor %}
-                            </select>
+                    <div class="row">
+                        {% for role in roles %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ role.nom }}</h6>
+                                    <p class="card-text">{{ role.utilisateurs.count }} utilisateurs</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="heure_entree" class="form-label">Heure d'entrée</label>
-                            <input type="time" name="heure_entree" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </form>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
+    </div>
+
+    <!-- Derniers Pointages -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Derniers Pointages</h5>
+                    <div class="list-group">
+                        {% for pointage in derniers_pointages %}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            {{ pointage.profile.user.get_full_name }} - {{ pointage.date }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div class="row mb-4">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Derniers Pointages</h5>
+                    <h5 class="card-title mb-0">Liste des utilisateurs</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Employé</th>
-                                    <th>Date</th>
-                                    <th>Heure Entrée</th>
-                                    <th>Heure Sortie</th>
+                                    <th>Nom complet</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Matricule</th>
+                                    <th>Poste</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for pointage in derniers_pointages %}
-                                <tr>
-                                    <td>{{ pointage.employe }}</td>
-                                    <td>{{ pointage.date }}</td>
-                                    <td>{{ pointage.heure_entree }}</td>
-                                    <td>{{ pointage.heure_sortie }}</td>
+                                {% for utilisateur in utilisateurs %}
+                                <tr data-user-id="{{ utilisateur.id }}">
+                                    <td>{{ utilisateur.get_full_name }}</td>
+                                    <td>{{ utilisateur.username }}</td>
+                                    <td>{{ utilisateur.email }}</td>
+                                    <td>
+                                        {% if utilisateur.groups.all %}
+                                            <span class="badge bg-info">
+                                                {{ utilisateur.groups.all.0.name }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Aucun rôle</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ utilisateur.profile.matricule }}</td>
+                                    <td>{{ utilisateur.profile.poste }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ utilisateur.profile.get_statut_badge }}">
+                                            {{ utilisateur.profile.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#updateModal{{ utilisateur.id }}">
+                                            Modifier
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal{{ utilisateur.id }}">
+                                            Supprimer
+                                        </button>
+                                    </td>
                                 </tr>
+
+                                <!-- Modal Update -->
+                                <div class="modal fade" id="updateModal{{ utilisateur.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Modifier l'utilisateur</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form
+                                                    action="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}"
+                                                    method="post">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="username" class="form-label">Username</label>
+                                                            <input type="text" name="username" class="form-control"
+                                                                value="{{ utilisateur.username }}" required>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="email" class="form-label">Email</label>
+                                                            <input type="email" name="email" class="form-control"
+                                                                value="{{ utilisateur.email }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="password" class="form-label">Nouveau mot de
+                                                            passe</label>
+                                                        <input type="password" name="password" class="form-control"
+                                                            placeholder="Laissez vide pour ne pas modifier">
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Annuler</button>
+                                                        <button type="submit"
+                                                            class="btn btn-primary">Enregistrer</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Delete -->
+                                <div class="modal fade" id="deleteModal{{ utilisateur.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Supprimer l'utilisateur</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="text-center mb-4">
+                                                    <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
+                                                    <br>
+                                                    Êtes-vous sûr de vouloir supprimer l'utilisateur {{
+                                                    utilisateur.username }} ?
+                                                </p>
+                                                <form
+                                                    action="{% url 'gestion_employes:delete_utilisateur' utilisateur.id %}"
+                                                    method="post">
+                                                    {% csrf_token %}
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Annuler</button>
+                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -94,4 +332,139 @@
         </div>
     </div>
 </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fonction pour mettre à jour le tableau après modification
+    function updateTableRow(userId, username, email, fullName) {
+        const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+        if (row) {
+            row.querySelector('td:nth-child(1)').textContent = fullName;
+            row.querySelector('td:nth-child(2)').textContent = username;
+            row.querySelector('td:nth-child(3)').textContent = email;
+        }
+    }
+
+    // Fonction pour gérer la réponse de la modification
+    function handleUpdateResponse(response, userId) {
+        if (response.success) {
+            // Mettre à jour le tableau
+            const user = response.user;
+            updateTableRow(userId, user.username, user.email, user.full_name);
+            
+            // Fermer la modale
+            const modal = bootstrap.Modal.getInstance(document.getElementById(`updateModal${userId}`));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Afficher un message de succès
+            showAlert('success', 'Utilisateur mis à jour avec succès');
+        } else {
+            showAlert('danger', response.message || 'Erreur lors de la mise à jour');
+        }
+    }
+
+    // Fonction pour gérer les erreurs
+    function handleError(error) {
+        showAlert('danger', 'Une erreur est survenue lors de la mise à jour');
+        console.error('Erreur:', error);
+    }
+
+    // Gestion des modales
+    document.addEventListener('DOMContentLoaded', function () {
+        const modals = document.querySelectorAll('.modal');
+        const updateForms = document.querySelectorAll('form[action*="edit_utilisateur"]');
+
+        // Gestion des formulaires de modification
+        updateForms.forEach(form => {
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                
+                const formData = new FormData(form);
+                const userId = form.getAttribute('action').split('/').pop();
+                
+                try {
+                    const response = await fetch(form.getAttribute('action'), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    handleUpdateResponse(data, userId);
+                } catch (error) {
+                    handleError(error);
+                }
+            });
+        });
+
+        // Initialisation des modales
+        modals.forEach(modal => {
+            const modalInstance = new bootstrap.Modal(modal);
+            modal.addEventListener('show.bs.modal', function (event) {
+                // Code existant
+            });
+            modal.addEventListener('hidden.bs.modal', function (event) {
+                // Code existant
+            });
+        });
+    });
+
+    // Gestion des formulaires avec AJAX
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const modal = this.closest('.modal');
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fermer la modale
+                        modalInstance.hide();
+                        // Afficher un message de succès
+                        showAlert('success', data.message);
+                        // Actualiser la page après 1 seconde
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showAlert('danger', data.message || 'Erreur lors de la mise à jour');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showAlert('danger', 'Une erreur est survenue');
+                });
+        });
+    });
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x w-50`;
+        alertDiv.style.zIndex = '1050';
+        alertDiv.textContent = message;
+
+        document.body.appendChild(alertDiv);
+
+        // Supprimer l'alerte après 3 secondes
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }
+</script>
 {% endblock %}

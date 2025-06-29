@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Employe, Pointage
+from .models import Profile, Pointage, Role
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -16,15 +16,29 @@ class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput)
 
-class EmployeForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
     class Meta:
-        model = Employe
-        fields = ['matricule', 'telephone', 'adresse', 'date_embauche', 'poste', 'statut']
+        model = Profile
+        fields = ['matricule', 'telephone', 'poste', 'statut', 'role']
+        widgets = {
+            'statut': forms.Select(attrs={'class': 'form-select'}),
+            'role': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 class PointageForm(forms.ModelForm):
+    TYPE_CHOICES = [
+        ('ENTREE', 'Entrée'),
+        ('SORTIE', 'Sortie'),
+    ]
+    
+    type = forms.ChoiceField(choices=TYPE_CHOICES, widget=forms.RadioSelect)
+    
     class Meta:
         model = Pointage
-        fields = ['employe', 'heure_entree', 'heure_sortie', 'remarques']
+        fields = ['profile', 'type']
+        widgets = {
+            'profile': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
@@ -35,4 +49,13 @@ class UserUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = Role
+        fields = ['nom', 'description']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load permission_filters %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Permissions du rôle "{{ role.nom }}"</h5>
+                    <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for module in modules %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">{{ module|title }}</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   id="all_{{ module }}"
+                                                   onchange="toggleModulePermissions('{{ module }}', this.checked)">
+                                            <label class="form-check-label" for="all_{{ module }}">
+                                                Sélectionner/Désélectionner toutes les permissions
+                                            </label>
+                                        </div>
+                                        {% for perm in permissions|get_permissions:module %}
+                                        <div class="form-check ms-4">
+                                            <input class="form-check-input module-perm" 
+                                                   type="checkbox" 
+                                                   id="perm_{{ module }}_{{ perm }}"
+                                                   name="permissions"
+                                                   value="{{ module }}.{{ perm }}"
+                                                   {% if perm in role.permissions|get_permissions:module %}checked{% endif %}>
+                                            <label class="form-check-label" for="perm_{{ module }}_{{ perm }}">
+                                                {{ perm|title }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Sauvegarder les permissions
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleModulePermissions(module, checked) {
+    const checkboxes = document.querySelectorAll(`.module-perm`);
+    checkboxes.forEach(checkbox => {
+        if (checkbox.id.startsWith(`perm_${module}_`)) {
+            checkbox.checked = checked;
+        }
+    });
+}
+</script>
+{% endblock %}
+

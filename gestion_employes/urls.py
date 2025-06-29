@@ -1,6 +1,6 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
-from . import views
+from gestion_employes import views
 
 app_name = 'gestion_employes'
 
@@ -29,11 +29,11 @@ urlpatterns = [
     ), name='password_reset_complete'),
     
     # Gestion des utilisateurs
-    path('utilisateurs/', views.view_user, name='view_user'),
-    path('utilisateurs/ajouter/', views.ajouter_utilisateur, name='ajouter_utilisateur'),
-    path('utilisateurs/<int:pk>/', views.voir_utilisateur, name='voir_utilisateur'),
+    path('utilisateurs/', views.liste_utilisateurs, name='liste_utilisateurs'),
+    path('utilisateurs/<int:pk>/edit/', views.update_utilisateur, name='edit_utilisateur'),
+    path('utilisateurs/<int:pk>/delete/', views.delete_utilisateur, name='delete_utilisateur'),
+    path('utilisateurs/<int:pk>/view/', views.voir_utilisateur, name='view_utilisateur'),
     path('utilisateurs/<int:pk>/modifier/', views.modifier_utilisateur, name='modifier_utilisateur'),
-    path('utilisateurs/<int:pk>/supprimer/', views.supprimer_utilisateur, name='supprimer_utilisateur'),
     
     # Autres URLs
     path('', views.dashboard, name='dashboard'),
@@ -41,4 +41,10 @@ urlpatterns = [
     path('employes/ajouter/', views.ajouter_employe, name='ajouter_employe'),
     path('pointage/', views.pointage, name='pointage'),
     path('historique/', views.historique_pointages, name='historique_pointages'),
+    path('roles/', views.liste_roles, name='liste_roles'),
+    path('roles/ajouter/', views.ajouter_role, name='ajouter_role'),
+    path('roles/<int:pk>/modifier/', views.modifier_role, name='modifier_role'),
+    path('roles/<int:pk>/supprimer/', views.supprimer_role, name='supprimer_role'),
+    path('roles/<int:pk>/permissions/', views.gestion_permissions, name='gestion_permissions'),
+    path('utilisateurs/<int:pk>/changer_role/', views.changer_role, name='changer_role'),
 ]

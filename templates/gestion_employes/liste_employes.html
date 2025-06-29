@@ -1,164 +1,199 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Liste des Employés{% endblock %}
+{% block extra_css %}
+<style>
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+    
+    .table th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .table thead th {
+        border-top: 0;
+    }
+    
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Liste des Employés</h2>
-    
-    <!-- Bouton pour ajouter un nouvel employé -->
-    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalAjouter">
-        <i class="fas fa-plus"></i> Ajouter un employé
-    </button>
-
-    <!-- Modal Ajouter -->
-    <div class="modal fade" id="modalAjouter" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ajouter un Employé</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Liste des Employés</h5>
+                    <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter un employé
+                    </a>
                 </div>
-                <div class="modal-body">
-                    <form id="formAjouter" method="post" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="nom" class="form-label">Nom</label>
-                            <input type="text" class="form-control" id="nom" name="nom" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="prenom" class="form-label">Prénom</label>
-                            <input type="text" class="form-control" id="prenom" name="prenom" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="poste" class="form-label">Poste</label>
-                            <input type="text" class="form-control" id="poste" name="poste" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="telephone" class="form-label">Téléphone</label>
-                            <input type="tel" class="form-control" id="telephone" name="telephone">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-primary">Ajouter</button>
-                        </div>
-                    </form>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prénom</th>
+                                    <th>Matricule</th>
+                                    <th>Poste</th>
+                                    <th>Téléphone</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employe in employes %}
+                                <tr data-employe-id="{{ employe.id }}">
+                                    <td>{{ employe.user.last_name }}</td>
+                                    <td>{{ employe.user.first_name }}</td>
+                                    <td>{{ employe.matricule }}</td>
+                                    <td>{{ employe.poste }}</td>
+                                    <td>{{ employe.telephone }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ employe.get_statut_badge }}">
+                                            {{ employe.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                                    data-bs-target="#modalModifier{{ employe.id }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                                    data-bs-target="#modalSupprimer{{ employe.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Modal Modifier -->
+                                <div class="modal fade" id="modalModifier{{ employe.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Modifier Employé</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="formModifier{{ employe.id }}" method="post" class="needs-validation" novalidate>
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="id" value="{{ employe.id }}">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="mb-3">
+                                                                <label for="first_name{{ employe.id }}" class="form-label">Prénom</label>
+                                                                <input type="text" class="form-control" id="first_name{{ employe.id }}" name="first_name" 
+                                                                       value="{{ employe.user.first_name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="last_name{{ employe.id }}" class="form-label">Nom</label>
+                                                                <input type="text" class="form-control" id="last_name{{ employe.id }}" name="last_name" 
+                                                                       value="{{ employe.user.last_name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="email{{ employe.id }}" class="form-label">Email</label>
+                                                                <input type="email" class="form-control" id="email{{ employe.id }}" name="email" 
+                                                                       value="{{ employe.user.email }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="username{{ employe.id }}" class="form-label">Nom d'utilisateur</label>
+                                                                <input type="text" class="form-control" id="username{{ employe.id }}" name="username" 
+                                                                       value="{{ employe.user.username }}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="mb-3">
+                                                                <label for="matricule{{ employe.id }}" class="form-label">Matricule</label>
+                                                                <input type="text" class="form-control" id="matricule{{ employe.id }}" name="matricule" 
+                                                                       value="{{ employe.matricule }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="telephone{{ employe.id }}" class="form-label">Téléphone</label>
+                                                                <input type="tel" class="form-control" id="telephone{{ employe.id }}" name="telephone" 
+                                                                       value="{{ employe.telephone }}">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="poste{{ employe.id }}" class="form-label">Poste</label>
+                                                                <input type="text" class="form-control" id="poste{{ employe.id }}" name="poste" 
+                                                                       value="{{ employe.poste }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="statut{{ employe.id }}" class="form-label">Statut</label>
+                                                                <select class="form-select" id="statut{{ employe.id }}" name="statut" required>
+                                                                    <option value="">Sélectionnez un statut</option>
+                                                                    <option value="actif" {% if employe.statut == 'actif' %}selected{% endif %}>Actif</option>
+                                                                    <option value="inactif" {% if employe.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+                                                                    <option value="conge" {% if employe.statut == 'conge' %}selected{% endif %}>Congé</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <button type="submit" class="btn btn-primary">Modifier</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Supprimer -->
+                                <div class="modal fade" id="modalSupprimer{{ employe.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Supprimer Employé</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Êtes-vous sûr de vouloir supprimer cet employé ?</p>
+                                                <p><strong>{{ employe.user.first_name }} {{ employe.user.last_name }}</strong></p>
+                                                <form id="formSupprimer{{ employe.id }}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="id" value="{{ employe.id }}">
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <button type="submit" form="formSupprimer{{ employe.id }}" class="btn btn-danger">Supprimer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Tableau des employés -->
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Poste</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for employe in employes %}
-                <tr>
-                    <td>{{ employe.nom }}</td>
-                    <td>{{ employe.prenom }}</td>
-                    <td>{{ employe.poste }}</td>
-                    <td>{{ employe.email }}</td>
-                    <td>{{ employe.telephone }}</td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" 
-                                data-bs-target="#modalModifier{{ employe.id }}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
-                                data-bs-target="#modalSupprimer{{ employe.id }}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Modal Modifier -->
-                <div class="modal fade" id="modalModifier{{ employe.id }}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Modifier Employé</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="formModifier{{ employe.id }}" method="post" class="needs-validation" novalidate>
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ employe.id }}">
-                                    <div class="mb-3">
-                                        <label for="nom{{ employe.id }}" class="form-label">Nom</label>
-                                        <input type="text" class="form-control" id="nom{{ employe.id }}" name="nom" 
-                                               value="{{ employe.nom }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="prenom{{ employe.id }}" class="form-label">Prénom</label>
-                                        <input type="text" class="form-control" id="prenom{{ employe.id }}" name="prenom" 
-                                               value="{{ employe.prenom }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="poste{{ employe.id }}" class="form-label">Poste</label>
-                                        <input type="text" class="form-control" id="poste{{ employe.id }}" name="poste" 
-                                               value="{{ employe.poste }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email{{ employe.id }}" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email{{ employe.id }}" name="email" 
-                                               value="{{ employe.email }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="telephone{{ employe.id }}" class="form-label">Téléphone</label>
-                                        <input type="tel" class="form-control" id="telephone{{ employe.id }}" name="telephone" 
-                                               value="{{ employe.telephone }}">
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-primary">Modifier</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal Supprimer -->
-                <div class="modal fade" id="modalSupprimer{{ employe.id }}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Supprimer Employé</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Êtes-vous sûr de vouloir supprimer cet employé ?</p>
-                                <p><strong>{{ employe.prenom }} {{ employe.nom }}</strong></p>
-                                <form id="formSupprimer{{ employe.id }}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ employe.id }}">
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Initialiser les modals
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+</script>
 {% endblock %}

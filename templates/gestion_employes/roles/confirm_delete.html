@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="mb-4">Confirmation de suppression</h3>
+            <p>Voulez-vous vraiment supprimer le rôle "{{ role.get_nom_display }}" ?</p>
+            <p class="text-danger">Cette action est irréversible.</p>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

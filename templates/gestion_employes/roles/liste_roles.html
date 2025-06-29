@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestion des rôles</h2>
+        <a href="{% url 'gestion_employes:ajouter_role' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Ajouter un rôle
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Permissions</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in roles %}
+                    <tr>
+                        <td>{{ role.get_nom_display }}</td>
+                        <td>{{ role.description|default:'-' }}</td>
+                        <td>{{ role.get_permissions_display }}</td>
+                        <td>{{ role.date_creation|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'gestion_employes:modifier_role' role.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a href="{% url 'gestion_employes:gestion_permissions' role.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-cog"></i> Permissions
+                                </a>
+                                <a href="{% url 'gestion_employes:supprimer_role' role.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun rôle n'est actuellement défini</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

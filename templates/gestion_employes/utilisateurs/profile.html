@@ -1,0 +1,54 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label for="first_name" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ utilisateur.first_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="last_name" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ utilisateur.last_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ utilisateur.email }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ utilisateur.username }}" required>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label for="matricule" class="form-label">Matricule</label>
+            <input type="text" class="form-control" id="matricule" name="matricule" value="{{ utilisateur.profile.matricule }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="telephone" class="form-label">Téléphone</label>
+            <input type="text" class="form-control" id="telephone" name="telephone" value="{{ utilisateur.profile.telephone }}">
+        </div>
+        <div class="mb-3">
+            <label for="poste" class="form-label">Poste</label>
+            <input type="text" class="form-control" id="poste" name="poste" value="{{ utilisateur.profile.poste }}">
+        </div>
+        <div class="mb-3">
+            <label for="statut" class="form-label">Statut</label>
+            <select class="form-select" id="statut" name="statut" required>
+                <option value="">Sélectionnez un statut</option>
+                <option value="actif" {% if utilisateur.profile.statut == 'actif' %}selected{% endif %}>Actif</option>
+                <option value="inactif" {% if utilisateur.profile.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+                <option value="conge" {% if utilisateur.profile.statut == 'conge' %}selected{% endif %}>Congé</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label">Rôle</label>
+            <select class="form-select" id="role" name="role">
+                <option value="">Sélectionnez un rôle</option>
+                {% for r in roles %}
+                <option value="{{ r.id }}" {% if utilisateur.profile.role == r %}selected{% endif %}>
+                    {{ r.nom }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
