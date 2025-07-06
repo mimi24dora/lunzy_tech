@@ -1,343 +1,42 @@
-{% extends 'base.html' %}
-
-{% block extra_css %}
-<style>
-    .table {
-        width: 100%;
-        margin-bottom: 1rem;
-        background-color: transparent;
-    }
-
-    .table th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-    }
-
-    .table td {
-        vertical-align: middle;
-        border-top: 1px solid #dee2e6;
-    }
-
-    .table thead th {
-        border-top: 0;
-    }
-
-    .btn-group {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-    }
-
-    .badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
-    }
-</style>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script>
-    // Configuration de Toastr
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": true,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "5000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
-
-    $(document).ready(function () {
-        // Gestion de la suppression via AJAX
-        $('.modal-content form[id^="supprimerForm"]').on('submit', function (e) {
-            e.preventDefault();
-            const form = $(this);
-            const userId = form.find('input[name="pk"]').val();
-            const modal = form.closest('.modal');
-
-            $.ajax({
-                url: `{% url 'gestion_employes:supprimer_utilisateur' pk=0 %}`.replace('0', userId),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success) {
-                        // Supprimer la ligne du tableau
-                        $(`tr[data-user-id="${userId}"]`).remove();
-                        
-                        // Fermer le modal
-                        modal.modal('hide');
-                        
-                        // Afficher un message de succès
-                        toastr.success('Utilisateur supprimé avec succès !');
-                    } else {
-                        toastr.error('Erreur lors de la suppression');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Erreur AJAX:', error);
-                    toastr.error('Erreur serveur lors de la suppression');
-                }
-            });
-        });
-
-        // Gestion de la modification via AJAX
-        $('.modal-content form:not([id^="supprimerForm"])').on('submit', function (e) {
-
-            // Afficher le spinner de chargement
-            const submitBtn = form.find('button[type="submit"]');
-            const originalText = submitBtn.html();
-            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...');
-
-            $.ajax({
-                url: form.attr('action'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success) {
-                        // Mettre à jour les données dans le tableau
-                        const row = $(`tr[data-user-id="${userId}"]`);
-                        const userData = response.user;
-                        row.find('td').eq(0).text(userData.get_full_name);
-                        row.find('td').eq(1).text(userData.username);
-                        row.find('td').eq(2).text(userData.email);
-                        row.find('td').eq(3).text(userData.employe.matricule);
-                        row.find('td').eq(4).text(userData.employe.telephone);
-                        row.find('td').eq(5).text(userData.employe.poste);
-                        row.find('td').eq(6).html(`
-                            <span class="badge bg-${userData.employe.get_statut_badge}">
-                                ${userData.employe.get_statut_display}
-                            </span>
-                        `);
-
-                        // Mettre à jour le badge de rôle
-                        const roleTd = row.find('td').eq(7);
-                        if (userData.role && userData.role.nom) {
-                            roleTd.html(`
-                                <span class="badge bg-primary">${userData.role.nom}</span>
-                            `);
-                        } else {
-                            roleTd.html('<span class="badge bg-secondary">Aucun rôle</span>');
-                        }
-
-                        // Mettre à jour le badge de rôle dans le modal
-                        const modal = form.closest('.modal');
-                        const modalRoleTd = modal.find('select[name="role"]').closest('div').find('span.badge');
-                        if (userData.role && userData.role.nom) {
-                            if (modalRoleTd.length) {
-                                modalRoleTd.html(userData.role.nom);
-                            } else {
-                                modal.find('select[name="role"]').closest('div').append(`
-                                    <span class="badge bg-primary ms-2">${userData.role.nom}</span>
-                                `);
-                            }
-                        } else {
-                            if (modalRoleTd.length) {
-                                modalRoleTd.html('Aucun rôle');
-                            }
-                        }
-
-                        // Fermer le modal
-                        form.closest('.modal').modal('hide');
-
-                        // Afficher un message de succès
-                        toastr.success('Utilisateur mis à jour avec succès !');
-                    } else {
-                        // Afficher les erreurs
-                        toastr.error('Erreur lors de la modification');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Erreur AJAX:', error);
-                    toastr.error('Erreur serveur lors de la modification');
-                    submitBtn.prop('disabled', false).html(originalText);
-                },
-                complete: function () {
-                    // Réinitialiser le bouton
-                    submitBtn.prop('disabled', false).html(originalText);
-                }
-            });
-        });
-
-        // Gestion du changement de rôle
-        $('select[name="role"]').on('change', function () {
-            const roleSelect = $(this);
-            const form = roleSelect.closest('form');
-            const userId = form.find('input[name="pk"]').val();
-            const roleId = roleSelect.val();
-
-            if (roleId) {
-                $.ajax({
-                    url: `/gestion/utilisateurs/${userId}/changer_role/`,
-                    method: 'POST',
-                    data: {
-                        'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
-                        'role_id': roleId
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            // Mettre à jour le badge de rôle dans le tableau
-                            $(`tr[data-user-id="${userId}"]`).find('td').eq(7).html(`
-                                <span class="badge bg-primary">${response.role.nom}</span>
-                            `);
-
-                            // Mettre à jour le badge de rôle dans le modal
-                            const modalRow = form.closest('.modal-content').find('select[name="role"]').parent().parent();
-                            modalRow.find('span.badge').remove();
-                            modalRow.append(`
-                                <span class="badge bg-primary ms-2">${response.role.nom}</span>
-                            `);
-
-                            toastr.success('Rôle mis à jour avec succès !');
-                        } else {
-                            toastr.error('Erreur lors de la mise à jour du rôle');
-                        }
-                    },
-                    error: function () {
-                        toastr.error('Erreur lors de la mise à jour du rôle');
-                    }
-                });
-            }
-        });
-    });
-</script>
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#utilisateurs" data-bs-toggle="tab">Utilisateurs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#employes" data-bs-toggle="tab">Employés</a>
-                        </li>
-                    </ul>
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Liste des Utilisateurs</h3>
                 </div>
                 <div class="card-body">
-                    <div class="tab-content">
-                        <!-- Onglet Utilisateurs -->
-                        <div class="tab-pane fade show active" id="utilisateurs">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nom complet</th>
-                                            <th>Username</th>
-                                            <th>Email</th>
-                                            <th>Matricule</th>
-                                            <th>Téléphone</th>
-                                            <th>Poste</th>
-                                            <th>Statut</th>
-                                            <th>Rôle</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for utilisateur in utilisateurs %}
-                                        <tr data-user-id="{{ utilisateur.id }}">
-                                            <td>{{ utilisateur.get_full_name }}</td>
-                                            <td>{{ utilisateur.username }}</td>
-                                            <td>{{ utilisateur.email }}</td>
-                                            <td>
-                                                {% if utilisateur.employe %}
-                                                    {{ utilisateur.employe.matricule }}
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if utilisateur.employe %}
-                                                    {{ utilisateur.employe.telephone }}
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if utilisateur.employe %}
-                                                    {{ utilisateur.employe.poste }}
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if utilisateur.employe %}
-                                                    <span class="badge bg-{{ utilisateur.employe.get_statut_badge }}">{{ utilisateur.employe.get_statut_display }}</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if utilisateur.role %}
-                                                <span class="badge bg-primary">{{ utilisateur.role.nom }}</span>
-                                                {% else %}
-                                                <span class="badge bg-secondary">Aucun rôle</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ utilisateur.id }}">
-                                                        <i class="fas fa-edit"></i> Modifier
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#supprimerModal{{ utilisateur.id }}">
-                                                        <i class="fas fa-trash"></i> Supprimer
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#voirModal{{ utilisateur.id }}">
-                                                        <i class="fas fa-eye"></i> Voir
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- Onglet Employés -->
-                        <div class="tab-pane fade" id="employes">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nom complet</th>
-                                            <th>Matricule</th>
-                                            <th>Téléphone</th>
-                                            <th>Poste</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for employe in employes %}
-                                        <tr>
-                                            <td>{{ employe.get_full_name }}</td>
-                                            <td>{{ employe.matricule }}</td>
-                                            <td>{{ employe.telephone }}</td>
-                                            <td>{{ employe.poste }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ employe.get_statut_badge }}">{{ employe.get_statut_display }}</span>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierEmployeModal{{ employe.id }}">Modifier</button>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom d'utilisateur</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in utilisateurs %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.get_role_display }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ user.id }}">
+                                            Modifier
+                                        </button>
+                                        <a href="{% url 'gestion_employes:delete_utilisateur' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                            Supprimer
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -345,10 +44,8 @@
     </div>
 </div>
 
-<!-- Modales -->
-{% for utilisateur in utilisateurs %}
-<!-- Modal Modifier -->
-<div class="modal fade" id="modifierModal{{ utilisateur.id }}" tabindex="-1">
+{% for user in utilisateurs %}
+<div class="modal fade" id="modifierModal{{ user.id }}" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -356,70 +53,23 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="modifierForm{{ utilisateur.id }}" class="needs-validation" novalidate
-                    action="{% url 'gestion_employes:modifier_utilisateur' pk=utilisateur.id %}" method="post">
+                <form method="POST" action="{% url 'gestion_employes:edit_utilisateur' user.id %}">
                     {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{ utilisateur.id }}">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="first_name{{ utilisateur.id }}" class="form-label">Prénom</label>
-                                <input type="text" class="form-control" id="first_name{{ utilisateur.id }}" name="first_name" 
-                                       value="{{ utilisateur.first_name }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="last_name{{ utilisateur.id }}" class="form-label">Nom</label>
-                                <input type="text" class="form-control" id="last_name{{ utilisateur.id }}" name="last_name" 
-                                       value="{{ utilisateur.last_name }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="username{{ utilisateur.id }}" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username{{ utilisateur.id }}" name="username" 
-                                       value="{{ utilisateur.username }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email{{ utilisateur.id }}" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email{{ utilisateur.id }}" name="email" 
-                                       value="{{ utilisateur.email }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="role{{ utilisateur.id }}" class="form-label">Rôle</label>
-                                <select class="form-select" id="role{{ utilisateur.id }}" name="role">
-                                    <option value="">Sélectionnez un rôle</option>
-                                    {% for role in roles %}
-                                    <option value="{{ role.id }}" {% if utilisateur.role.id == role.id %}selected{% endif %}>
-                                        {{ role.nom }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="matricule{{ utilisateur.id }}" class="form-label">Matricule</label>
-                                <input type="text" class="form-control" id="matricule{{ utilisateur.id }}" name="matricule" 
-                                       value="{% if utilisateur.employe %}{{ utilisateur.employe.matricule }}{% endif %}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="telephone{{ utilisateur.id }}" class="form-label">Téléphone</label>
-                                <input type="tel" class="form-control" id="telephone{{ utilisateur.id }}" name="telephone" 
-                                       value="{% if utilisateur.employe %}{{ utilisateur.employe.telephone }}{% endif %}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="poste{{ utilisateur.id }}" class="form-label">Poste</label>
-                                <input type="text" class="form-control" id="poste{{ utilisateur.id }}" name="poste" 
-                                       value="{% if utilisateur.employe %}{{ utilisateur.employe.poste }}{% endif %}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="statut{{ utilisateur.id }}" class="form-label">Statut</label>
-                                <select class="form-select" id="statut{{ utilisateur.id }}" name="statut">
-                                    <option value="">Sélectionnez un statut</option>
-                                    <option value="actif" {% if utilisateur.employe and utilisateur.employe.statut == 'actif' %}selected{% endif %}>Actif</option>
-                                    <option value="inactif" {% if utilisateur.employe and utilisateur.employe.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                                    <option value="conge" {% if utilisateur.employe and utilisateur.employe.statut == 'conge' %}selected{% endif %}>Congé</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Rôle</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Sélectionnez un rôle</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrateur</option>
+                            <option value="employe" {% if user.role == 'employe' %}selected{% endif %}>Employé</option>
+                        </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -430,192 +80,5 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Supprimer -->
-<div class="modal fade" id="supprimerModal{{ utilisateur.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Supprimer l'utilisateur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {{ utilisateur.get_full_name }} ? Cette action est irréversible.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="supprimerForm{{ utilisateur.id }}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{ utilisateur.id }}">
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Voir -->
-<div class="modal fade" id="voirModal{{ utilisateur.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Détails de l'utilisateur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Nom complet</label>
-                            <p>{{ utilisateur.get_full_name }}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <p>{{ utilisateur.username }}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <p>{{ utilisateur.email }}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Rôle</label>
-                            <p>
-                                {% if utilisateur.role %}
-                                <span class="badge bg-primary">{{ utilisateur.role.nom }}</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Aucun rôle</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Matricule</label>
-                            <p>{% if utilisateur.employe %}{{ utilisateur.employe.matricule }}{% endif %}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Téléphone</label>
-                            <p>{% if utilisateur.employe %}{{ utilisateur.employe.telephone }}{% endif %}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Poste</label>
-                            <p>{% if utilisateur.employe %}{{ utilisateur.employe.poste }}{% endif %}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Statut</label>
-                            <p>
-                                {% if utilisateur.employe %}
-                                <span class="badge bg-{{ utilisateur.employe.get_statut_badge }}">{{ utilisateur.employe.get_statut_display }}</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Supprimer -->
-<div class="modal fade" id="supprimerModal{{ utilisateur.id }}" tabindex="-1">
 {% endfor %}
-
-<!-- Modales Employés -->
-{% for employe in employes %}
-<!-- Modal Modifier -->
-<div class="modal fade" id="modalModifier{{ employe.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifier Employé</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formModifier{{ employe.id }}" method="post" class="needs-validation" novalidate>
-                    {% csrf_token %}
-                    <input type="hidden" name="id" value="{{ employe.id }}">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="first_name{{ employe.id }}" class="form-label">Prénom</label>
-                                <input type="text" class="form-control" id="first_name{{ employe.id }}" name="first_name" 
-                                       value="{{ employe.user.first_name }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="last_name{{ employe.id }}" class="form-label">Nom</label>
-                                <input type="text" class="form-control" id="last_name{{ employe.id }}" name="last_name" 
-                                       value="{{ employe.user.last_name }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="matricule{{ employe.id }}" class="form-label">Matricule</label>
-                                <input type="text" class="form-control" id="matricule{{ employe.id }}" name="matricule" 
-                                       value="{{ employe.matricule }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="telephone{{ employe.id }}" class="form-label">Téléphone</label>
-                                <input type="tel" class="form-control" id="telephone{{ employe.id }}" name="telephone" 
-                                       value="{{ employe.telephone }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="poste{{ employe.id }}" class="form-label">Poste</label>
-                                <input type="text" class="form-control" id="poste{{ employe.id }}" name="poste" 
-                                       value="{{ employe.poste }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="statut{{ employe.id }}" class="form-label">Statut</label>
-                                <select class="form-select" id="statut{{ employe.id }}" name="statut" required>
-                                    <option value="">Sélectionnez un statut</option>
-                                    <option value="actif" {% if employe.statut == 'actif' %}selected{% endif %}>Actif</option>
-                                    <option value="inactif" {% if employe.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                                    <option value="conge" {% if employe.statut == 'conge' %}selected{% endif %}>Congé</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Modifier</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Supprimer -->
-<div class="modal fade" id="modalSupprimer{{ employe.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Supprimer Employé</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer l'employé {{ employe.user.get_full_name }} ?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form action="{% url 'gestion_employes:supprimer_employe' pk=employe.id %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-
 {% endblock %}

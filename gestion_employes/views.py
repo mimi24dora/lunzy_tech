@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse_lazy
 from .models import Profile, Pointage, Role
-from .forms import UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, RoleForm
+from .forms import UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, RoleForm, EmployeForm
 
 User = get_user_model()
 
@@ -50,9 +50,44 @@ def liste_utilisateurs(request):
 
 @login_required
 def liste_employes(request):
-    employes = Profile.objects.all().select_related('user')
+    profiles = Profile.objects.all().select_related('user')
     return render(request, 'gestion_employes/liste_employes.html', {
-        'employes': employes
+        'profiles': profiles
+    })
+
+@login_required
+def modifier_profile(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    user = profile.user
+    
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, instance=profile)
+        if profile_form.is_valid():
+            profile = profile_form.save()
+            messages.success(request, 'Profil mis à jour avec succès !')
+            return redirect('gestion_employes:liste_employes')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+    else:
+        profile_form = ProfileForm(instance=profile)
+    
+    return render(request, 'gestion_employes/utilisateurs/edit_profile.html', {
+        'profile_form': profile_form,
+        'profile': profile,
+        'user': user
+    })
+
+@login_required
+def supprimer_profile(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    
+    if request.method == 'POST':
+        profile.delete()
+        messages.success(request, 'Profil supprimé avec succès !')
+        return redirect('gestion_employes:liste_employes')
+    
+    return render(request, 'gestion_employes/utilisateurs/delete_profile.html', {
+        'profile': profile
     })
 
 @login_required
@@ -68,26 +103,21 @@ def update_utilisateur(request, pk):
     
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=user)
-        employe_form = EmployeForm(request.POST, instance=employe)
+        profile_form = ProfileForm(request.POST, instance=profile)
         role_id = request.POST.get('role')
         
-        # Afficher les erreurs dans la console pour le débogage
-        print("Données reçues:", request.POST)
-        print("User form is valid:", user_form.is_valid())
-        print("Employe form is valid:", employe_form.is_valid())
-        
-        if user_form.is_valid() and employe_form.is_valid():
+        if user_form.is_valid() and profile_form.is_valid():
             try:
                 # Sauvegarder l'utilisateur
                 user = user_form.save()
                 
-                # Sauvegarder l'employé
-                if employe:
-                    employe = employe_form.save()
+                # Sauvegarder le profil
+                if profile:
+                    profile = profile_form.save()
                 else:
-                    employe = employe_form.save(commit=False)
-                    employe.user = user
-                    employe.save()
+                    profile = profile_form.save(commit=False)
+                    profile.user = user
+                    profile.save()
                 
                 # Mettre à jour le rôle
                 if role_id:
@@ -95,14 +125,14 @@ def update_utilisateur(request, pk):
                     user.role = role
                     user.save()
                 
-                messages.success(request, 'Utilisateur et employé mis à jour avec succès !')
+                messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
                 return redirect('gestion_employes:liste_utilisateurs')
             except Exception as e:
                 print("Erreur lors de la sauvegarde:", str(e))
                 messages.error(request, f'Erreur lors de la sauvegarde: {str(e)}')
                 return render(request, 'gestion_employes/utilisateurs/edit.html', {
                     'user_form': user_form,
-                    'employe_form': employe_form,
+                    'profile_form': profile_form,
                     'utilisateur': user,
                     'roles': roles
                 })
@@ -111,24 +141,24 @@ def update_utilisateur(request, pk):
             for field, errors in user_form.errors.items():
                 for error in errors:
                     messages.error(request, f'Erreur dans {field}: {error}')
-            for field, errors in employe_form.errors.items():
+            for field, errors in profile_form.errors.items():
                 for error in errors:
                     messages.error(request, f'Erreur dans {field}: {error}')
             
             # Rediriger vers la page de modification avec les erreurs
             return render(request, 'gestion_employes/utilisateurs/edit.html', {
                 'user_form': user_form,
-                'employe_form': employe_form,
+                'profile_form': profile_form,
                 'utilisateur': user,
                 'roles': roles
             })
     else:
         user_form = UserUpdateForm(instance=user)
-        employe_form = EmployeForm(instance=employe)
+        profile_form = ProfileForm(instance=profile)
         
     return render(request, 'gestion_employes/utilisateurs/edit.html', {
         'user_form': user_form,
-        'employe_form': employe_form,
+        'profile_form': profile_form,
         'utilisateur': user,
         'roles': roles
     })
@@ -140,7 +170,7 @@ def delete_utilisateur(request, pk):
     if request.method == 'POST':
         user.delete()
         messages.success(request, 'Utilisateur supprimé avec succès !')
-        return redirect('gestion_employes:lister_utilisateurs')
+        return redirect('gestion_employes:liste_utilisateurs')
     
     return render(request, 'gestion_employes/utilisateurs/delete.html', {
         'user': user
@@ -149,12 +179,12 @@ def delete_utilisateur(request, pk):
 @login_required
 def voir_utilisateur(request, pk):
     utilisateur = get_object_or_404(User, pk=pk)
-    employe = utilisateur.employe if hasattr(utilisateur, 'employe') else None
-    pointages = Pointage.objects.filter(employe=employe).order_by('-date') if employe else None
+    profile = utilisateur.profile if hasattr(utilisateur, 'profile') else None
+    pointages = Pointage.objects.filter(profile=profile).order_by('-date') if profile else None
     
     context = {
         'utilisateur': utilisateur,
-        'employe': employe,
+        'profile': profile,
         'pointages': pointages,
         'est_super_admin': request.user.is_superuser
     }
@@ -172,74 +202,51 @@ def view_user(request):
 def modifier_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     try:
-        employe = Employe.objects.get(user=user)
-    except Employe.DoesNotExist:
-        employe = None
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        profile = None
     
     roles = Role.objects.all()
     
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST, instance=user)
-        employe_form = EmployeForm(request.POST, instance=employe)
+        profile_form = ProfileForm(request.POST, instance=profile)
         role_id = request.POST.get('role')
         
-        if user_form.is_valid() and employe_form.is_valid():
+        if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
             
-            # Sauvegarder ou créer l'employé
-            if employe:
-                employe = employe_form.save()
+            # Sauvegarder ou créer le profil
+            if profile:
+                profile = profile_form.save()
             else:
-                employe = employe_form.save(commit=False)
-                employe.user = user
-                employe.save()
+                profile = profile_form.save(commit=False)
+                profile.user = user
+                profile.save()
             
             # Mettre à jour le rôle de l'utilisateur
             if role_id:
                 role = get_object_or_404(Role, id=role_id)
                 user.role = role
-                user.save()
-            
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Utilisateur et employé mis à jour avec succès !',
-                    'user': {
-                        'get_full_name': user.get_full_name(),
-                        'username': user.username,
-                        'email': user.email,
-                        'employe': {
-                            'matricule': employe.matricule if employe else '',
-                            'telephone': employe.telephone if employe else '',
-                            'poste': employe.poste if employe else '',
-                            'statut': employe.statut if employe else '',
-                            'get_statut_display': employe.get_statut_display() if employe else '',
-                            'get_statut_badge': employe.get_statut_badge() if employe else 'secondary'
-                        },
-                        'role': {
-                            'nom': user.role.nom if user.role else None
-                        } if user.role else None
-                    }
-                })
-            else:
-                messages.success(request, 'Utilisateur et employé mis à jour avec succès !')
-                return redirect('gestion_employes:liste_utilisateurs')
+                user.save()            
+            messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
+            return redirect('gestion_employes:liste_utilisateurs')
         else:
             messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
             return render(request, 'gestion_employes/utilisateurs/edit.html', {
                 'user_form': user_form,
-                'employe_form': employe_form,
-                'utilisateur': user,
+                'profile_form': profile_form,
+                'user': user,
                 'roles': roles
             })
     else:
         user_form = UserRegistrationForm(instance=user)
-        employe_form = EmployeForm(instance=employe)
+        profile_form = ProfileForm(instance=profile)
         
     return render(request, 'gestion_employes/utilisateurs/edit.html', {
         'user_form': user_form,
-        'employe_form': employe_form,
-        'utilisateur': user,
+        'profile_form': profile_form,
+        'user': user,
         'roles': roles
     })
 
@@ -307,6 +314,7 @@ def modifier_utilisateur(request, pk):
                     'success': True,
                     'message': 'Utilisateur et profil mis à jour avec succès !',
                     'user': {
+                        'id': user.id,
                         'get_full_name': user.get_full_name(),
                         'username': user.username,
                         'email': user.email,
@@ -337,37 +345,31 @@ def modifier_utilisateur(request, pk):
                 })
             
             messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
+                'user_form': user_form,
+                'profile_form': profile_form,
+                'user': user,
+                'roles': roles
+            })
     else:
         user_form = UserRegistrationForm(instance=user)
         profile_form = ProfileForm(instance=profile) if profile else ProfileForm(initial={'user': user})
-    
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
-            'user_form': user_form,
-            'profile_form': profile_form,
-            'user': user,
-            'roles': roles
-        })
-    
-    return render(request, 'gestion_employes/utilisateurs/detail.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'user': user,
-        'profile': profile,
-        'roles': roles
-    })
-    
-    return render(request, 'gestion_employes/utilisateurs/view_user.html', {
-        'user_form': user_form,
-        'employe_form': employe_form,
-        'user': user,
-        'roles': roles
-    })
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
+                'user_form': user_form,
+                'profile_form': profile_form,
+                'user': user,
+                'roles': roles
+            })
+        else:
+            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
+                'user_form': user_form,
+                'profile_form': profile_form,
+                'user': user,
+                'roles': roles
+            })
 
-
-    return render(request, 'gestion_employes/utilisateurs/detail.html', context)
-
-@login_required
 def supprimer_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     

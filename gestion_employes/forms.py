@@ -3,6 +3,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Pointage, Role
 
+class EmployeForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['matricule', 'telephone', 'poste', 'statut', 'role']
+        widgets = {
+            'statut': forms.Select(attrs={'class': 'form-select'}),
+            'role': forms.Select(attrs={'class': 'form-select'}),
+        }
+
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=30, required=True)

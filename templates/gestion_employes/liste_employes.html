@@ -55,127 +55,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for employe in employes %}
-                                <tr data-employe-id="{{ employe.id }}">
-                                    <td>{{ employe.user.last_name }}</td>
-                                    <td>{{ employe.user.first_name }}</td>
-                                    <td>{{ employe.matricule }}</td>
-                                    <td>{{ employe.poste }}</td>
-                                    <td>{{ employe.telephone }}</td>
+                                {% for profile in profiles %}
+                                <tr data-profile-id="{{ profile.id }}">
+                                    <td>{{ profile.user.last_name }}</td>
+                                    <td>{{ profile.user.first_name }}</td>
+                                    <td>{{ profile.matricule }}</td>
+                                    <td>{{ profile.poste }}</td>
+                                    <td>{{ profile.telephone }}</td>
                                     <td>
-                                        <span class="badge bg-{{ employe.get_statut_badge }}">
-                                            {{ employe.get_statut_display }}
+                                        <span class="badge bg-{{ profile.get_statut_badge }}">
+                                            {{ profile.get_statut_display }}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" 
-                                                    data-bs-target="#modalModifier{{ employe.id }}">
+                                            <a href="{% url 'gestion_employes:modifier_profile' profile.id %}" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
-                                                    data-bs-target="#modalSupprimer{{ employe.id }}">
+                                            </a>
+                                            <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" 
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')">
                                                 <i class="fas fa-trash"></i>
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
-
-                                <!-- Modal Modifier -->
-                                <div class="modal fade" id="modalModifier{{ employe.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Modifier Employé</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form id="formModifier{{ employe.id }}" method="post" class="needs-validation" novalidate>
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="id" value="{{ employe.id }}">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="mb-3">
-                                                                <label for="first_name{{ employe.id }}" class="form-label">Prénom</label>
-                                                                <input type="text" class="form-control" id="first_name{{ employe.id }}" name="first_name" 
-                                                                       value="{{ employe.user.first_name }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="last_name{{ employe.id }}" class="form-label">Nom</label>
-                                                                <input type="text" class="form-control" id="last_name{{ employe.id }}" name="last_name" 
-                                                                       value="{{ employe.user.last_name }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="email{{ employe.id }}" class="form-label">Email</label>
-                                                                <input type="email" class="form-control" id="email{{ employe.id }}" name="email" 
-                                                                       value="{{ employe.user.email }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="username{{ employe.id }}" class="form-label">Nom d'utilisateur</label>
-                                                                <input type="text" class="form-control" id="username{{ employe.id }}" name="username" 
-                                                                       value="{{ employe.user.username }}" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="mb-3">
-                                                                <label for="matricule{{ employe.id }}" class="form-label">Matricule</label>
-                                                                <input type="text" class="form-control" id="matricule{{ employe.id }}" name="matricule" 
-                                                                       value="{{ employe.matricule }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="telephone{{ employe.id }}" class="form-label">Téléphone</label>
-                                                                <input type="tel" class="form-control" id="telephone{{ employe.id }}" name="telephone" 
-                                                                       value="{{ employe.telephone }}">
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="poste{{ employe.id }}" class="form-label">Poste</label>
-                                                                <input type="text" class="form-control" id="poste{{ employe.id }}" name="poste" 
-                                                                       value="{{ employe.poste }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="statut{{ employe.id }}" class="form-label">Statut</label>
-                                                                <select class="form-select" id="statut{{ employe.id }}" name="statut" required>
-                                                                    <option value="">Sélectionnez un statut</option>
-                                                                    <option value="actif" {% if employe.statut == 'actif' %}selected{% endif %}>Actif</option>
-                                                                    <option value="inactif" {% if employe.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                                                                    <option value="conge" {% if employe.statut == 'conge' %}selected{% endif %}>Congé</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                        <button type="submit" class="btn btn-primary">Modifier</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Modal Supprimer -->
-                                <div class="modal fade" id="modalSupprimer{{ employe.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer Employé</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Êtes-vous sûr de vouloir supprimer cet employé ?</p>
-                                                <p><strong>{{ employe.user.first_name }} {{ employe.user.last_name }}</strong></p>
-                                                <form id="formSupprimer{{ employe.id }}" method="post">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="id" value="{{ employe.id }}">
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                <button type="submit" form="formSupprimer{{ employe.id }}" class="btn btn-danger">Supprimer</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>

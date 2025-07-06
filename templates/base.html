@@ -13,7 +13,7 @@
 </head>
 <body>
     <!-- Navbar -->
-    {% if request.resolver_match.url_name not in 'login register password_reset password_reset_done password_reset_confirm password_reset_complete' %}
+    {% if request.resolver_match.url_name not in 'login register password_reset password_reset_done password_reset_confirm password_reset_complete home' %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{% url 'gestion_employes:dashboard' %}">Gestion Employés</a>
@@ -34,15 +34,20 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gestion_employes:liste_roles' %}">
-                                <i class="fas fa-user-shield"></i> Rôles
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gestion_employes:liste_utilisateurs' %}">
-                                <i class="fas fa-users"></i> Utilisateurs
-                            </a>
-                        </li>
+    <a class="nav-link" href="{% url 'gestion_employes:liste_roles' %}">
+        <i class="fas fa-user-shield"></i> Rôles
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'gestion_employes:liste_utilisateurs' %}">
+        <i class="fas fa-users"></i> Utilisateurs
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'gestion_employes:liste_employes' %}">
+        <i class="fas fa-id-card"></i> Employés
+    </a>
+</li>
 
                     </ul>
                     <ul class="navbar-nav">

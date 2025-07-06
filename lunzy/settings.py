@@ -26,6 +26,10 @@ SECRET_KEY = 'django-insecure-^1-fe-!5i*cso9so=9xgwm6*0fs3(juf1135ydwg+&co!2u-$f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Redirection pour l'authentification
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
+
 # Configuration de la base de données SQLite
 DATABASES = {
     'default': {

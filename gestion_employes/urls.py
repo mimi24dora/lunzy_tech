@@ -28,17 +28,18 @@ urlpatterns = [
         template_name='gestion_employes/password_reset_complete.html'
     ), name='password_reset_complete'),
     
-    # Gestion des utilisateurs
+    # Gestion des utilisateurs et profils
     path('utilisateurs/', views.liste_utilisateurs, name='liste_utilisateurs'),
     path('utilisateurs/<int:pk>/edit/', views.update_utilisateur, name='edit_utilisateur'),
     path('utilisateurs/<int:pk>/delete/', views.delete_utilisateur, name='delete_utilisateur'),
     path('utilisateurs/<int:pk>/view/', views.voir_utilisateur, name='view_utilisateur'),
-    path('utilisateurs/<int:pk>/modifier/', views.modifier_utilisateur, name='modifier_utilisateur'),
     
     # Autres URLs
     path('', views.dashboard, name='dashboard'),
     path('employes/', views.liste_employes, name='liste_employes'),
     path('employes/ajouter/', views.ajouter_employe, name='ajouter_employe'),
+    path('employes/<int:pk>/modifier/', views.modifier_profile, name='modifier_profile'),
+    path('employes/<int:pk>/supprimer/', views.supprimer_profile, name='supprimer_profile'),
     path('pointage/', views.pointage, name='pointage'),
     path('historique/', views.historique_pointages, name='historique_pointages'),
     path('roles/', views.liste_roles, name='liste_roles'),

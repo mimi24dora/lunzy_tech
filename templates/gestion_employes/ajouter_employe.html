@@ -1,89 +1,45 @@
 {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Ajouter Employé{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Ajouter Employé</h4>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ajouter un employé</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate>
+                    <form method="post">
                         {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_first_name" class="form-label">Prénom</label>
-                                <input type="text" class="form-control" id="id_first_name" name="first_name" placeholder="Entrez le prénom" required>
-                                <div class="invalid-feedback">Veuillez entrer un prénom.</div>
+                        <h6>Informations de connexion</h6>
+                        {% for field in user_form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_last_name" class="form-label">Nom</label>
-                                <input type="text" class="form-control" id="id_last_name" name="last_name" placeholder="Entrez le nom" required>
-                                <div class="invalid-feedback">Veuillez entrer un nom.</div>
+                        {% endfor %}
+                        <hr>
+                        <h6>Informations sur l'employé</h6>
+                        {% for field in employe_form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="id_email" name="email" placeholder="Entrez l'email" required>
-                            <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Nom d'utilisateur</label>
-                            <input type="text" class="form-control" id="id_username" name="username" placeholder="Entrez le nom d'utilisateur" required>
-                            <div class="invalid-feedback">Veuillez entrer un nom d'utilisateur.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password1" class="form-label">Mot de passe</label>
-                            <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Entrez le mot de passe" required>
-                            <div class="invalid-feedback">Veuillez entrer un mot de passe.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password2" class="form-label">Confirmation du mot de passe</label>
-                            <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirmez le mot de passe" required>
-                            <div class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_matricule" class="form-label">Matricule</label>
-                            <input type="text" class="form-control" id="id_matricule" name="matricule" placeholder="Entrez le matricule" required>
-                            <div class="invalid-feedback">Veuillez entrer un matricule.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_telephone" class="form-label">Téléphone</label>
-                            <input type="tel" class="form-control" id="id_telephone" name="telephone" placeholder="Entrez le numéro de téléphone" required>
-                            <div class="invalid-feedback">Veuillez entrer un numéro de téléphone.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_poste" class="form-label">Poste</label>
-                            <input type="text" class="form-control" id="id_poste" name="poste" placeholder="Entrez le poste" required>
-                            <div class="invalid-feedback">Veuillez entrer un poste.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_statut" class="form-label">Statut</label>
-                            {{ employe_form.statut }}
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Ajouter</button>
-                        <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary">Annuler</a>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">Enregistrer</button>
+                        <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
