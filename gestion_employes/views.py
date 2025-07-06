@@ -408,7 +408,6 @@ def ajouter_utilisateur(request):
     })
 
 # Vues principales
-@login_required
 def dashboard(request):
     # Statistiques
     total_profiles = Profile.objects.count()
@@ -562,7 +561,6 @@ def pointage(request):
         form = PointageForm()
     return render(request, 'gestion_employes/pointage.html', {'form': form})
 
-@login_required
 def historique_pointages(request):
     pointages = Pointage.objects.all().order_by('-date')
     return render(request, 'gestion_employes/historique_pointages.html', {'pointages': pointages})
