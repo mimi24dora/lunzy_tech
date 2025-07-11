@@ -31,7 +31,6 @@ def register(request):
         'title': 'Inscription'
     })
 
-@login_required
 @require_http_methods(['GET'])
 def user_logout(request):
     logout(request)
@@ -39,7 +38,6 @@ def user_logout(request):
     return redirect('gestion_employes:login')
 
 # Vues de gestion des utilisateurs
-@login_required
 def liste_utilisateurs(request):
     utilisateurs = User.objects.all().prefetch_related('profile', 'profile__role')
     roles = Role.objects.all()
@@ -48,20 +46,22 @@ def liste_utilisateurs(request):
         'roles': roles
     })
 
-@login_required
 def liste_employes(request):
     profiles = Profile.objects.all().select_related('user')
     return render(request, 'gestion_employes/liste_employes.html', {
         'profiles': profiles
     })
 
-@login_required
 def modifier_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
     user = profile.user
     
     if request.method == 'POST':
         profile_form = ProfileForm(request.POST, instance=profile)
+        # Mettre à jour nom et prénom de l'utilisateur
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.save()
         if profile_form.is_valid():
             profile = profile_form.save()
             messages.success(request, 'Profil mis à jour avec succès !')
@@ -77,7 +77,6 @@ def modifier_profile(request, pk):
         'user': user
     })
 
-@login_required
 def supprimer_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
     
@@ -90,7 +89,6 @@ def supprimer_profile(request, pk):
         'profile': profile
     })
 
-@login_required
 def update_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     roles = Role.objects.all()
@@ -122,8 +120,9 @@ def update_utilisateur(request, pk):
                 # Mettre à jour le rôle
                 if role_id:
                     role = get_object_or_404(Role, id=role_id)
-                    user.role = role
-                    user.save()
+                    if hasattr(user, 'profile'):
+                        user.profile.role = role
+                        user.profile.save()
                 
                 messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
                 return redirect('gestion_employes:liste_utilisateurs')
@@ -163,7 +162,6 @@ def update_utilisateur(request, pk):
         'roles': roles
     })
 
-@login_required
 def delete_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     
@@ -176,7 +174,6 @@ def delete_utilisateur(request, pk):
         'user': user
     })
 
-@login_required
 def voir_utilisateur(request, pk):
     utilisateur = get_object_or_404(User, pk=pk)
     profile = utilisateur.profile if hasattr(utilisateur, 'profile') else None
@@ -191,14 +188,12 @@ def voir_utilisateur(request, pk):
 
     return render(request, 'gestion_employes/utilisateurs/view.html', context)
 
-@login_required
 def view_user(request):
     utilisateurs = User.objects.all()
     return render(request, 'gestion_employes/utilisateurs/view_user.html', {
         'utilisateurs': utilisateurs
     })
 
-@login_required
 def modifier_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     try:
@@ -250,7 +245,6 @@ def modifier_utilisateur(request, pk):
         'roles': roles
     })
 
-@login_required
 def changer_role(request, pk):
     """Vue pour changer le rôle d'un utilisateur via AJAX"""
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -277,7 +271,6 @@ def changer_role(request, pk):
     
     return JsonResponse({'success': False, 'error': 'Méthode non autorisée'})
 
-@login_required
 def modifier_utilisateur(request, pk):
     user = get_object_or_404(User, pk=pk)
     try:
@@ -382,7 +375,6 @@ def supprimer_utilisateur(request, pk):
         'user': user
     })
 
-@login_required
 def ajouter_utilisateur(request):
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
@@ -413,6 +405,7 @@ def dashboard(request):
     total_profiles = Profile.objects.count()
     profiles_actifs = Profile.objects.filter(statut='actif').count()
     profiles_inactifs = Profile.objects.filter(statut='inactif').count()
+    profiles_conges = Profile.objects.filter(statut='conge').count()
     pointages_jour = Pointage.objects.filter(date=timezone.now().date()).count()
     profiles = Profile.objects.all()
     derniers_pointages = Pointage.objects.order_by('-date')[:5]
@@ -423,6 +416,7 @@ def dashboard(request):
         'total_profiles': total_profiles,
         'profiles_actifs': profiles_actifs,
         'profiles_inactifs': profiles_inactifs,
+        'profiles_conges': profiles_conges,
         'pointages_jour': pointages_jour,
         'profiles': profiles,
         'derniers_pointages': derniers_pointages,
@@ -432,12 +426,10 @@ def dashboard(request):
     }
     return render(request, 'gestion_employes/dashboard.html', context)
 
-@login_required
 def liste_roles(request):
     roles = Role.objects.all()
     return render(request, 'gestion_employes/roles/liste_roles.html', {'roles': roles})
 
-@login_required
 def ajouter_role(request):
     if request.method == 'POST':
         form = RoleForm(request.POST)
@@ -452,7 +444,6 @@ def ajouter_role(request):
         'title': 'Ajouter un rôle'
     })
 
-@login_required
 def modifier_role(request, pk):
     role = get_object_or_404(Role, pk=pk)
     if request.method == 'POST':
@@ -468,7 +459,6 @@ def modifier_role(request, pk):
         'title': f'Modifier le rôle {role.get_nom_display()}'
     })
 
-@login_required
 def supprimer_role(request, pk):
     role = get_object_or_404(Role, pk=pk)
     
@@ -479,7 +469,6 @@ def supprimer_role(request, pk):
     
     return render(request, 'gestion_employes/roles/confirm_delete.html', {'role': role})
 
-@login_required
 def gestion_permissions(request, pk):
     role = get_object_or_404(Role, pk=pk)
     modules = ['employes', 'pointage', 'utilisateurs', 'roles']
@@ -517,12 +506,10 @@ def gestion_permissions(request, pk):
         'current_permissions': current_permissions
     })
 
-@login_required
 def liste_employes(request):
     profiles = Profile.objects.all()
     return render(request, 'gestion_employes/liste_employes.html', {'profiles': profiles})
 
-@login_required
 def ajouter_employe(request):
     User = get_user_model()
     if request.method == 'POST':
@@ -546,7 +533,6 @@ def ajouter_employe(request):
         'employe_form': employe_form
     })
 
-@login_required
 def pointage(request):
     if request.method == 'POST':
         form = PointageForm(request.POST)

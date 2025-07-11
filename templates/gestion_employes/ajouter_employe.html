@@ -12,7 +12,50 @@
                     <form method="post">
                         {% csrf_token %}
                         <h6>Informations de connexion</h6>
-                        {% for field in user_form %}
+                        <div class="mb-3">
+    {{ user_form.username.label_tag }}
+    {{ user_form.username }}
+    {% if user_form.username.errors %}
+        <div class="text-danger small">{{ user_form.username.errors }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ user_form.email.label_tag }}
+    {{ user_form.email }}
+    {% if user_form.email.errors %}
+        <div class="text-danger small">{{ user_form.email.errors }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ user_form.last_name.label_tag }}
+    {{ user_form.last_name }}
+    {% if user_form.last_name.errors %}
+        <div class="text-danger small">{{ user_form.last_name.errors }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ user_form.first_name.label_tag }}
+    {{ user_form.first_name }}
+    {% if user_form.first_name.errors %}
+        <div class="text-danger small">{{ user_form.first_name.errors }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ user_form.password1.label_tag }}
+    {{ user_form.password1 }}
+    {% if user_form.password1.errors %}
+        <div class="text-danger small">{{ user_form.password1.errors }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ user_form.password2.label_tag }}
+    {{ user_form.password2 }}
+    {% if user_form.password2.errors %}
+        <div class="text-danger small">{{ user_form.password2.errors }}</div>
+    {% endif %}
+</div>
+{# Fin des champs explicites #}
+{# SUPPRIMER la boucle user_form ci-dessous #}
                             <div class="mb-3">
                                 {{ field.label_tag }}
                                 {{ field }}
@@ -20,7 +63,6 @@
                                     <div class="text-danger small">{{ field.errors }}</div>
                                 {% endif %}
                             </div>
-                        {% endfor %}
                         <hr>
                         <h6>Informations sur l'employé</h6>
                         {% for field in employe_form %}

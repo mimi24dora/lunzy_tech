@@ -77,9 +77,9 @@ class Profile(models.Model):
     
     def get_statut_badge(self):
         return {
-            'actif': 'success',
-            'inactif': 'warning',
-            'conge': 'info'
+            'actif': 'success',    # vert
+            'inactif': 'danger',   # rouge
+            'conge': 'warning'     # jaune
         }.get(self.statut, 'secondary')
 
 class Pointage(models.Model):

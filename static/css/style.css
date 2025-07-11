@@ -1,6 +1,48 @@
 /* Style général */
 body {
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%) !important;
+    min-height: 100vh;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.auth-container, .register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    background: #fff;
+}
+
+.card-header h3, .card-header .fw-bold {
+    color: #1976d2 !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.btn-success {
+    background: #1976d2;
+    border: none;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: background 0.2s;
+}
+
+.btn-success:hover {
+    background: #1565c0;
+}
+
+.form-floating > label {
+    color: #1976d2;
+}
+
+.form-control:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.25rem rgba(25, 118, 210, .15);
 }
 
 /* Navbar */

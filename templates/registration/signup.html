@@ -1,48 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">Inscription</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                Veuillez corriger les erreurs ci-dessous:
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nom d'utilisateur</label>
-                            {{ form.username }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="password1" class="form-label">Mot de passe</label>
-                            {{ form.password1 }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="password2" class="form-label">Confirmation du mot de passe</label>
-                            {{ form.password2 }}
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">S'inscrire</button>
-                        </div>
-                        <div class="text-center mt-3">
-                            <p>Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></p>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="container mt-5">
+    <div class="alert alert-info text-center">
+        L'inscription n'est plus disponible depuis cette page.
     </div>
 </div>
 {% endblock %}

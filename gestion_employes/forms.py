@@ -4,10 +4,25 @@ from django.contrib.auth.models import User
 from .models import Profile, Pointage, Role
 
 class EmployeForm(forms.ModelForm):
+    def clean_telephone(self):
+        telephone = self.cleaned_data.get('telephone', '')
+        if not telephone.isdigit():
+            raise forms.ValidationError('Le numéro doit contenir uniquement des chiffres.')
+        if len(telephone) != 10:
+            raise forms.ValidationError('Le numéro doit contenir exactement 10 chiffres.')
+        return telephone
+
     class Meta:
         model = Profile
         fields = ['matricule', 'telephone', 'poste', 'statut', 'role']
         widgets = {
+            'telephone': forms.TextInput(attrs={
+                'maxlength': '10',
+                'pattern': '\\d{10}',
+                'inputmode': 'numeric',
+                'placeholder': 'Ex: 0612345678',
+                'class': 'form-control',
+            }),
             'statut': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
         }

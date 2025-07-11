@@ -129,23 +129,32 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card stats-card bg-info text-white">
-                        <div class="card-body">
-                            <i class="fas fa-times-circle card-icon"></i>
-                            <h5 class="card-title">Employés Inactifs</h5>
-                            <p class="card-text display-6">{{ profiles_inactifs }}</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="card stats-card bg-danger text-white">
+        <div class="card-body">
+            <i class="fas fa-times-circle card-icon"></i>
+            <h5 class="card-title">Employés Inactifs</h5>
+            <p class="card-text display-6">{{ profiles_inactifs }}</p>
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="card stats-card bg-warning text-dark">
+        <div class="card-body">
+            <i class="fas fa-plane-departure card-icon"></i>
+            <h5 class="card-title">Employés en congé</h5>
+            <p class="card-text display-6">{{ profiles_conges }}</p>
+        </div>
+    </div>
+</div>
                 <div class="col-md-3">
-                    <div class="card stats-card bg-warning text-dark">
-                        <div class="card-body">
-                            <i class="fas fa-user-tag card-icon"></i>
-                            <h5 class="card-title">Nombre de Rôles</h5>
-                            <p class="card-text display-6">{{ nombre_roles }}</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="card stats-card bg-purple text-white" style="background-color: #6f42c1; color: #fff;">
+        <div class="card-body">
+            <i class="fas fa-user-tag card-icon"></i>
+            <h5 class="card-title">Nombre de Rôles</h5>
+            <p class="card-text display-6">{{ nombre_roles }}</p>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -208,7 +217,7 @@
                                     <th>Nom complet</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    <th>Rôle</th>
+                                    
                                     <th>Matricule</th>
                                     <th>Poste</th>
                                     <th>Statut</th>
@@ -221,21 +230,13 @@
                                     <td>{{ utilisateur.get_full_name }}</td>
                                     <td>{{ utilisateur.username }}</td>
                                     <td>{{ utilisateur.email }}</td>
-                                    <td>
-                                        {% if utilisateur.groups.all %}
-                                            <span class="badge bg-info">
-                                                {{ utilisateur.groups.all.0.name }}
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Aucun rôle</span>
-                                        {% endif %}
-                                    </td>
+                                    
                                     <td>{{ utilisateur.profile.matricule }}</td>
                                     <td>{{ utilisateur.profile.poste }}</td>
                                     <td>
                                         <span class="badge bg-{{ utilisateur.profile.get_statut_badge }}">
-                                            {{ utilisateur.profile.get_statut_display }}
-                                        </span>
+    {{ utilisateur.profile.get_statut_display }}
+</span>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal"

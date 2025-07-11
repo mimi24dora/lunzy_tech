@@ -1,72 +1,72 @@
-{% extends "base_auth.html" %}
-{% load static %}
-
+{% extends "base.html" %}
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%) !important;
+    min-height: 100vh;
+    font-family: 'Poppins', Arial, sans-serif;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<div class="container">
-    <div class="alert alert-warning mt-5 text-center">L'inscription est désactivée pour le moment.</div>
-</div>
+<a href="/" style="position: absolute; top: 24px; left: 24px; font-size: 2rem; color: #fff; z-index: 10; text-decoration: none;">
+    <i class="fas fa-home"></i>
+</a>
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="card shadow-lg border-0 rounded-lg mt-5">
+        <div class="col-md-6">
+            <div class="card">
                 <div class="card-header">
-                    <h3 class="text-center font-weight-light my-4">Créer un compte</h3>
+                    <h3 class="text-center">Créer un compte</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="POST">
                         {% csrf_token %}
                         {% if form.errors %}
                         <div class="alert alert-danger">
                             <ul>
                                 {% for field in form %}
-                                {% if field.errors %}
-                                <li>{{ field.label }} : {{ field.errors|striptags }}</li>
-                                {% endif %}
+                                    {% if field.errors %}
+                                        <li><strong>{{ field.label }}</strong> : {{ field.errors|striptags }}</li>
+                                    {% endif %}
                                 {% endfor %}
                                 {% if form.non_field_errors %}
-                                <li>{{ form.non_field_errors|striptags }}</li>
+                                    <li>{{ form.non_field_errors|striptags }}</li>
                                 {% endif %}
                             </ul>
                         </div>
                         {% endif %}
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="username" name="username"
-                                required>
-                            <label for="username">Nom d'utilisateur</label>
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Nom d'utilisateur</label>
+                            <input type="text" class="form-control" id="id_username" name="username" value="{{ form.username.value|default_if_none:'' }}" required>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control form-control-lg" id="email" name="email" required>
-                            <label for="email">Email</label>
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="id_email" name="email" value="{{ form.email.value|default_if_none:'' }}" required>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="first_name" name="first_name"
-                                required>
-                            <label for="first_name">Prénom</label>
+                        <div class="mb-3">
+                            <label for="id_first_name" class="form-label">Prénom</label>
+                            <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ form.first_name.value|default_if_none:'' }}" required>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control form-control-lg" id="last_name" name="last_name"
-                                required>
-                            <label for="last_name">Nom</label>
+                        <div class="mb-3">
+                            <label for="id_last_name" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ form.last_name.value|default_if_none:'' }}" required>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control form-control-lg" id="password1" name="password1"
-                                required>
-                            <label for="password1">Mot de passe</label>
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="id_password1" name="password1" required>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control form-control-lg" id="password2" name="password2"
-                                required>
-                            <label for="password2">Confirmer le mot de passe</label>
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">Confirmer le mot de passe</label>
+                            <input type="password" class="form-control" id="id_password2" name="password2" required>
                         </div>
                         <div class="d-grid gap-2">
-    <button type="submit" class="btn btn-success btn-lg">S'inscrire</button>
-</div>
+                            <button type="submit" class="btn btn-success">S'inscrire</button>
+                        </div>
                     </form>
                 </div>
-                <div class="card-footer text-center py-3">
-    <div class="small">
-        <a href="{% url 'gestion_employes:login' %}">Déjà un compte ? Connectez-vous</a>
-    </div>
-</div>
             </div>
         </div>
     </div>
