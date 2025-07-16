@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Supprimer l'utilisateur</h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Êtes-vous sûr de vouloir supprimer l'utilisateur "{{ user.username }}" ?</h5>
+                    <p class="card-text">Cette action est irréversible.</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

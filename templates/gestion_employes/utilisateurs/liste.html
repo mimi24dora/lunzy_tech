@@ -16,29 +16,140 @@
                                     <th>Nom d'utilisateur</th>
                                     <th>Email</th>
                                     <th>Rôle</th>
+                                    <th>Statut</th>
+                                    <th>Statut d'approbation</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for user in utilisateurs %}
                                 <tr>
-                                    <td>{{ user.username }}</td>
+                                    <td>
+                                        {{ user.username }}
+                                        {% if request.user.username == 'superadmin' and user.username == 'superadmin' %}
+                                            <span class="badge bg-primary ms-2">Super Admin</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ user.email }}</td>
                                     <td>
-  {% if user.profile and user.profile.role %}
-    {{ user.profile.role.get_nom_display }}
-  {% else %}
-    <span class="text-muted">Aucun</span>
-  {% endif %}
-</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ user.id }}">
-                                            Modifier
-                                        </button>
-                                        <a href="{% url 'gestion_employes:delete_utilisateur' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                            Supprimer
-                                        </a>
+                                        {% if request.user.username == 'superadmin' %}
+                                            {% if user.username == 'superadmin' %}
+                                                {{ user.profile.role.get_nom_display }}
+                                            {% else %}
+                                                <span class="text-muted">Aucun</span>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if user.username == request.user.username %}
+                                                {{ user.profile.role.get_nom_display }}
+                                            {% else %}
+                                                <span class="text-muted">Aucun</span>
+                                            {% endif %}
+                                        {% endif %}
                                     </td>
+                                    <td>
+                                        {% if request.user.username == 'superadmin' %}
+                                            {% if user.username == 'superadmin' %}
+                                                <span class="badge bg-primary">Super Admin</span>
+                                            {% else %}
+                                                <span class="badge bg-{{ user.profile.get_statut_badge }}">{{ user.profile.get_statut_display }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if user.username == request.user.username %}
+                                                <span class="badge bg-primary">Mon compte</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if request.user.username == 'superadmin' %}
+                                            {% if user.username == 'superadmin' %}
+                                                <span class="badge bg-primary">Super Admin</span>
+                                            {% else %}
+                                                {% if not user.is_active %}
+                                                    <form method="post" action="{% url 'gestion_employes:approve_user' user.id %}" style="display: inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-success">
+                                                            <i class="fas fa-check"></i> Approuver
+                                                        </button>
+                                                    </form>
+                                                    <form method="post" action="{% url 'gestion_employes:reject_user' user.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir refuser cet utilisateur ?')">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-times"></i> Refuser
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                                {% if user.profile.approval_status %}
+                                                    <span class="badge bg-{{ user.profile.get_approval_status_badge }}">
+                                                        {{ user.profile.get_approval_status_display }}
+                                                    </span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                            {% if user.profile.approval_status %}
+                                                <span class="badge bg-{{ user.profile.get_approval_status_badge }}">
+                                                    {{ user.profile.get_approval_status_display }}
+                                                </span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if request.user.username == 'superadmin' %}
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ user.id }}">
+                                                Modifier
+                                            </button>
+                                            <a href="{% url 'gestion_employes:delete_utilisateur' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                                Supprimer
+                                            </a>
+                                        {% else %}
+                                            {% if user.username == request.user.username %}
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ user.id }}">
+                                                    Modifier
+                                                </button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Modal de modification -->
+                                    {% if is_superadmin %}
+                                    <div class="modal fade" id="modifierModal{{ user.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Modifier l'utilisateur</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{% url 'gestion_employes:edit_utilisateur' user.id %}">
+                                                        {% csrf_token %}
+                                                        <div class="mb-3">
+                                                            <label for="username" class="form-label">Nom d'utilisateur</label>
+                                                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="email" class="form-label">Email</label>
+                                                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="role" class="form-label">Rôle</label>
+                                                            <select class="form-select" id="role" name="role" required>
+                                                                <option value="">Sélectionnez un rôle</option>
+                                                                {% for role in roles %}
+                                                                <option value="{{ role.id }}" {% if user.profile.role_id == role.id %}selected{% endif %}>
+                                                                    {{ role.nom }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button type="submit" class="btn btn-primary">Modifier</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -50,41 +161,19 @@
     </div>
 </div>
 
-{% for user in utilisateurs %}
-<div class="modal fade" id="modifierModal{{ user.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifier l'utilisateur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'gestion_employes:edit_utilisateur' user.id %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Nom d'utilisateur</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Rôle</label>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="">Sélectionnez un rôle</option>
-                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrateur</option>
-                            <option value="employe" {% if user.role == 'employe' %}selected{% endif %}>Employé</option>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Modifier</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Afficher un message d'erreur si l'utilisateur n'est pas approuvé
+        {% if not request.user.is_active %}
+            alert('Votre compte n\'a pas encore été approuvé par l\'administrateur.');
+        {% endif %}
+
+        // Initialiser les modals
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(function(modal) {
+            new bootstrap.Modal(modal);
+        });
+    </script>
 {% endblock %}

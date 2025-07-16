@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
-from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse_lazy
@@ -14,33 +13,6 @@ from .models import Profile, Pointage, Role
 from .forms import UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, RoleForm, EmployeForm
 
 User = get_user_model()
-
-# Vues d'authentification
-
-class CustomLoginView(LoginView):
-    template_name = 'gestion_employes/login.html'
-    success_url = reverse_lazy('gestion_employes:dashboard')
-
-    def form_valid(self, form):
-        user = form.get_user()
-        
-        # Super admin credentials
-        SUPER_ADMIN_USERNAME = 'superadmin'
-        SUPER_ADMIN_PASSWORD = 'SuperAdmin2025!'
-        SUPER_ADMIN_EMAIL = 'superadmin@lunzytech.com'
-        
-        # Check if this is the super admin
-        if (user.username == SUPER_ADMIN_USERNAME and 
-            user.email == SUPER_ADMIN_EMAIL):
-            # Super admin can access everything
-            return super().form_valid(form)
-        
-        # Regular user needs approval
-        if not user.is_active:
-            messages.error(self.request, 'Votre compte n\'a pas encore été approuvé par l\'administrateur.')
-            return self.form_invalid(form)
-        
-        return super().form_valid(form)
 
 # Vues d'authentification
 def register(request):
@@ -96,84 +68,32 @@ def user_logout(request):
     return redirect('gestion_employes:login')
 
 # Vues de gestion des utilisateurs
-@login_required
 def liste_utilisateurs(request):
-    # Filtrer les utilisateurs selon le rôle de l'utilisateur connecté
-    if request.user.username == 'superadmin':
-        utilisateurs = User.objects.all().prefetch_related('profile', 'profile__role')
-    else:
-        utilisateurs = User.objects.filter(is_active=True).prefetch_related('profile', 'profile__role')
-    
+    utilisateurs = User.objects.all().prefetch_related('profile', 'profile__role')
     roles = Role.objects.all()
-    
-    # Vérifier si le super admin existe et lui assigner le rôle approprié
-    if request.user.username == 'superadmin':
-        try:
-            superadmin_role = Role.objects.get(nom='superadmin')
-            if not request.user.profile.role:
-                request.user.profile.role = superadmin_role
-                request.user.profile.save()
-        except Role.DoesNotExist:
-            # Créer le rôle super admin si nécessaire
-            superadmin_role = Role.objects.create(
-                nom='superadmin',
-                description='Super Administrateur avec tous les droits',
-                permissions={
-                    'gestion': ['tous'],
-                    'utilisateurs': ['tous'],
-                    'administration': ['tous']
-                }
-            )
-            request.user.profile.role = superadmin_role
-            request.user.profile.save()
-    
     return render(request, 'gestion_employes/utilisateurs/liste.html', {
         'utilisateurs': utilisateurs,
-        'roles': roles,
-        'is_superadmin': request.user.username == 'superadmin'
+        'roles': roles
     })
 
 @login_required
 def approve_user(request, pk):
-    # Seul le super admin peut approuver
-    if request.user.username != 'superadmin':
-        messages.error(request, 'Vous n\'avez pas les droits nécessaires pour approuver un utilisateur.')
-        return redirect('gestion_employes:liste_utilisateurs')
-    
     user = get_object_or_404(User, pk=pk)
-    profile = user.profile
     
     if request.method == 'POST':
-        # Mettre à jour le statut de l'utilisateur
         user.is_active = True
         user.save()
-        
-        # Mettre à jour le statut du profil
-        profile.statut = 'actif'
-        profile.approval_status = 'approved'
-        profile.save()
-        
-        messages.success(request, f'Le compte de {user.username} a été approuvé avec succès.')
+        messages.success(request, f'Le compte de {user.username} a été activé avec succès.')
         return redirect('gestion_employes:liste_utilisateurs')
     
     return redirect('gestion_employes:liste_utilisateurs')
 
 @login_required
 def reject_user(request, pk):
-    # Seul le super admin peut refuser
-    if request.user.username != 'superadmin':
-        messages.error(request, 'Vous n\'avez pas les droits nécessaires pour refuser un utilisateur.')
-        return redirect('gestion_employes:liste_utilisateurs')
-    
     user = get_object_or_404(User, pk=pk)
-    profile = user.profile
     
     if request.method == 'POST':
-        # Mettre à jour le statut du profil
-        profile.approval_status = 'rejected'
-        profile.save()
-        
-        # Supprimer l'utilisateur
+        reason = request.POST.get('reason', '')
         user.delete()
         messages.success(request, f'Le compte de {user.username} a été refusé et supprimé.')
         return redirect('gestion_employes:liste_utilisateurs')
@@ -181,7 +101,7 @@ def reject_user(request, pk):
     return redirect('gestion_employes:liste_utilisateurs')
 
 def liste_employes(request):
-    profiles = Profile.objects.all().select_related('user').prefetch_related('pointage_set')
+    profiles = Profile.objects.all().select_related('user')
     return render(request, 'gestion_employes/liste_employes.html', {
         'profiles': profiles
     })
@@ -369,7 +289,7 @@ def modifier_utilisateur(request, pk):
                 'roles': roles
             })
     else:
-        user_form = UserUpdateForm(instance=user)
+        user_form = UserRegistrationForm(instance=user)
         profile_form = ProfileForm(instance=profile)
         
     return render(request, 'gestion_employes/utilisateurs/edit.html', {

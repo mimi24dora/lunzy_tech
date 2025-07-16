@@ -55,6 +55,11 @@
                             <i class="fas fa-id-card"></i> Employés
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gestion_employes:liste_employes' %}?tab=presences">
+                            <i class="fas fa-clock"></i> Présences
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
@@ -62,6 +67,11 @@
                             Bienvenue {{ request.user.first_name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'gestion_employes:edit_profile' %}">
+                                    <i class="fas fa-user-edit"></i> Editer mon profil
+                                </a>
+                            </li>
                             <li>
                                 <form method="post" action="{% url 'gestion_employes:logout' %}" class="d-inline">
                                     {% csrf_token %}

@@ -7,7 +7,7 @@ app_name = 'gestion_employes'
 urlpatterns = [
     path('register/', views.register, name='register'),
     # Authentication URLs
-    path('login/', auth_views.LoginView.as_view(
+    path('login/', views.CustomLoginView.as_view(
         template_name='gestion_employes/login.html',
         redirect_authenticated_user=True
     ), name='login'),
@@ -33,6 +33,8 @@ urlpatterns = [
     path('utilisateurs/<int:pk>/edit/', views.update_utilisateur, name='edit_utilisateur'),
     path('utilisateurs/<int:pk>/delete/', views.delete_utilisateur, name='delete_utilisateur'),
     path('utilisateurs/<int:pk>/view/', views.voir_utilisateur, name='view_utilisateur'),
+    path('utilisateurs/<int:pk>/approve/', views.approve_user, name='approve_user'),
+    path('utilisateurs/<int:pk>/reject/', views.reject_user, name='reject_user'),
     
     # Autres URLs
     path('', views.dashboard, name='dashboard'),
@@ -40,6 +42,7 @@ urlpatterns = [
     path('employes/ajouter/', views.ajouter_employe, name='ajouter_employe'),
     path('employes/<int:pk>/modifier/', views.modifier_profile, name='modifier_profile'),
     path('employes/<int:pk>/supprimer/', views.supprimer_profile, name='supprimer_profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('pointage/', views.pointage, name='pointage'),
     path('historique/', views.historique_pointages, name='historique_pointages'),
     path('roles/', views.liste_roles, name='liste_roles'),

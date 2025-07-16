@@ -6,29 +6,48 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Modifier le profil de l'employé</h5>
+                    <h5 class="mb-0">Modifier mon profil</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-    <label for="last_name" class="form-label">Nom</label>
-    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
-</div>
-<div class="mb-3">
-    <label for="first_name" class="form-label">Prénom</label>
-    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
-</div>
-{% for field in profile_form %}
-                            <div class="mb-3">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-success">Enregistrer</button>
+                            <label for="username" class="form-label">Nom d'utilisateur</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Prénom</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telephone" class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" id="telephone" name="telephone" value="{{ profile.telephone }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="poste" class="form-label">Poste</label>
+                            <input type="text" class="form-control" id="poste" name="poste" value="{{ profile.poste }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="matricule" class="form-label">Matricule</label>
+                            <input type="text" class="form-control" id="matricule" name="matricule" value="{{ profile.matricule }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="statut" class="form-label">Statut</label>
+                            <select class="form-control" id="statut" name="statut">
+                                <option value="actif" {% if profile.statut == 'actif' %}selected{% endif %}>Actif</option>
+                                <option value="inactif" {% if profile.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+                                <option value="conge" {% if profile.statut == 'conge' %}selected{% endif %}>Congé</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
                         <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
                     </form>
                 </div>

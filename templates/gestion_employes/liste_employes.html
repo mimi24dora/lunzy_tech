@@ -35,7 +35,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Liste des Employés</h5>
+                    <h5 class="mb-0">{% if request.GET.tab == 'presences' %}Présences{% else %}Liste des Employés{% endif %}</h5>
                     <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Ajouter un employé
                     </a>
@@ -47,38 +47,66 @@
                                 <tr>
                                     <th>Nom</th>
                                     <th>Prénom</th>
-                                    <th>Matricule</th>
-                                    <th>Poste</th>
+                                    <th>Email</th>
                                     <th>Téléphone</th>
-                                    <th>Statut</th>
+                                    <th>Poste</th>
+                                    <th>Dernier pointage</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for profile in profiles %}
-                                <tr data-profile-id="{{ profile.id }}">
-                                    <td>{{ profile.user.last_name }}</td>
-                                    <td>{{ profile.user.first_name }}</td>
-                                    <td>{{ profile.matricule }}</td>
-                                    <td>{{ profile.poste }}</td>
-                                    <td>{{ profile.telephone }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ profile.get_statut_badge }}">
-    {{ profile.get_statut_display }}
-</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="{% url 'gestion_employes:modifier_profile' profile.id %}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" 
-                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    {% if request.GET.tab == 'presences' %}
+                                        {% if profile.statut == 'actif' %}
+                                            <tr>
+                                                <td>{{ profile.user.last_name }}</td>
+                                                <td>{{ profile.user.first_name }}</td>
+                                                <td>{{ profile.user.email }}</td>
+                                                <td>{{ profile.telephone }}</td>
+                                                <td>{{ profile.poste }}</td>
+                                                <td>
+                                                    {% with dernier_pointage=profile.pointage_set.all|first %}
+                                                        {% if dernier_pointage %}
+                                                            {{ dernier_pointage.date }} {{ dernier_pointage.heure }}
+                                                        {% else %}
+                                                            <span class="text-muted">Aucun pointage</span>
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ profile.id }}">
+                                                        Modifier
+                                                    </button>
+                                                    <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
+                                                        Supprimer
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% else %}
+                                        <tr>
+                                            <td>{{ profile.user.last_name }}</td>
+                                            <td>{{ profile.user.first_name }}</td>
+                                            <td>{{ profile.user.email }}</td>
+                                            <td>{{ profile.telephone }}</td>
+                                            <td>{{ profile.poste }}</td>
+                                            <td>
+                                                {% if profile.statut %}
+                                                    <span class="badge bg-{{ profile.get_statut_badge }}">{{ profile.get_statut_display }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Non défini</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ profile.id }}">
+                                                    Modifier
+                                                </button>
+                                                <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
+                                                    Supprimer
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -88,6 +116,57 @@
         </div>
     </div>
 </div>
+
+{% for profile in profiles %}
+<div class="modal fade" id="modifierModal{{ profile.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier l'employé</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'gestion_employes:modifier_profile' profile.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ profile.user.last_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ profile.user.first_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ profile.user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telephone" class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" value="{{ profile.telephone }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="poste" class="form-label">Poste</label>
+                        <input type="text" class="form-control" id="poste" name="poste" value="{{ profile.poste }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statut" class="form-label">Statut</label>
+                        <select class="form-select" id="statut" name="statut" required>
+                            <option value="">Sélectionnez un statut</option>
+                            <option value="actif" {% if profile.statut == 'actif' %}selected{% endif %}>Actif</option>
+                            <option value="inactif" {% if profile.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+                            <option value="congé" {% if profile.statut == 'congé' %}selected{% endif %}>En congé</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
 
 {% block extra_js %}

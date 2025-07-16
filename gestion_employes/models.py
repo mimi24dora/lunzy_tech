@@ -10,6 +10,7 @@ class Role(models.Model):
     EMPLOYE = 'employe'
     
     TYPE_CHOICES = [
+        ('superadmin', 'Super Administrateur'),
         (ADMIN, 'Administrateur'),
         (MANAGER, 'Manager'),
         (RH, 'Ressources Humaines'),
@@ -27,7 +28,7 @@ class Role(models.Model):
     
     def get_nom_display(self):
         """Renvoie le nom complet du rôle"""
-        return self.nom
+        return dict(self.TYPE_CHOICES).get(self.nom, self.nom)
     
     class Meta:
         verbose_name = 'Rôle'
@@ -47,11 +48,18 @@ class Role(models.Model):
             return 'Aucune permission'
 
 class Profile(models.Model):
-    STATUT_CHOICES = (
+    STATUT_CHOICES = [
         ('actif', 'Actif'),
         ('inactif', 'Inactif'),
         ('conge', 'Congé'),
-    )
+        ('en_attente', 'En attente d\'approbation'),
+    ]
+    
+    APPROVAL_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('approved', 'Approuvé'),
+        ('rejected', 'Rejeté'),
+    ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     matricule = models.CharField(max_length=50, unique=True, null=True, blank=True)
@@ -62,7 +70,15 @@ class Profile(models.Model):
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
-        default='actif',
+        default='en_attente',
+        null=True,
+        blank=True
+    )
+    
+    approval_status = models.CharField(
+        max_length=20,
+        choices=APPROVAL_STATUS_CHOICES,
+        default='pending',
         null=True,
         blank=True
     )
@@ -70,7 +86,6 @@ class Profile(models.Model):
     
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
-        return f"{self.first_name} {self.last_name}"
     
     def get_statut_display(self):
         return dict(self.STATUT_CHOICES).get(self.statut, 'Non défini')
@@ -79,8 +94,48 @@ class Profile(models.Model):
         return {
             'actif': 'success',    # vert
             'inactif': 'danger',   # rouge
-            'conge': 'warning'     # jaune
+            'conge': 'warning',    # jaune
+            'en_attente': 'info'   # bleu
         }.get(self.statut, 'secondary')
+
+    def get_approval_status_badge(self):
+        return {
+            'pending': 'info',      # bleu
+            'approved': 'success',  # vert
+            'rejected': 'danger'    # rouge
+        }.get(self.approval_status, 'secondary')
+
+    def save(self, *args, **kwargs):
+        # Seul le super admin peut avoir un rôle
+        if self.user.username == 'superadmin':
+            if not self.role_id:
+                try:
+                    self.role = Role.objects.get(nom='superadmin')
+                except Role.DoesNotExist:
+                    # Créer le rôle super admin si nécessaire
+                    superadmin_role = Role.objects.create(
+                        nom='superadmin',
+                        description='Super Administrateur avec tous les droits',
+                        permissions={
+                            'gestion': ['tous'],
+                            'utilisateurs': ['tous'],
+                            'administration': ['tous']
+                        }
+                    )
+                    self.role = superadmin_role
+        else:
+            self.role = None
+        super().save(*args, **kwargs)
+    
+    def get_approval_status_display(self):
+        return dict(self.APPROVAL_STATUS_CHOICES).get(self.approval_status, 'Non défini')
+    
+    def get_approval_status_badge(self):
+        return {
+            'pending': 'warning',  # jaune
+            'approved': 'success', # vert
+            'rejected': 'danger'   # rouge
+        }.get(self.approval_status, 'secondary')
 
 class Pointage(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
