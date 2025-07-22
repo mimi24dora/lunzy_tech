@@ -11,7 +11,7 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <form method="get" class="d-flex">
-                <div class="input-group" style="background: #e3f2fd; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(33,150,243,0.07);">
+                <div class="input-group" style="background: #e8f5e9; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(46, 125, 50, 0.15);">
                     <select class="form-select" name="employe" id="employe">
                         <option value="">Tous les employés</option>
                         {% for employe in employes %}
@@ -20,19 +20,23 @@
                         </option>
                         {% endfor %}
                     </select>
-                    <button class="btn btn-outline-primary" type="submit">Filtrer</button>
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
                 </div>
             </form>
         </div>
         <div class="col-md-6">
             <form method="get" class="d-flex">
-                <div class="input-group" style="background: #e3f2fd; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(33,150,243,0.07);">
+                <div class="input-group" style="background: #e8f5e9; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(46, 125, 50, 0.15);">
                     <input type="date" class="form-control" name="date_debut" id="date_debut" 
                            value="{{ request.GET.date_debut }}">
                     <span class="input-group-text">à</span>
                     <input type="date" class="form-control" name="date_fin" id="date_fin" 
                            value="{{ request.GET.date_fin }}">
-                    <button class="btn btn-outline-primary" type="submit">Filtrer par date</button>
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-calendar-alt me-1"></i>Filtrer par date
+                    </button>
                 </div>
             </form>
         </div>

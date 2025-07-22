@@ -5,8 +5,8 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestion des rôles</h2>
-        <a href="{% url 'gestion_employes:ajouter_role' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Ajouter un rôle
+        <a href="{% url 'gestion_employes:ajouter_role' %}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Ajouter un rôle
         </a>
     </div>
 
@@ -34,8 +34,8 @@
                                 <a href="{% url 'gestion_employes:modifier_role' role.pk %}" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i> Modifier
                                 </a>
-                                <a href="{% url 'gestion_employes:gestion_permissions' role.pk %}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-cog"></i> Permissions
+                                <a href="{% url 'gestion_employes:gestion_permissions' role.pk %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-cog me-1"></i> Permissions
                                 </a>
                                 <a href="{% url 'gestion_employes:supprimer_role' role.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')">
                                     <i class="fas fa-trash"></i> Supprimer

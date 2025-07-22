@@ -5,8 +5,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Modifier mon profil</h5>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifier mon profil</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -47,7 +47,9 @@
                                 <option value="conge" {% if profile.statut == 'conge' %}selected{% endif %}>Congé</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                        </button>
                         <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
                     </form>
                 </div>

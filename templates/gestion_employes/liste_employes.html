@@ -36,8 +36,8 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">{% if request.GET.tab == 'presences' %}Présences{% else %}Liste des Employés{% endif %}</h5>
-                    <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Ajouter un employé
+                    <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i> Ajouter un employé
                     </a>
                 </div>
                 <div class="card-body">
@@ -74,9 +74,6 @@
                                                     {% endwith %}
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ profile.id }}">
-                                                        Modifier
-                                                    </button>
                                                     <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
                                                         Supprimer
                                                     </a>
@@ -92,17 +89,17 @@
                                             <td>{{ profile.poste }}</td>
                                             <td>
                                                 {% if profile.statut %}
-                                                    <span class="badge bg-{{ profile.get_statut_badge }}">{{ profile.get_statut_display }}</span>
+                                                    <span class="badge bg-{{ profile.get_statut_badge }}" style="cursor: default;">{{ profile.get_statut_display }}</span>
                                                 {% else %}
-                                                    <span class="badge bg-secondary">Non défini</span>
+                                                    <span class="badge bg-secondary" style="cursor: default;">Non défini</span>
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierModal{{ profile.id }}">
-                                                    Modifier
+                                                <button type="button" class="btn btn-sm btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modifierEmployeModal{{ profile.id }}">
+                                                    <i class="fas fa-edit me-1"></i> Modifier
                                                 </button>
                                                 <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
-                                                    Supprimer
+                                                    <i class="fas fa-trash"></i> Supprimer
                                                 </a>
                                             </td>
                                         </tr>
@@ -117,65 +114,121 @@
     </div>
 </div>
 
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Gestion de la soumission des formulaires de modification
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion de la soumission des formulaires de modification
+        document.querySelectorAll('form[id^="modifierEmployeForm"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Désactiver le bouton de soumission et afficher un indicateur de chargement
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...';
+                
+                // Cacher les messages d'erreur précédents
+                const errorAlerts = form.querySelectorAll('.alert-danger');
+                errorAlerts.forEach(alert => alert.remove());
+                
+                // Envoyer la requête AJAX
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Afficher un message de succès
+                        alert('Les modifications ont été enregistrées avec succès !');
+                        // Recharger la page pour voir les changements
+                        window.location.reload();
+                    } else {
+                        // Afficher les erreurs
+                        alert('Une erreur est survenue : ' + (data.message || 'Veuillez réessayer.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue lors de l\'envoi du formulaire.');
+                })
+                .finally(() => {
+                    // Réactiver le bouton
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+<!-- Modales de modification -->
 {% for profile in profiles %}
-<div class="modal fade" id="modifierModal{{ profile.id }}" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="modifierEmployeModal{{ profile.id }}" tabindex="-1" aria-labelledby="modifierEmployeModalLabel{{ profile.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifier l'employé</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modifierEmployeModalLabel{{ profile.id }}"><i class="fas fa-user-edit me-2"></i>Modifier l'employé</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'gestion_employes:modifier_profile' profile.id %}">
+                <form method="post" action="{% url 'gestion_employes:modifier_profile' profile.id %}" id="modifierEmployeForm{{ profile.id }}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="last_name" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ profile.user.last_name }}" required>
+                        <label for="username{{ profile.id }}" class="form-label">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" id="username{{ profile.id }}" name="username" value="{{ profile.user.username }}" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="first_name" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ profile.user.first_name }}" required>
+                        <label for="email{{ profile.id }}" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email{{ profile.id }}" name="email" value="{{ profile.user.email }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ profile.user.email }}" required>
+                        <label for="last_name{{ profile.id }}" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="last_name{{ profile.id }}" name="last_name" value="{{ profile.user.last_name }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="telephone" class="form-label">Téléphone</label>
-                        <input type="tel" class="form-control" id="telephone" name="telephone" value="{{ profile.telephone }}" required>
+                        <label for="first_name{{ profile.id }}" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="first_name{{ profile.id }}" name="first_name" value="{{ profile.user.first_name }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="poste" class="form-label">Poste</label>
-                        <input type="text" class="form-control" id="poste" name="poste" value="{{ profile.poste }}" required>
+                        <label for="telephone{{ profile.id }}" class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" id="telephone{{ profile.id }}" name="telephone" value="{{ profile.telephone|default:'' }}">
                     </div>
                     <div class="mb-3">
-                        <label for="statut" class="form-label">Statut</label>
-                        <select class="form-select" id="statut" name="statut" required>
-                            <option value="">Sélectionnez un statut</option>
+                        <label for="poste{{ profile.id }}" class="form-label">Poste</label>
+                        <input type="text" class="form-control" id="poste{{ profile.id }}" name="poste" value="{{ profile.poste|default:'' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="matricule{{ profile.id }}" class="form-label">Matricule</label>
+                        <input type="text" class="form-control" id="matricule{{ profile.id }}" name="matricule" value="{{ profile.matricule|default:'' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="statut{{ profile.id }}" class="form-label">Statut</label>
+                        <select class="form-select" id="statut{{ profile.id }}" name="statut">
                             <option value="actif" {% if profile.statut == 'actif' %}selected{% endif %}>Actif</option>
                             <option value="inactif" {% if profile.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                            <option value="congé" {% if profile.statut == 'congé' %}selected{% endif %}>En congé</option>
+                            <option value="conge" {% if profile.statut == 'conge' %}selected{% endif %}>Congé</option>
                         </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Modifier</button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="modifierEmployeForm{{ profile.id }}" class="btn btn-success">
+                    <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                </button>
             </div>
         </div>
     </div>
 </div>
 {% endfor %}
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Initialiser les modals
-    var modals = document.querySelectorAll('.modal');
-    modals.forEach(function(modal) {
-        new bootstrap.Modal(modal);
-    });
-</script>
-{% endblock %}

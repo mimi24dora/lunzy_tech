@@ -28,13 +28,54 @@ class EmployeForm(forms.ModelForm):
         }
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'votre@email.com'
+    }))
+    first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Votre prénom'
+    }))
+    last_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Votre nom'
+    }))
+    telephone = forms.CharField(
+        max_length=20,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ex: 0612345678',
+            'pattern': '\d{10}',
+            'inputmode': 'numeric',
+            'maxlength': '10'
+        }),
+        help_text="Format: 10 chiffres sans espace ni caractère spécial"
+    )
+    nom_entreprise = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Le nom de votre entreprise'
+        }),
+        help_text="Le nom de l'entreprise pour laquelle vous travaillez"
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name', 'telephone', 'nom_entreprise', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choisissez un nom d\'utilisateur'}),
+        }
+    
+    def clean_telephone(self):
+        telephone = self.cleaned_data.get('telephone', '')
+        if not telephone.isdigit():
+            raise forms.ValidationError('Le numéro doit contenir uniquement des chiffres.')
+        if len(telephone) != 10:
+            raise forms.ValidationError('Le numéro doit contenir exactement 10 chiffres.')
+        return telephone
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=150)

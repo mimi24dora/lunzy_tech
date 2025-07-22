@@ -1,0 +1,112 @@
+/* Style général */
+body {
+    background-color: #bbf7d0 !important; /* Vert clair #bbf7d0 */
+    min-height: 100vh;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.auth-container, .register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    background: #fff;
+}
+
+.card-header h3, .card-header .fw-bold {
+    color: #10b981 !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+    border: none;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.form-floating > label {
+    color: #10b981;
+}
+
+.form-control:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15);
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Table */
+.table {
+    background-color: white;
+}
+
+/* Formulaires */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+}
+
+/* Statistiques */
+.stat-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stat-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+}

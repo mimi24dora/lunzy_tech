@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import authenticate, logout, get_user_model
@@ -47,13 +48,31 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.')
+            # Sauvegarder l'utilisateur
+            user = form.save(commit=False)
+            user.is_active = False  # L'utilisateur doit être approuvé par un administrateur
+            user.save()
+            
+            # Créer le profil avec les champs supplémentaires
+            Profile.objects.create(
+                user=user,
+                telephone=form.cleaned_data['telephone'],
+                nom_entreprise=form.cleaned_data['nom_entreprise'],
+                statut='en_attente',
+                approval_status='pending'
+            )
+            
+            messages.success(
+                request, 
+                'Votre compte a été créé avec succès. ' \
+                'Il est en attente de validation par un administrateur.'
+            )
             return redirect('gestion_employes:login')
         else:
             messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
     else:
         form = UserRegistrationForm()
+    
     return render(request, 'gestion_employes/register.html', {
         'form': form,
         'title': 'Inscription'
@@ -180,36 +199,59 @@ def reject_user(request, pk):
     
     return redirect('gestion_employes:liste_utilisateurs')
 
+@login_required(login_url='gestion_employes:login')
 def liste_employes(request):
-    profiles = Profile.objects.all().select_related('user').prefetch_related('pointage_set')
+    profiles = Profile.objects.all().select_related('user', 'role').prefetch_related('pointage_set')
+    roles = Role.objects.all()
     return render(request, 'gestion_employes/liste_employes.html', {
-        'profiles': profiles
+        'profiles': profiles,
+        'roles': roles
     })
 
 def modifier_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
-    user = profile.user
     
     if request.method == 'POST':
-        profile_form = ProfileForm(request.POST, instance=profile)
-        # Mettre à jour nom et prénom de l'utilisateur
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.save()
-        if profile_form.is_valid():
-            profile = profile_form.save()
+        form = EmployeForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Profil mis à jour avec succès !',
+                    'data': {
+                        'matricule': profile.matricule,
+                        'telephone': profile.telephone,
+                        'poste': profile.poste,
+                        'statut': profile.get_statut_display(),
+                        'role': str(profile.role) if profile.role else ''
+                    }
+                })
             messages.success(request, 'Profil mis à jour avec succès !')
             return redirect('gestion_employes:liste_employes')
         else:
-            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': form.errors,
+                    'message': 'Veuillez corriger les erreurs ci-dessous.'
+                }, status=400)
     else:
-        profile_form = ProfileForm(instance=profile)
+        form = EmployeForm(instance=profile)
     
-    return render(request, 'gestion_employes/utilisateurs/edit_profile.html', {
-        'profile_form': profile_form,
-        'profile': profile,
-        'user': user
+    # Si ce n'est pas une requête AJAX, rendre le template normal
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'message': 'Méthode non autorisée.'
+        }, status=405)
+        
+    return render(request, 'gestion_employes/modifier_employe.html', {
+        'form': form,
+        'profile': profile
     })
+
+
 
 def supprimer_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)

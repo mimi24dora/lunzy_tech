@@ -111,7 +111,7 @@
         <div class="col-md-12">
             <div class="row g-4">
                 <div class="col-md-3">
-                    <div class="card stats-card bg-primary text-white">
+                    <div class="card stats-card" style="background-color: #8B4513; color: #FFFFFF;">
                         <div class="card-body">
                             <i class="fas fa-users card-icon"></i>
                             <h5 class="card-title">Total Employés</h5>
@@ -138,7 +138,7 @@
     </div>
 </div>
 <div class="col-md-3">
-    <div class="card stats-card bg-warning text-dark">
+    <div class="card stats-card" style="background-color: #ffc107; color: #212529;">
         <div class="card-body">
             <i class="fas fa-plane-departure card-icon"></i>
             <h5 class="card-title">Employés en congé</h5>
@@ -147,7 +147,7 @@
     </div>
 </div>
                 <div class="col-md-3">
-    <div class="card stats-card bg-purple text-white" style="background-color: #6f42c1; color: #fff;">
+    <div class="card stats-card" style="background-color: #ffd699; color: #b35900;">
         <div class="card-body">
             <i class="fas fa-user-tag card-icon"></i>
             <h5 class="card-title">Nombre de Rôles</h5>
@@ -239,10 +239,6 @@
 </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#updateModal{{ utilisateur.id }}">
-                                            Modifier
-                                        </button>
                                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
                                             data-bs-target="#deleteModal{{ utilisateur.id }}">
                                             Supprimer
@@ -250,51 +246,7 @@
                                     </td>
                                 </tr>
 
-                                <!-- Modal Update -->
-                                <div class="modal fade" id="updateModal{{ utilisateur.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Modifier l'utilisateur</h5>
-                                                <button type="button" class="btn-close"
-                                                    data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form
-                                                    action="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}"
-                                                    method="post">
-                                                    {% csrf_token %}
-                                                    <div class="row">
-                                                        <div class="col-md-6 mb-3">
-                                                            <label for="username" class="form-label">Username</label>
-                                                            <input type="text" name="username" class="form-control"
-                                                                value="{{ utilisateur.username }}" required>
-                                                        </div>
-                                                        <div class="col-md-6 mb-3">
-                                                            <label for="email" class="form-label">Email</label>
-                                                            <input type="email" name="email" class="form-control"
-                                                                value="{{ utilisateur.email }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Nouveau mot de
-                                                            passe</label>
-                                                        <input type="password" name="password" class="form-control"
-                                                            placeholder="Laissez vide pour ne pas modifier">
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Annuler</button>
-                                                        <button type="submit"
-                                                            class="btn btn-primary">Enregistrer</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Modal Delete -->
+<!-- Modal Delete -->
                                 <div class="modal fade" id="deleteModal{{ utilisateur.id }}" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -378,17 +330,8 @@
     // Gestion des modales
     document.addEventListener('DOMContentLoaded', function () {
         const modals = document.querySelectorAll('.modal');
-        const updateForms = document.querySelectorAll('form[action*="edit_utilisateur"]');
-
-        // Gestion des formulaires de modification
-        updateForms.forEach(form => {
-            form.addEventListener('submit', async function (event) {
-                event.preventDefault();
-                
-                const formData = new FormData(form);
-                const userId = form.getAttribute('action').split('/').pop();
-                
-                try {
+        
+        // Initialiser les modales
                     const response = await fetch(form.getAttribute('action'), {
                         method: 'POST',
                         headers: {

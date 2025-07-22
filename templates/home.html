@@ -1,23 +1,136 @@
 {% extends 'base.html' %}
 
+<style>
+  .btn-outline-success:active, 
+  .btn-outline-success.active {
+    background-color: #d1fae5 !important;
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+  }
+  .btn-outline-success:hover {
+    background-color: #ecfdf5 !important;
+  }
+</style>
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="text-center welcome-section" style="background: linear-gradient(135deg, #1976d2 60%, #1565c0 100%); color: #fff; border-radius: 18px; padding: 48px 24px; box-shadow: 0 6px 32px rgba(25, 118, 210, 0.15); font-family: 'Poppins', Arial, sans-serif; margin-bottom: 24px;">
-                <h1 class="display-4" style="font-weight:700; letter-spacing:1px; text-shadow:0 2px 8px rgba(0,0,0,0.10);">Bienvenue sur Lunzy</h1>
-                <p class="lead" style="font-size:1.5rem; font-weight:400; margin-top:12px;">Gestion des employés et pointage.</p>
+<div class="container-fluid p-0">
+    <div class="px-0" style="background-color: #f0fdf4;">
+        <div class="container">
+            <!-- Section d'en-tête -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-10">
+                    <div class="text-center welcome-section"
+                        style="background-color: #bbf7d0; color: #1f2937; border: none; border-radius: 0; padding: 48px 24px; box-shadow: none; font-family: 'Poppins', Arial, sans-serif; margin: 0;">
+                        <h1 class="display-4 mb-3"
+                            style="font-weight:700; letter-spacing:1px; text-shadow:0 2px 8px rgba(0,0,0,0.10);">
+                            Bienvenue sur Lunzy Tech</h1>
+                        <p class="lead mb-4" style="font-size:1.5rem; font-weight:400;">Solution innovante de sécurité
+                            informatique</p>
+                        <p class="mb-0">Protégez vos systèmes avec notre dispositif électronique intelligent et nos
+                            solutions logicielles avancées</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 me-md-2">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Connexion
-                </a>
-                <a href="{% url 'registration' %}" class="btn btn-success btn-lg px-4">
-                    <i class="bi bi-person-plus me-2"></i>Inscription
-                </a>
+            <!-- Section des fonctionnalités -->
+            <div class="row g-4 mb-5" style="background-color: #bbf7d0; margin: 0 -12px; padding: 0 12px;">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Surveillance en Temps Réel</h3>
+                            <p class="text-muted">Surveillance continue de votre réseau et détection proactive des
+                                menaces de sécurité grâce à notre dispositif électronique intelligent.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Analyse Avancée</h3>
+                            <p class="text-muted">Algorithmes d'analyse puissants pour détecter les anomalies et
+                                prévenir les intrusions en temps réel.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Sécurité Matérielle</h3>
+                            <p class="text-muted">Notre dispositif électronique sécurisé offre une protection physique
+                                contre les attaques et les accès non autorisés.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section À propos -->
+            <div class="row align-items-center mb-5" style="background-color: #bbf7d0; margin: 0 -12px; padding: 0 12px;">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="h1 mb-4" style="color: #1f2937; font-weight: 700;">À propos de Lunzy Tech</h2>
+                    <p class="lead">Lunzy Tech est une solution de sécurité informatique innovante intégrant un
+                        dispositif électronique intelligent pour une protection complète de vos systèmes d'information.
+                    </p>
+                    <p>Notre technologie combine matériel et logiciel pour offrir une sécurité optimale contre les
+                        cybermenaces modernes. Conçue pour les professionnels exigeants, notre solution s'adapte à tous
+                        les environnements, des petites entreprises aux grandes infrastructures.</p>
+                    <div class="d-flex align-items-center mt-4">
+                        <div class="me-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Détection avancée des menaces</span>
+                            </div>
+                            <div class="d-flex align-items-center mt-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Support technique expert</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Mises à jour de sécurité régulières</span>
+                            </div>
+                            <div class="d-flex align-items-center mt-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Dispositif matériel sécurisé</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                        alt="Sécurité informatique et protection des données" class="img-fluid rounded-3 shadow">
+                </div>
+            </div>
+
+            <!-- Appel à l'action -->
+            <div class="text-center py-5 my-5" style="background-color: #bbf7d0; border-radius: 0;">
+                <h2 class="h1 mb-4" style="color: #1f2937; font-weight: 700;">Prêt à sécuriser votre infrastructure ?
+                </h2>
+                <p class="lead mb-4">Rejoignez les organisations qui font confiance à Lunzy Tech pour une protection
+                    complète contre les cybermenaces.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'registration' %}" class="btn btn-lg px-4" style="background-color: #10b981; border-color: #10b981; color: white;">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Commencer maintenant
+                    </a>
+                    <a href="#" class="btn btn-outline-success btn-lg px-4" style="color: #10b981; border-color: #10b981;">
+                        <i class="bi bi-question-circle me-2"></i>En savoir plus
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pied de page -->
+            <div class="text-center text-muted mt-5 pt-4 border-top">
+                <p class="mb-0">© {% now "Y" %} Lunzy Tech. Tous droits réservés.</p>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
