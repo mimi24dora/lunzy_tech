@@ -1,0 +1,620 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+
+    .container-fluid {
+        background: transparent !important;
+        padding: 20px;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #10b981;
+        backdrop-filter: blur(10px);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-subtitle {
+        color: #d1d5db;
+        font-size: 1.1rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card {
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px solid #10b981;
+        border-radius: 20px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .stats-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+    }
+
+    .display-6 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #10b981;
+    }
+
+    /* Action Header */
+    .action-header {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin: 0;
+    }
+
+    /* Search Box */
+    .search-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .input-group-text {
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid #10b981;
+        color: #ffffff;
+    }
+
+    .form-control {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid #10b981;
+        color: #ffffff;
+    }
+
+    .form-control:focus {
+        background: rgba(0, 0, 0, 0.6);
+        border-color: #34d399;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        color: #ffffff;
+    }
+
+    /* Table Container */
+    .table-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+    }
+
+    .table-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Table Styles */
+    .table {
+        background: #000000 !important;
+        border-radius: 15px;
+        overflow: hidden;
+        color: #ffffff;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .table td {
+        background: #000000 !important;
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    }
+
+    .bg-secondary {
+        background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+    }
+
+    .bg-light {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Role Cards */
+    .roles-section {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .role-card {
+        background: #000000 !important;
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .role-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        .action-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <h1 class="dashboard-title">Gestion des Utilisateurs</h1>
+        <p class="dashboard-subtitle">Visualisez et gérez les utilisateurs du système - Lunzy Tech</p>
+    </div>
+
+    <!-- Action Header -->
+    <div class="action-header fade-in">
+        <h2 class="page-title">Liste des Utilisateurs</h2>
+        <!-- Bouton temporairement désactivé - Vue non implémentée -->
+        <button class="btn btn-success" disabled>
+            <i class="fas fa-plus me-2"></i>Nouvel Utilisateur
+        </button>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="stats-grid fade-in">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">Total Employés</h5>
+                    <p class="display-6">5</p>
+                </div>
+                <i class="fas fa-users card-icon"></i>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">Employés Actifs</h5>
+                    <p class="display-6">2</p>
+                </div>
+                <i class="fas fa-check-circle card-icon"></i>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">Employés Inactifs</h5>
+                    <p class="display-6">1</p>
+                </div>
+                <i class="fas fa-times-circle card-icon"></i>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">En Congé</h5>
+                    <p class="display-6">2</p>
+                </div>
+                <i class="fas fa-plane-departure card-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-container fade-in">
+        <div class="input-group" style="max-width: 400px;">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" placeholder="Rechercher un utilisateur...">
+        </div>
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    <div class="table-container fade-in">
+        <h5 class="table-title"><i class="fas fa-users me-2"></i>Liste des Utilisateurs</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nom Complet</th>
+                        <th>Identifiant</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Matricule</th>
+                        <th>Poste</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Utilisateur 1 -->
+                    <tr class="animate-fade-in">
+                        <td>Chaaa Chaa</td>
+                        <td>chacha</td>
+                        <td>chacha@gmail.com</td>
+                        <td>
+                            <span class="badge bg-light">
+                                <i class="fas fa-user"></i>
+                                Aucun rôle
+                            </span>
+                        </td>
+                        <td>1111</td>
+                        <td>Réceptionniste</td>
+                        <td><span class="badge bg-warning">Congé</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/gestion/utilisateurs/1/edit/" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/gestion/utilisateurs/1/delete/" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Utilisateur 2 -->
+                    <tr class="animate-fade-in">
+                        <td>Suuu Suu</td>
+                        <td>superadmin</td>
+                        <td>superadmin@lunzytech.com</td>
+                        <td>
+                            <span class="badge bg-primary">
+                                <i class="fas fa-crown"></i>
+                                Super Admin
+                            </span>
+                        </td>
+                        <td>1114</td>
+                        <td>Directeur IT</td>
+                        <td><span class="badge bg-warning">Congé</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/gestion/utilisateurs/10/edit/" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/gestion/utilisateurs/10/delete/" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Utilisateur 3 -->
+                    <tr class="animate-fade-in">
+                        <td>Mooo Moo</td>
+                        <td>mona</td>
+                        <td>mona@gmail.com</td>
+                        <td>
+                            <span class="badge bg-light">
+                                <i class="fas fa-user"></i>
+                                Aucun rôle
+                            </span>
+                        </td>
+                        <td>1112</td>
+                        <td>Comptable</td>
+                        <td><span class="badge bg-success">Actif</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/gestion/utilisateurs/12/edit/" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/gestion/utilisateurs/12/delete/" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Utilisateur 4 -->
+                    <tr class="animate-fade-in">
+                        <td>Maaa Maa</td>
+                        <td>manu</td>
+                        <td>manu@gmail.com</td>
+                        <td>
+                            <span class="badge bg-light">
+                                <i class="fas fa-user"></i>
+                                Aucun rôle
+                            </span>
+                        </td>
+                        <td>1119</td>
+                        <td>Directeur Général</td>
+                        <td><span class="badge bg-success">Actif</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/gestion/utilisateurs/13/edit/" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/gestion/utilisateurs/13/delete/" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Utilisateur 5 -->
+                    <tr class="animate-fade-in">
+                        <td>Kaaa Kaa</td>
+                        <td>kam</td>
+                        <td>kam@gmail.com</td>
+                        <td>
+                            <span class="badge bg-light">
+                                <i class="fas fa-user"></i>
+                                Aucun rôle
+                            </span>
+                        </td>
+                        <td>1214</td>
+                        <td>Comptable</td>
+                        <td><span class="badge bg-danger">Inactif</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/gestion/utilisateurs/14/edit/" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/gestion/utilisateurs/14/delete/" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section des rôles -->
+    <div class="roles-section fade-in">
+        <h5 class="table-title"><i class="fas fa-user-tag me-2"></i>Répartition par Rôle</h5>
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                <div class="role-card card h-100">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-white">Super Admin</h6>
+                            <span class="badge bg-primary">1</span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                <div class="role-card card h-100">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-white">Directeur IT</h6>
+                            <span class="badge bg-success">1</span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                <div class="role-card card h-100">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-white">Comptable</h6>
+                            <span class="badge bg-warning">2</span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                <div class="role-card card h-100">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-white">Aucun Rôle</h6>
+                            <span class="badge bg-secondary">1</span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Script pour la recherche en temps réel
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[type="text"]');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const value = this.value.toLowerCase();
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(function(row) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.indexOf(value) > -1 ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

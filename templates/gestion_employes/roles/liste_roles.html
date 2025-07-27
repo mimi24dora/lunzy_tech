@@ -1,17 +1,247 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+
+    .container-fluid {
+        background: transparent !important;
+        padding: 20px;
+    }
+
+    .container {
+        background: transparent !important;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #10b981;
+        backdrop-filter: blur(10px);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-subtitle {
+        color: #d1d5db;
+        font-size: 1.1rem;
+    }
+
+    /* Action Header */
+    .action-header {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin: 0;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Table Container */
+    .table-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+    }
+
+    /* Table Styles */
+    .table {
+        background: #000000 !important;
+        border-radius: 15px;
+        overflow: hidden;
+        color: #ffffff;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .table td {
+        background: #000000 !important;
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        padding: 0.5rem 1.5rem;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Card Styles */
+    .card {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        .action-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Gestion des rôles</h2>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <h1 class="dashboard-title">Gestion des Rôles</h1>
+        <p class="dashboard-subtitle">Administration et configuration des rôles utilisateurs - Lunzy Tech</p>
+    </div>
+
+    <!-- Action Header -->
+    <div class="action-header fade-in">
+        <h2 class="page-title">Liste des Rôles</h2>
         <a href="{% url 'gestion_employes:ajouter_role' %}" class="btn btn-success">
             <i class="fas fa-plus me-1"></i> Ajouter un rôle
         </a>
     </div>
 
-    <div class="card">
-        <div class="card-body">
+    <!-- Table Container -->
+    <div class="table-container fade-in">
+        <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -54,4 +284,3 @@
     </div>
 </div>
 {% endblock %}
-

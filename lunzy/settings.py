@@ -40,6 +40,12 @@ DATABASES = {
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+# Configuration de la session
+SESSION_COOKIE_AGE = 1800  # 30 minutes en secondes
+SESSION_SAVE_EVERY_REQUEST = True  # Rafraîchir le timeout à chaque requête
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Déconnexion à la fermeture du navigateur
+
+
 
 # Application definition
 
@@ -88,6 +94,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'gestion_employes.context_processors.user_permissions',
             ],
         },
     },

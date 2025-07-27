@@ -1,94 +1,378 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+
+    .container-fluid {
+        background: transparent !important;
+        padding: 20px;
+    }
+
+    .container {
+        background: transparent !important;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #10b981;
+        backdrop-filter: blur(10px);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-subtitle {
+        color: #d1d5db;
+        font-size: 1.1rem;
+    }
+
+    /* Filter Cards */
+    .filter-card {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .filter-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .filter-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #10b981;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .form-select, .form-control {
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid #10b981 !important;
+        color: #ffffff !important;
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .form-select:focus, .form-control:focus {
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-color: #34d399 !important;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+        color: #ffffff !important;
+    }
+
+    .form-select option {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .input-group-text {
+        background: rgba(16, 185, 129, 0.2) !important;
+        border: 1px solid #10b981 !important;
+        color: #ffffff !important;
+    }
+
+    .btn-filter {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    /* Table Container */
+    .table-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+    }
+
+    .table-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Table Styles */
+    .table {
+        background: #000000 !important;
+        border-radius: 15px;
+        overflow: hidden;
+        color: #ffffff;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .table td {
+        background: #000000 !important;
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    }
+
+    /* Stats Cards */
+    .stats-card {
+        background: #000000 !important;
+        border: 2px solid #10b981;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .stats-card .card-title {
+        color: #10b981;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .card-text {
+        color: #ffffff;
+        line-height: 1.8;
+    }
+
+    .stats-card .card-text strong {
+        color: #34d399;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        .filter-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+</style>
+{% endblock %}
+
 {% block title %}Historique des Pointages{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Historique des Pointages</h2>
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <h1 class="dashboard-title">Historique des Pointages</h1>
+        <p class="dashboard-subtitle">Consultez et filtrez l'historique complet des pointages des employés - Lunzy Tech</p>
+    </div>
     
     <!-- Filtres -->
-    <div class="row mb-4">
+    <div class="row">
         <div class="col-md-6">
-            <form method="get" class="d-flex">
-                <div class="input-group" style="background: #e8f5e9; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(46, 125, 50, 0.15);">
-                    <select class="form-select" name="employe" id="employe">
-                        <option value="">Tous les employés</option>
-                        {% for employe in employes %}
-                        <option value="{{ employe.id }}" {% if request.GET.employe == employe.id|stringformat:"s" %}selected{% endif %}>
-                            {{ employe.prenom }} {{ employe.nom }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <button class="btn btn-outline-success" type="submit">
-                        <i class="fas fa-filter me-1"></i>Filtrer
-                    </button>
-                </div>
-            </form>
+            <div class="filter-card fade-in">
+                <h5 class="filter-title"><i class="fas fa-user me-2"></i>Filtrer par Employé</h5>
+                <form method="get" class="d-flex">
+                    <div class="input-group">
+                        <select class="form-select" name="employe" id="employe">
+                            <option value="">Tous les employés</option>
+                            {% for employe in employes %}
+                            <option value="{{ employe.id }}" {% if request.GET.employe == employe.id|stringformat:"s" %}selected{% endif %}>
+                                {{ employe.prenom }} {{ employe.nom }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-filter" type="submit">
+                            <i class="fas fa-filter me-1"></i>Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="col-md-6">
-            <form method="get" class="d-flex">
-                <div class="input-group" style="background: #e8f5e9; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(46, 125, 50, 0.15);">
-                    <input type="date" class="form-control" name="date_debut" id="date_debut" 
-                           value="{{ request.GET.date_debut }}">
-                    <span class="input-group-text">à</span>
-                    <input type="date" class="form-control" name="date_fin" id="date_fin" 
-                           value="{{ request.GET.date_fin }}">
-                    <button class="btn btn-outline-success" type="submit">
-                        <i class="fas fa-calendar-alt me-1"></i>Filtrer par date
-                    </button>
-                </div>
-            </form>
+            <div class="filter-card fade-in">
+                <h5 class="filter-title"><i class="fas fa-calendar me-2"></i>Filtrer par Période</h5>
+                <form method="get" class="d-flex">
+                    <div class="input-group">
+                        <input type="date" class="form-control" name="date_debut" id="date_debut" 
+                               value="{{ request.GET.date_debut }}">
+                        <span class="input-group-text">à</span>
+                        <input type="date" class="form-control" name="date_fin" id="date_fin" 
+                               value="{{ request.GET.date_fin }}">
+                        <button class="btn btn-filter" type="submit">
+                            <i class="fas fa-calendar-alt me-1"></i>Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Tableau des pointages -->
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Employé</th>
-                    <th>Heure d'entrée</th>
-                    <th>Heure de sortie</th>
-                    <th>Temps travaillé</th>
-                    <th>État</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pointage in pointages %}
-                <tr>
-                    <td>{{ pointage.date|date:"d/m/Y" }}</td>
-                    <td>{{ pointage.employe.prenom }} {{ pointage.employe.nom }}</td>
-                    <td>{{ pointage.heure_entree|time:"H:i" }}</td>
-                    <td>{{ pointage.heure_sortie|time:"H:i" }}</td>
-                    <td>{{ pointage.temps_travaille }}</td>
-                    <td>
-                        <span class="badge {% if pointage.etat == 'present' %}bg-success{% elif pointage.etat == 'absent' %}bg-danger{% else %}bg-warning{% endif %}">
-                            {{ pointage.get_etat_display }}
-                        </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">Aucun pointage trouvé</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="table-container fade-in">
+        <h5 class="table-title"><i class="fas fa-clock me-2"></i>Données de Pointage</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employé</th>
+                        <th>Heure d'entrée</th>
+                        <th>Heure de sortie</th>
+                        <th>Temps travaillé</th>
+                        <th>État</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pointage in pointages %}
+                    <tr>
+                        <td>{{ pointage.date|date:"d/m/Y" }}</td>
+                        <td>{{ pointage.employe.prenom }} {{ pointage.employe.nom }}</td>
+                        <td>{{ pointage.heure_entree|time:"H:i" }}</td>
+                        <td>{{ pointage.heure_sortie|time:"H:i" }}</td>
+                        <td>{{ pointage.temps_travaille }}</td>
+                        <td>
+                            <span class="badge {% if pointage.etat == 'present' %}bg-success{% elif pointage.etat == 'absent' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ pointage.get_etat_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun pointage trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Statistiques -->
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="stats-card card fade-in">
                 <div class="card-body">
-                    <h5 class="card-title">Statistiques</h5>
+                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Statistiques Générales</h5>
                     <p class="card-text">
                         <strong>Total pointages :</strong> {{ total_pointages }}<br>
                         <strong>Temps total travaillé :</strong> {{ temps_total_travaille }}<br>
                         <strong>Présences :</strong> {{ total_present }}<br>
                         <strong>Absences :</strong> {{ total_absent }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stats-card card fade-in">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+                    <p class="card-text">
+                        <strong>Période affichée :</strong> {% if request.GET.date_debut %}{{ request.GET.date_debut }}{% else %}Toutes{% endif %}<br>
+                        <strong>Employé sélectionné :</strong> {% if request.GET.employe %}Filtré{% else %}Tous{% endif %}<br>
+                        <strong>Dernière mise à jour :</strong> {% now "d/m/Y H:i" %}<br>
+                        <strong>Système :</strong> Lunzy Tech
                     </p>
                 </div>
             </div>

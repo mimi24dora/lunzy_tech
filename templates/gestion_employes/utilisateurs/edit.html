@@ -1,38 +1,156 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .card {
+        background-color: #e8f5e9;
+        border: 1px solid #81c784;
+    }
+    .card-header {
+        background-color: #4caf50 !important;
+        color: white !important;
+    }
+    .form-control, .form-select {
+        background-color: #f1f8e9;
+        border: 1px solid #81c784;
+    }
+    .form-control:focus, .form-select:focus {
+        background-color: #e8f5e9;
+        border-color: #4caf50;
+        box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
+    }
+    .btn-primary {
+        background-color: #4caf50;
+        border-color: #4caf50;
+    }
+    .btn-primary:hover {
+        background-color: #43a047;
+        border-color: #43a047;
+    }
+    .errorlist {
+        color: #dc3545;
+        padding-left: 0;
+        list-style: none;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
+    {% if messages %}
+    <div class="row mb-3">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Modifier l'utilisateur</h3>
+                <div class="card-header bg-primary">
+                    <h3 class="mb-0" style="color: white !important;">Modifier l'utilisateur</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="post" id="userForm" class="needs-validation" novalidate action="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}?next={% url 'gestion_employes:dashboard' %}">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nom d'utilisateur</label>
-                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Informations de connexion</h5>
+                                
+                                <!-- Champ username -->
+                                <div class="mb-3">
+                                    {{ user_form.username.label_tag }}
+                                    {{ user_form.username }}
+                                    {% if user_form.username.errors %}
+                                        <div class="text-danger">{{ user_form.username.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Champ email -->
+                                <div class="mb-3">
+                                    {{ user_form.email.label_tag }}
+                                    {{ user_form.email }}
+                                    {% if user_form.email.errors %}
+                                        <div class="text-danger">{{ user_form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Champ prénom -->
+                                <div class="mb-3">
+                                    {{ user_form.first_name.label_tag }}
+                                    {{ user_form.first_name }}
+                                </div>
+                                
+                                <!-- Champ nom -->
+                                <div class="mb-3">
+                                    {{ user_form.last_name.label_tag }}
+                                    {{ user_form.last_name }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5>Rôle et statut</h5>
+                                
+                                <!-- Champ rôle -->
+                                <div class="mb-3">
+                                    <label for="role" class="form-label">Rôle</label>
+                                    <select class="form-select" id="role" name="role" required>
+                                        <option value="">Sélectionnez un rôle</option>
+                                        {% for role in roles %}
+                                        <option value="{{ role.id }}" {% if user.profile.role_id == role.id %}selected{% endif %}>
+                                            {{ role.nom }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Champ statut actif -->
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ user_form.is_active }}
+                                        <label class="form-check-label" for="{{ user_form.is_active.id_for_label }}">
+                                            Compte actif
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Champs du profil -->
+                                {% if profile_form %}
+                                    {% for field in profile_form %}
+                                        {% if field.name != 'role' %}
+                                        <div class="mb-3">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="text-danger">{{ field.errors }}</div>
+                                            {% endif %}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Rôle</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="">Sélectionnez un rôle</option>
-                                {% for role in roles %}
-                                <option value="{{ role.id }}" {% if user.profile.role_id == role.id %}selected{% endif %}>
-                                    {{ role.nom }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-                            <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary">Annuler</a>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -40,4 +158,31 @@
         </div>
     </div>
 </div>
+
+<!-- JavaScript pour gérer la soumission du formulaire -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Gérer la soumission du formulaire
+    form.addEventListener('submit', function(e) {
+        // Afficher un indicateur de chargement
+        const originalButtonText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...';
+        
+        // Créer un champ caché pour la redirection
+        if (!document.querySelector('input[name="next"]')) {
+            const nextInput = document.createElement('input');
+            nextInput.type = 'hidden';
+            nextInput.name = 'next';
+            nextInput.value = '{% url "gestion_employes:dashboard" %}';
+            form.appendChild(nextInput);
+        }
+        
+        // La soumission se fera normalement, la redirection sera gérée par Django
+    });
+});
+</script>
 {% endblock %}

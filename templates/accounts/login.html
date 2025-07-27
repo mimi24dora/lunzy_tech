@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   body {
-    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%) !important;
+    background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
     min-height: 100vh;
     font-family: 'Poppins', sans-serif;
   }
@@ -17,8 +17,8 @@
     overflow: hidden;
   }
   .card-header {
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-    color: white;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white !important;
     text-align: center;
     padding: 1.5rem;
     border-bottom: none;
@@ -35,11 +35,11 @@
     height: auto;
   }
   .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
   }
   .btn-primary {
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
     border: none;
     padding: 12px 30px;
     font-weight: 600;
@@ -47,10 +47,12 @@
     text-transform: uppercase;
     transition: all 0.3s;
     border-radius: 10px;
+    color: white;
   }
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4);
+    background: linear-gradient(135deg, #047857 0%, #0d9c6e 100%);
   }
   .form-label {
     font-weight: 500;
@@ -58,11 +60,11 @@
     margin-bottom: 8px;
   }
   .home-link {
-    position: absolute;
+    position: fixed;
     top: 24px;
     left: 24px;
-    font-size: 1.75rem;
-    color: #3b82f6;
+    font-size: 1.5rem;
+    color: #10b981;
     background: white;
     width: 50px;
     height: 50px;
@@ -76,7 +78,7 @@
     text-decoration: none;
   }
   .home-link:hover {
-    color: #10b981;
+    color: #047857;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   }
@@ -84,33 +86,44 @@
 {% endblock %}
 
 {% block content %}
-<a href="/" class="home-link" title="Retour à l'accueil">
+<a href="/" class="home-link" title="Retour à l'accueil" data-bs-toggle="tooltip" data-bs-placement="right">
     <i class="fas fa-home"></i>
 </a>
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-lg-6 col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="text-center">Connexion</h3>
+                    <h3 class="text-center mb-0" style="color: white !important;">Connexion</h3>
                 </div>
-                <div class="card-body">
-                    <form method="POST">
+                <div class="card-body p-4">
+                    <form method="POST" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="username" class="form-label">Nom d'utilisateur</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Afficher le mot de passe">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Se connecter</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Se connecter</button>
                         </div>
                     </form>
-                    <div class="text-center mt-3">
-                        <a href="{% url 'gestion_employes:password_reset' %}">Mot de passe oublié ?</a>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            <a href="{% url 'gestion_employes:password_reset' %}">Mot de passe oublié ?</a>
+                        </p>
                     </div>
                 </div>
             </div>

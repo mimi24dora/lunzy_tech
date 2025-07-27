@@ -3,101 +3,308 @@
 <!-- Styles pour les boutons -->
 {% block extra_css %}
 <style>
-    /* Styles pour le tableau */
-    .table {
-        width: 100%;
-        margin-bottom: 1rem;
-        background-color: transparent;
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
     }
 
-    .table th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
+    .container-fluid {
+        background: transparent !important;
+        padding: 20px;
     }
 
-    .table td {
-        vertical-align: middle;
-        border-top: 1px solid #dee2e6;
+    /* Navbar Styles */
+    .navbar {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1000 !important;
     }
 
-    .table thead th {
-        border-top: 0;
+    /* Dashboard Header */
+    .dashboard-header {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #10b981;
+        backdrop-filter: blur(10px);
     }
 
-    /* Styles pour les boutons */
-    .btn-group {
-        display: flex;
-        gap: 0.5rem;
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
     }
 
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
+    .dashboard-subtitle {
+        color: #d1d5db;
+        font-size: 1.1rem;
     }
 
-    /* Styles pour les modales */
-    .modal {
-        display: none;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    .modal.show {
-        display: block;
-        opacity: 1;
-    }
-
-    .modal-backdrop {
-        opacity: 0.5;
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    .modal-backdrop.show {
-        opacity: 0.5;
-    }
-
-    .modal-dialog {
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .modal.show .modal-dialog {
-        transform: none;
-    }
-
-    /* Styles pour les cartes */
+    /* Stats Cards */
     .stats-card {
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
         height: 100%;
-        transition: transform 0.2s;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .stats-card:hover::before {
+        left: 100%;
     }
 
     .stats-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+        border-color: #34d399;
+    }
+
+    .card-icon {
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
     }
 
     .card-title {
-        font-size: 0.9rem;
+        font-size: 1rem;
         text-transform: uppercase;
         letter-spacing: 1px;
         font-weight: 600;
-    }
-
-    .display-6 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-top: 1rem;
-    }
-
-    /* Icônes */
-    .card-icon {
-        font-size: 2.5rem;
+        color: #ffffff;
         margin-bottom: 1rem;
     }
 
-    /* Section titles */
+    .display-6 {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #10b981;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Section Cards */
+    .section-card {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .section-card .card-header {
+        background: transparent;
+        border: none;
+        padding: 0 0 1rem 0;
+    }
+
     .section-title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Table Styles */
+    .table {
+        background: #000000 !important;
+        border-radius: 15px;
+        overflow: hidden;
+        color: #ffffff;
+    }
+
+    .table th {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff;
+        border: none;
         font-weight: 600;
-        margin-bottom: 1.5rem;
-        color: #333;
+        padding: 1rem;
+    }
+
+    .table td {
+        background: #000000 !important;
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        color: #ffffff;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, #34d399, #10b981) !important;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    }
+
+    .bg-secondary {
+        background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    /* List Groups */
+    .list-group {
+        background: transparent;
+    }
+
+    .list-group-item {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10b981;
+        transform: translateX(10px);
+    }
+
+    /* Role Distribution Cards */
+    .role-card {
+        background: #000000 !important;
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .role-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+    }
+
+    .role-card .card-title {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .role-card .card-text {
+        color: #d1d5db;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #059669, #047857);
     }
 </style>
 {% endblock %}
@@ -105,56 +312,51 @@
 {% block title %}Liste des Utilisateurs{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-5">
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <h1 class="dashboard-title">Dashboard Gestion Employés</h1>
+        <p class="dashboard-subtitle">Vue d'ensemble de la gestion sur Lunzy Tech. </p>
+    </div>
     <!-- Statistiques principales -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="row g-4">
                 <div class="col-md-3">
-                    <div class="card stats-card" style="background-color: #8B4513; color: #FFFFFF;">
-                        <div class="card-body">
-                            <i class="fas fa-users card-icon"></i>
-                            <h5 class="card-title">Total Employés</h5>
-                            <p class="card-text display-6">{{ total_profiles }}</p>
-                        </div>
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-users card-icon"></i>
+                        <h5 class="card-title">Total Employés</h5>
+                        <p class="display-6">{{ total_profiles }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card stats-card bg-success text-white">
-                        <div class="card-body">
-                            <i class="fas fa-check-circle card-icon"></i>
-                            <h5 class="card-title">Employés Actifs</h5>
-                            <p class="card-text display-6">{{ profiles_actifs }}</p>
-                        </div>
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-check-circle card-icon"></i>
+                        <h5 class="card-title">Employés Actifs</h5>
+                        <p class="display-6">{{ profiles_actifs }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-    <div class="card stats-card bg-danger text-white">
-        <div class="card-body">
-            <i class="fas fa-times-circle card-icon"></i>
-            <h5 class="card-title">Employés Inactifs</h5>
-            <p class="card-text display-6">{{ profiles_inactifs }}</p>
-        </div>
-    </div>
-</div>
-<div class="col-md-3">
-    <div class="card stats-card" style="background-color: #ffc107; color: #212529;">
-        <div class="card-body">
-            <i class="fas fa-plane-departure card-icon"></i>
-            <h5 class="card-title">Employés en congé</h5>
-            <p class="card-text display-6">{{ profiles_conges }}</p>
-        </div>
-    </div>
-</div>
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-times-circle card-icon"></i>
+                        <h5 class="card-title">Employés Inactifs</h5>
+                        <p class="display-6">{{ profiles_inactifs }}</p>
+                    </div>
+                </div>
                 <div class="col-md-3">
-    <div class="card stats-card" style="background-color: #ffd699; color: #b35900;">
-        <div class="card-body">
-            <i class="fas fa-user-tag card-icon"></i>
-            <h5 class="card-title">Nombre de Rôles</h5>
-            <p class="card-text display-6">{{ nombre_roles }}</p>
-        </div>
-    </div>
-</div>
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-plane-departure card-icon"></i>
+                        <h5 class="card-title">Employés en congé</h5>
+                        <p class="display-6">{{ profiles_conges }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-user-tag card-icon"></i>
+                        <h5 class="card-title">Nombre de Rôles</h5>
+                        <p class="display-6">{{ nombre_roles }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -162,15 +364,15 @@
     <!-- Statistiques sur les rôles -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="card">
+            <div class="section-card fade-in">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Distribution des Rôles</h5>
+                    <h5 class="section-title">Distribution des Rôles</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         {% for role in roles %}
                         <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
+                            <div class="role-card card">
                                 <div class="card-body">
                                     <h6 class="card-title">{{ role.nom }}</h6>
                                     <p class="card-text">{{ role.utilisateurs.count }} utilisateurs</p>
@@ -187,12 +389,13 @@
     <!-- Derniers Pointages -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="card bg-warning text-dark">
+            <div class="section-card fade-in">
                 <div class="card-body">
-                    <h5 class="card-title">Derniers Pointages</h5>
+                    <h5 class="section-title">Derniers Pointages</h5>
                     <div class="list-group">
                         {% for pointage in derniers_pointages %}
                         <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clock me-2" style="color: #10b981;"></i>
                             {{ pointage.profile.user.get_full_name }} - {{ pointage.date }}
                         </a>
                         {% endfor %}
@@ -205,9 +408,9 @@
     <!-- Liste des utilisateurs -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="card">
+            <div class="section-card fade-in">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Liste des utilisateurs</h5>
+                    <h5 class="section-title">Liste des utilisateurs</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -217,7 +420,7 @@
                                     <th>Nom complet</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    
+                                    <th>Rôle</th>
                                     <th>Matricule</th>
                                     <th>Poste</th>
                                     <th>Statut</th>
@@ -230,52 +433,83 @@
                                     <td>{{ utilisateur.get_full_name }}</td>
                                     <td>{{ utilisateur.username }}</td>
                                     <td>{{ utilisateur.email }}</td>
-                                    
+                                    <td id="role-cell-{{ utilisateur.id }}">
+                                        {% if utilisateur.username == 'superadmin' %}
+                                        <span class="badge bg-primary px-2 py-1">
+                                            <i class="fas fa-crown me-1"></i> Super Admin
+                                        </span>
+                                        {% elif utilisateur.profile and utilisateur.profile.role %}
+                                        {% with role=utilisateur.profile.role %}
+                                        {% if role.nom == 'admin' or role.nom == 'superadmin' %}
+                                        <span class="badge bg-primary px-2 py-1">
+                                            <i class="fas fa-user-shield me-1"></i>
+                                            {{ role.nom|title }}
+                                        </span>
+                                        {% elif role.nom == 'manager' %}
+                                        <span class="badge bg-info px-2 py-1">
+                                            <i class="fas fa-user-tie me-1"></i>
+                                            {{ role.nom|title }}
+                                        </span>
+                                        {% elif role.nom == 'rh' %}
+                                        <span class="badge bg-success px-2 py-1">
+                                            <i class="fas fa-users me-1"></i>
+                                            {{ role.nom|title }}
+                                        </span>
+                                        {% elif role.nom == 'DG' %}
+                                        <span class="badge bg-primary px-2 py-1">
+                                            <i class="fas fa-crown me-1"></i>
+                                            {{ role.nom }}
+                                        </span>
+                                        {% elif role.nom == 'Directeur IT' %}
+                                        <span class="badge bg-info px-2 py-1">
+                                            <i class="fas fa-laptop-code me-1"></i>
+                                            {{ role.nom }}
+                                        </span>
+                                        {% elif role.nom == 'Réceptionniste' %}
+                                        <span class="badge bg-success px-2 py-1">
+                                            <i class="fas fa-headset me-1"></i>
+                                            {{ role.nom }}
+                                        </span>
+                                        {% elif role.nom == 'Ouvrier' %}
+                                        <span class="badge bg-secondary px-2 py-1">
+                                            <i class="fas fa-hard-hat me-1"></i>
+                                            {{ role.nom }}
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary px-2 py-1">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ role.nom }}
+                                        </span>
+                                        {% endif %}
+                                        {% endwith %}
+                                        {% else %}
+                                        <span class="badge bg-secondary px-2 py-1">
+                                            <i class="fas fa-user me-1"></i>
+                                            Aucun rôle
+                                        </span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ utilisateur.profile.matricule }}</td>
                                     <td>{{ utilisateur.profile.poste }}</td>
                                     <td>
                                         <span class="badge bg-{{ utilisateur.profile.get_statut_badge }}">
-    {{ utilisateur.profile.get_statut_display }}
-</span>
+                                            {{ utilisateur.profile.get_statut_display }}
+                                        </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                            data-bs-target="#deleteModal{{ utilisateur.id }}">
-                                            Supprimer
-                                        </button>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}"
+                                                class="btn btn-sm btn-warning me-1">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                            <a href="{% url 'gestion_employes:delete_utilisateur' utilisateur.id %}"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
-
-<!-- Modal Delete -->
-                                <div class="modal fade" id="deleteModal{{ utilisateur.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer l'utilisateur</h5>
-                                                <button type="button" class="btn-close"
-                                                    data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p class="text-center mb-4">
-                                                    <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
-                                                    <br>
-                                                    Êtes-vous sûr de vouloir supprimer l'utilisateur {{
-                                                    utilisateur.username }} ?
-                                                </p>
-                                                <form
-                                                    action="{% url 'gestion_employes:delete_utilisateur' utilisateur.id %}"
-                                                    method="post">
-                                                    {% csrf_token %}
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Annuler</button>
-                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -291,124 +525,6 @@
 
 {% block extra_js %}
 <script>
-    // Fonction pour mettre à jour le tableau après modification
-    function updateTableRow(userId, username, email, fullName) {
-        const row = document.querySelector(`tr[data-user-id="${userId}"]`);
-        if (row) {
-            row.querySelector('td:nth-child(1)').textContent = fullName;
-            row.querySelector('td:nth-child(2)').textContent = username;
-            row.querySelector('td:nth-child(3)').textContent = email;
-        }
-    }
-
-    // Fonction pour gérer la réponse de la modification
-    function handleUpdateResponse(response, userId) {
-        if (response.success) {
-            // Mettre à jour le tableau
-            const user = response.user;
-            updateTableRow(userId, user.username, user.email, user.full_name);
-            
-            // Fermer la modale
-            const modal = bootstrap.Modal.getInstance(document.getElementById(`updateModal${userId}`));
-            if (modal) {
-                modal.hide();
-            }
-            
-            // Afficher un message de succès
-            showAlert('success', 'Utilisateur mis à jour avec succès');
-        } else {
-            showAlert('danger', response.message || 'Erreur lors de la mise à jour');
-        }
-    }
-
-    // Fonction pour gérer les erreurs
-    function handleError(error) {
-        showAlert('danger', 'Une erreur est survenue lors de la mise à jour');
-        console.error('Erreur:', error);
-    }
-
-    // Gestion des modales
-    document.addEventListener('DOMContentLoaded', function () {
-        const modals = document.querySelectorAll('.modal');
-        
-        // Initialiser les modales
-                    const response = await fetch(form.getAttribute('action'), {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: formData
-                    });
-                    
-                    const data = await response.json();
-                    handleUpdateResponse(data, userId);
-                } catch (error) {
-                    handleError(error);
-                }
-            });
-        });
-
-        // Initialisation des modales
-        modals.forEach(modal => {
-            const modalInstance = new bootstrap.Modal(modal);
-            modal.addEventListener('show.bs.modal', function (event) {
-                // Code existant
-            });
-            modal.addEventListener('hidden.bs.modal', function (event) {
-                // Code existant
-            });
-        });
-    });
-
-    // Gestion des formulaires avec AJAX
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const modal = this.closest('.modal');
-            const modalInstance = bootstrap.Modal.getInstance(modal);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Fermer la modale
-                        modalInstance.hide();
-                        // Afficher un message de succès
-                        showAlert('success', data.message);
-                        // Actualiser la page après 1 seconde
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showAlert('danger', data.message || 'Erreur lors de la mise à jour');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    showAlert('danger', 'Une erreur est survenue');
-                });
-        });
-    });
-
-    function showAlert(type, message) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x w-50`;
-        alertDiv.style.zIndex = '1050';
-        alertDiv.textContent = message;
-
-        document.body.appendChild(alertDiv);
-
-        // Supprimer l'alerte après 3 secondes
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 3000);
-    }
+    // Pas de JavaScript nécessaire pour les liens directs
 </script>
 {% endblock %}

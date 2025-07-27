@@ -1,8 +1,64 @@
 /* Style général */
+:root {
+    --primary-color: #10b981; /* Vert émeraude */
+    --primary-light: #d1fae5; /* Vert très clair */
+    --primary-dark: #059669; /* Vert foncé */
+    --text-color: #1f2937; /* Gris foncé pour le texte */
+    --card-bg: #ffffff; /* Blanc pour les cartes */
+    --page-bg: #f0fdf4; /* Vert très très clair pour le fond de page */
+    --section-bg: #bbf7d0; /* Vert clair pour les sections */
+}
+
 body {
-    background-color: #bbf7d0 !important; /* Vert clair #bbf7d0 */
+    background-color: var(--page-bg) !important;
     min-height: 100vh;
     font-family: 'Poppins', Arial, sans-serif;
+    color: var(--text-color);
+}
+
+/* Assurer que tous les conteneurs principaux utilisent le même fond */
+.container, .container-fluid, .content-wrapper {
+    background-color: var(--page-bg) !important;
+}
+
+/* Styles pour les sections principales */
+.main-content, .content-area {
+    background-color: var(--page-bg) !important;
+}
+
+/* Styles pour les cartes et conteneurs de contenu */
+.card, .content-box {
+    background-color: var(--card-bg) !important;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les sections avec fond vert clair */
+.section-light, .home-about, .home-cta, .feature-box {
+    background-color: var(--section-bg) !important;
+}
+
+/* Styles pour les boutons principaux */
+.btn-primary, .btn-success {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+/* Styles pour les boutons secondaires */
+.btn-outline-primary, .btn-outline-success {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-success:hover {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-dark) !important;
 }
 
 .auth-container, .register-container {
@@ -14,37 +70,67 @@ body {
 
 .card {
     border-radius: 1.5rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
-    background: #fff;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--primary-light) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .card-header h3, .card-header .fw-bold {
-    color: #10b981 !important;
+    color: var(--primary-dark) !important;
     font-weight: 700;
     letter-spacing: 1px;
 }
 
-.btn-success {
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+.btn-success, .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     border: none;
     font-weight: 600;
     border-radius: 0.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    color: white;
 }
 
-.btn-success:hover {
+.btn-success:hover, .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+    color: white;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #b45309 100%);
 }
 
 .form-floating > label {
-    color: #10b981;
+    color: var(--primary-dark);
 }
 
 .form-control:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.15);
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--primary-light) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--primary-dark) !important;
+    font-weight: 500;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
 }
 
 /* Navbar */
@@ -64,25 +150,159 @@ body {
 
 /* Table */
 .table {
-    background-color: white;
+    background-color: var(--card-bg);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(245, 158, 11, 0.05);
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    --bs-table-accent-bg: rgba(254, 243, 199, 0.3);
 }
 
 /* Formulaires */
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+.form-control {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
 }
 
-/* Statistiques */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
+}
+
+/* Badges */
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Alertes */
+.alert {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.alert-success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border-left: 4px solid #16a34a;
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    color: #854d0e;
+    border-left: 4px solid var(--primary-color);
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+}
+
+/* Styles pour la page d'accueil */
+.home-container {
+    background-color: var(--page-bg);
+}
+
+.home-features {
+    margin: 0 -12px;
+    padding: 0 12px;
+    background-color: var(--primary-light);
+}
+
+.home-about {
+    margin: 0 -12px;
+    padding: 40px 12px;
+    background-color: var(--primary-light);
+}
+
+/* Cartes de statistiques */
 .stat-card {
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border: none;
+    background: linear-gradient(135deg, #fffdf5 0%, #fff7cc 100%);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card .card-body {
     padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card .card-title {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0.5rem 0;
+}
+
+.stat-card .stat-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    font-size: 3rem;
+    opacity: 0.2;
+    color: var(--primary-dark);
+}
+
+/* Boutons d'action */
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.btn-edit:hover {
+    background-color: #fde68a;
+    color: #78350f;
+}
+
+.btn-delete {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+    color: #7f1d1d;
 }
 
 /* Animations */

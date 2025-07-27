@@ -4,112 +4,144 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  body {
-    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%) !important;
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
-  }
-  .card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-  .card-header {
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-    color: white;
-    text-align: center;
-    padding: 1.5rem;
-    border-bottom: none;
-  }
-  .card-header h3 {
-    margin: 0;
-    font-weight: 600;
-  }
-  .form-control {
-    padding: 12px 20px 12px 45px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    transition: all 0.3s;
-    height: auto;
-  }
-  .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-  .input-group-text {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: #64748b;
-    z-index: 10;
-  }
-  .input-group {
-    position: relative;
-  }
-  .password-toggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #64748b;
-    cursor: pointer;
-    z-index: 10;
-  }
-  .btn-submit {
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-    border: none;
-    padding: 12px 30px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    border-radius: 10px;
-  }
-  .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
-  }
-  .form-text {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-top: 5px;
-  }
-  .password-requirements {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-top: 5px;
-    padding-left: 20px;
-  }
-  .password-requirements li {
-    margin-bottom: 3px;
-    position: relative;
-    list-style: none;
-  }
-  .password-requirements li:before {
-    content: "•";
-    color: #3b82f6;
-    font-weight: bold;
-    display: inline-block;
-    width: 1em;
-    margin-left: -1em;
-  }
-  .form-label {
-    font-weight: 500;
-    color: #334155;
-    margin-bottom: 8px;
-  }
+    body {
+        background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        text-align: center;
+        padding: 1.5rem;
+        border-bottom: none;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-weight: 600;
+        color: white !important;  /* Ajout de !important pour forcer la couleur */
+    }
+
+    .form-control {
+        padding: 12px 20px 12px 45px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        transition: all 0.3s;
+        height: auto;
+    }
+
+    .form-control:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .input-group-text {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #64748b;
+        z-index: 10;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4);
+        background: linear-gradient(135deg, #047857 0%, #0d9c6e 100%);
+    }
+
+    .form-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 5px;
+    }
+
+    .password-requirements {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 5px;
+        padding-left: 20px;
+    }
+
+    .password-requirements li {
+        margin-bottom: 3px;
+        position: relative;
+        list-style: none;
+    }
+
+    .password-requirements li:before {
+        content: "•";
+        color: #10b981;
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #334155;
+        margin-bottom: 8px;
+    }
 </style>
 {% endblock %}
 {% block content %}
-<a href="/" class="position-absolute top-4 start-4 text-dark text-decoration-none" style="z-index: 1000;">
-    <i class="fas fa-home fa-2x"></i>
+<a href="/"
+    class="position-fixed top-4 start-4 d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm"
+    style="width: 50px; height: 50px; z-index: 1000; transition: all 0.3s ease;" aria-label="Retour à l'accueil"
+    data-bs-toggle="tooltip" data-bs-placement="right" title="Retour à l'accueil">
+    <i class="fas fa-home fs-4" style="color: #10b981;"></i>
 </a>
+
+<style>
+    .position-fixed {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .position-fixed:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -121,18 +153,18 @@
                 <div class="card-body p-4">
                     <form method="POST" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        
+
                         {% if form.errors %}
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <h5 class="alert-heading">Veuillez corriger les erreurs ci-dessous :</h5>
                             <ul class="mb-0">
                                 {% for field in form %}
-                                    {% if field.errors %}
-                                        <li><strong>{{ field.label }}</strong> : {{ field.errors|striptags }}</li>
-                                    {% endif %}
+                                {% if field.errors %}
+                                <li><strong>{{ field.label }}</strong> : {{ field.errors|striptags }}</li>
+                                {% endif %}
                                 {% endfor %}
                                 {% if form.non_field_errors %}
-                                    <li>{{ form.non_field_errors|striptags }}</li>
+                                <li>{{ form.non_field_errors|striptags }}</li>
                                 {% endif %}
                             </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -143,14 +175,10 @@
                             <label for="id_username" class="form-label">Nom d'utilisateur</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="id_username" 
-                                       name="username" 
-                                       value="{{ form.username.value|default_if_none:'' }}" 
-                                       required
-                                       pattern="^[a-zA-Z0-9_]{4,30}$"
-                                       title="Le nom d'utilisateur doit contenir entre 4 et 30 caractères alphanumériques ou des tirets bas.">
+                                <input type="text" class="form-control" id="id_username" name="username"
+                                    value="{{ form.username.value|default_if_none:'' }}" required
+                                    pattern="^[a-zA-Z0-9_]{4,30}$"
+                                    title="Le nom d'utilisateur doit contenir entre 4 et 30 caractères alphanumériques ou des tirets bas.">
                             </div>
                             <div class="form-text">4 à 30 caractères. Lettres, chiffres et _ uniquement.</div>
                         </div>
@@ -159,13 +187,9 @@
                             <label for="id_email" class="form-label">Adresse email</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" 
-                                       class="form-control" 
-                                       id="id_email" 
-                                       name="email" 
-                                       value="{{ form.email.value|default_if_none:'' }}" 
-                                       required
-                                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                                <input type="email" class="form-control" id="id_email" name="email"
+                                    value="{{ form.email.value|default_if_none:'' }}" required
+                                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
                             </div>
                             <div class="form-text">Nous ne partagerons jamais votre email.</div>
                         </div>
@@ -175,16 +199,9 @@
                                 <label for="id_telephone" class="form-label">Téléphone</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                    <input type="tel" 
-                                           class="form-control" 
-                                           id="id_telephone" 
-                                           name="telephone" 
-                                           value="{{ form.telephone.value|default_if_none:'' }}" 
-                                           required
-                                           pattern="\d{10}"
-                                           maxlength="10"
-                                           inputmode="numeric"
-                                           placeholder="Ex: 0612345678">
+                                    <input type="tel" class="form-control" id="id_telephone" name="telephone"
+                                        value="{{ form.telephone.value|default_if_none:'' }}" required pattern="\d{10}"
+                                        maxlength="10" inputmode="numeric" placeholder="Ex: 0612345678">
                                 </div>
                                 <div class="form-text">{{ form.telephone.help_text }}</div>
                             </div>
@@ -192,13 +209,9 @@
                                 <label for="id_nom_entreprise" class="form-label">Nom de l'entreprise</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-building"></i></span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="id_nom_entreprise" 
-                                           name="nom_entreprise" 
-                                           value="{{ form.nom_entreprise.value|default_if_none:'' }}" 
-                                           required
-                                           placeholder="Le nom de votre entreprise">
+                                    <input type="text" class="form-control" id="id_nom_entreprise" name="nom_entreprise"
+                                        value="{{ form.nom_entreprise.value|default_if_none:'' }}" required
+                                        placeholder="Le nom de votre entreprise">
                                 </div>
                                 <div class="form-text">{{ form.nom_entreprise.help_text }}</div>
                             </div>
@@ -209,28 +222,18 @@
                                 <label for="id_first_name" class="form-label">Prénom</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="id_first_name" 
-                                           name="first_name" 
-                                           value="{{ form.first_name.value|default_if_none:'' }}" 
-                                           required
-                                           pattern="[A-Za-zÀ-ÿ\-\s]+"
-                                           title="Veuillez entrer un prénom valide.">
+                                    <input type="text" class="form-control" id="id_first_name" name="first_name"
+                                        value="{{ form.first_name.value|default_if_none:'' }}" required
+                                        pattern="[A-Za-zÀ-ÿ\-\s]+" title="Veuillez entrer un prénom valide.">
                                 </div>
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="id_last_name" class="form-label">Nom</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="id_last_name" 
-                                           name="last_name" 
-                                           value="{{ form.last_name.value|default_if_none:'' }}" 
-                                           required
-                                           pattern="[A-Za-zÀ-ÿ\-\s]+"
-                                           title="Veuillez entrer un nom valide.">
+                                    <input type="text" class="form-control" id="id_last_name" name="last_name"
+                                        value="{{ form.last_name.value|default_if_none:'' }}" required
+                                        pattern="[A-Za-zÀ-ÿ\-\s]+" title="Veuillez entrer un nom valide.">
                                 </div>
                             </div>
                         </div>
@@ -239,13 +242,9 @@
                             <label for="id_password1" class="form-label">Mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" 
-                                       class="form-control password-field" 
-                                       id="id_password1" 
-                                       name="password1" 
-                                       required
-                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                                       title="Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule et un chiffre.">
+                                <input type="password" class="form-control password-field" id="id_password1"
+                                    name="password1" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                    title="Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule et un chiffre.">
                                 <button type="button" class="password-toggle" aria-label="Afficher le mot de passe">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -265,11 +264,8 @@
                             <label for="id_password2" class="form-label">Confirmer le mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
-                                <input type="password" 
-                                       class="form-control password-field" 
-                                       id="id_password2" 
-                                       name="password2" 
-                                       required>
+                                <input type="password" class="form-control password-field" id="id_password2"
+                                    name="password2" required>
                                 <button type="button" class="password-toggle" aria-label="Afficher le mot de passe">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -284,7 +280,8 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <p class="mb-0">Déjà inscrit ? <a href="{% url 'login' %}" class="text-primary">Connectez-vous ici</a></p>
+                            <p class="mb-0">Déjà inscrit ? <a href="{% url 'login' %}"
+                                    class="text-primary">Connectez-vous ici</a></p>
                         </div>
                     </form>
                 </div>
@@ -299,10 +296,10 @@
 <script>
     // Afficher/masquer le mot de passe
     document.querySelectorAll('.password-toggle').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const input = this.previousElementSibling;
             const icon = this.querySelector('i');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -366,12 +363,12 @@
     // Vérifier la correspondance des mots de passe
     function checkPasswordMatch() {
         const matchMessage = document.getElementById('password-match');
-        
+
         if (password2.value === '') {
             matchMessage.textContent = '';
             return;
         }
-        
+
         if (password1.value === password2.value) {
             matchMessage.textContent = 'Les mots de passe correspondent.';
             matchMessage.className = 'form-text text-success';
@@ -382,7 +379,7 @@
     }
 
     // Événements
-    password1.addEventListener('input', function() {
+    password1.addEventListener('input', function () {
         checkPasswordStrength(this.value);
         checkPasswordMatch();
     });
@@ -390,20 +387,20 @@
     password2.addEventListener('input', checkPasswordMatch);
 
     // Validation du formulaire
-    (function() {
+    (function () {
         'use strict';
-        
+
         // Récupérer les formulaires auxquels nous voulons ajouter la validation
         var forms = document.querySelectorAll('.needs-validation');
-        
+
         // Boucle sur les formulaires pour empêcher la soumission
-        Array.prototype.slice.call(forms).forEach(function(form) {
-            form.addEventListener('submit', function(event) {
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
-                
+
                 form.classList.add('was-validated');
             }, false);
         });

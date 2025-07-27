@@ -1,136 +1,421 @@
 {% extends 'base.html' %}
+{% load static %}
 
+{% block extra_css %}
 <style>
-  .btn-outline-success:active, 
-  .btn-outline-success.active {
-    background-color: #d1fae5 !important;
-    border-color: #10b981 !important;
-    color: #10b981 !important;
-  }
-  .btn-outline-success:hover {
-    background-color: #ecfdf5 !important;
-  }
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%);
+        color: #ffffff;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container-fluid {
+        background: transparent !important;
+        padding: 0 !important;
+    }
+
+    .container {
+        background: transparent !important;
+    }
+
+    .hero-section {
+        background-image: linear-gradient(rgba(6, 78, 59, 0.7), rgba(26, 26, 26, 0.7)), url('{% static "images/empreinte_verte.jpeg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero-title {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        margin-bottom: 2rem;
+        letter-spacing: 2px;
+    }
+
+    .content-section {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%);
+        padding: 80px 0;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .text-block {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        padding: 30px;
+        margin: 30px 0;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+
+    .text-block h3 {
+        color: #10b981;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .text-block p {
+        color: #ffffff;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 50px 0;
+    }
+
+    .feature-item {
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid #10b981;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .feature-item h4 {
+        color: #ffffff;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .feature-item p {
+        color: #ffffff;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .stats-section {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 60px 0;
+        margin: 50px 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #10b981;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        color: #ffffff;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .btn-custom {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 50px;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        margin: 10px;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .process-timeline {
+        position: relative;
+        padding: 50px 0;
+    }
+
+    .timeline-item {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        border-left: 5px solid #10b981;
+    }
+
+    .timeline-number {
+        background: #10b981;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .footer-section {
+        background: #000000;
+        padding: 40px 0;
+        text-align: center;
+        border-top: 2px solid #10b981;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+        .section-title {
+            font-size: 2rem;
+        }
+    }
 </style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid p-0">
-    <div class="px-0" style="background-color: #f0fdf4;">
-        <div class="container">
-            <!-- Section d'en-tête -->
-            <div class="row justify-content-center mb-5">
-                <div class="col-lg-10">
-                    <div class="text-center welcome-section"
-                        style="background-color: #bbf7d0; color: #1f2937; border: none; border-radius: 0; padding: 48px 24px; box-shadow: none; font-family: 'Poppins', Arial, sans-serif; margin: 0;">
-                        <h1 class="display-4 mb-3"
-                            style="font-weight:700; letter-spacing:1px; text-shadow:0 2px 8px rgba(0,0,0,0.10);">
-                            Bienvenue sur Lunzy Tech</h1>
-                        <p class="lead mb-4" style="font-size:1.5rem; font-weight:400;">Solution innovante de sécurité
-                            informatique</p>
-                        <p class="mb-0">Protégez vos systèmes avec notre dispositif électronique intelligent et nos
-                            solutions logicielles avancées</p>
-                    </div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container" style="background: transparent;">
+        <h1 class="hero-title">LUNZY TECH</h1>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="content-section">
+    <div class="container">
+        
+        <!-- Introduction -->
+        <div class="text-block">
+            <h3>Révolutionner la Cybersécurité Mondiale</h3>
+            <p>Lunzy Tech est une entreprise pionnière dans le domaine de la cybersécurité, spécialisée dans le développement de solutions innovantes qui combinent intelligence artificielle avancée et dispositifs matériels sécurisés. Notre mission est de protéger les infrastructures numériques critiques contre les cybermenaces les plus sophistiquées de notre époque.</p>
+            <p>Fondée par une équipe d'experts en sécurité informatique et en ingénierie électronique, Lunzy Tech repousse constamment les limites de ce qui est possible en matière de protection numérique. Nous croyons fermement que l'avenir de la cybersécurité réside dans l'intégration harmonieuse entre le matériel et le logiciel.</p>
+        </div>
+
+        <!-- What We Do -->
+        <h2 class="section-title">Ce Que Nous Faisons</h2>
+        
+        <div class="text-block">
+            <h3>Développement de Dispositifs Électroniques Sécurisés</h3>
+            <p>Au cœur de notre innovation se trouve le développement de boîtiers électroniques intelligents intégrant des processeurs cryptographiques dédiés. Ces dispositifs révolutionnaires créent une barrière physique infranchissable entre votre réseau et les menaces extérieures.</p>
+            <p>Nos boîtiers sont équipés de puces sécurisées propriétaires qui effectuent le chiffrement et le déchiffrement des données directement au niveau matériel, garantissant ainsi une sécurité maximale même face aux attaques les plus avancées. Chaque dispositif est conçu avec des mécanismes anti-tampering qui détectent et neutralisent toute tentative d'intrusion physique.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Intelligence Artificielle de Sécurité Avancée</h3>
+            <p>Notre système d'intelligence artificielle propriétaire représente l'état de l'art en matière de détection et de prévention des cybermenaces. Utilisant des algorithmes d'apprentissage automatique de pointe, notre IA analyse en permanence les flux de données pour identifier les patterns suspects et les comportements anormaux.</p>
+            <p>L'IA de Lunzy Tech ne se contente pas de détecter les menaces connues ; elle prédit et anticipe les nouvelles formes d'attaques grâce à l'analyse de millions de données de sécurité collectées en temps réel. Cette capacité prédictive permet à nos clients de rester toujours un pas en avant des cybercriminels.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Solutions de Protection Intégrées</h3>
+            <p>Nous déployons des écosystèmes de sécurité complets qui s'intègrent parfaitement à votre infrastructure existante. Nos solutions couvrent tous les aspects de la cybersécurité, depuis la protection des endpoints jusqu'à la sécurisation des environnements cloud hybrides.</p>
+            <p>Chaque solution Lunzy Tech est personnalisée selon les besoins spécifiques de nos clients, qu'il s'agisse de petites entreprises ou de grandes corporations multinationales. Notre approche modulaire permet une évolutivité parfaite et une adaptation continue aux nouveaux défis de sécurité.</p>
+        </div>
+
+        <!-- Features Grid -->
+        <h2 class="section-title">Nos Technologies Révolutionnaires</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-cpu-fill"></i>
                 </div>
+                <h4>Processeur Cryptographique Propriétaire</h4>
+                <p>Notre puce sécurisée intègre des algorithmes de chiffrement avancés directement au niveau silicium, garantissant une sécurité inviolable même face aux attaques physiques les plus sophistiquées. Cette technologie révolutionnaire offre un chiffrement AES-256 matériel, une protection anti-tampering et une authentification biométrique intégrée.</p>
             </div>
 
-            <!-- Section des fonctionnalités -->
-            <div class="row g-4 mb-5" style="background-color: #bbf7d0; margin: 0 -12px; padding: 0 12px;">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
-                                <i class="bi bi-people-fill"></i>
-                            </div>
-                            <h3 class="h4 mb-3">Surveillance en Temps Réel</h3>
-                            <p class="text-muted">Surveillance continue de votre réseau et détection proactive des
-                                menaces de sécurité grâce à notre dispositif électronique intelligent.</p>
-                        </div>
-                    </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-eye-fill"></i>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
-                                <i class="bi bi-clock-history"></i>
-                            </div>
-                            <h3 class="h4 mb-3">Analyse Avancée</h3>
-                            <p class="text-muted">Algorithmes d'analyse puissants pour détecter les anomalies et
-                                prévenir les intrusions en temps réel.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-3" style="font-size: 2.5rem; color: #1976d2;">
-                                <i class="bi bi-shield-lock"></i>
-                            </div>
-                            <h3 class="h4 mb-3">Sécurité Matérielle</h3>
-                            <p class="text-muted">Notre dispositif électronique sécurisé offre une protection physique
-                                contre les attaques et les accès non autorisés.</p>
-                        </div>
-                    </div>
-                </div>
+                <h4>Surveillance Prédictive par IA</h4>
+                <p>Notre intelligence artificielle ne se contente pas de détecter les menaces existantes, elle prédit et anticipe les nouvelles formes d'attaques grâce à l'analyse de millions de patterns de sécurité. Utilisant le machine learning adaptatif, elle détecte les menaces zero-day et effectue une analyse comportementale en temps réel.</p>
             </div>
 
-            <!-- Section À propos -->
-            <div class="row align-items-center mb-5" style="background-color: #bbf7d0; margin: 0 -12px; padding: 0 12px;">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <h2 class="h1 mb-4" style="color: #1f2937; font-weight: 700;">À propos de Lunzy Tech</h2>
-                    <p class="lead">Lunzy Tech est une solution de sécurité informatique innovante intégrant un
-                        dispositif électronique intelligent pour une protection complète de vos systèmes d'information.
-                    </p>
-                    <p>Notre technologie combine matériel et logiciel pour offrir une sécurité optimale contre les
-                        cybermenaces modernes. Conçue pour les professionnels exigeants, notre solution s'adapte à tous
-                        les environnements, des petites entreprises aux grandes infrastructures.</p>
-                    <div class="d-flex align-items-center mt-4">
-                        <div class="me-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                <span>Détection avancée des menaces</span>
-                            </div>
-                            <div class="d-flex align-items-center mt-2">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                <span>Support technique expert</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                <span>Mises à jour de sécurité régulières</span>
-                            </div>
-                            <div class="d-flex align-items-center mt-2">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                <span>Dispositif matériel sécurisé</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-lightning-charge-fill"></i>
                 </div>
-                <div class="col-lg-6">
-                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-                        alt="Sécurité informatique et protection des données" class="img-fluid rounded-3 shadow">
-                </div>
+                <h4>Réponse Automatisée Ultra-Rapide</h4>
+                <p>En cas de détection d'une menace, notre système déclenche automatiquement les contre-mesures appropriées en moins de 100 millisecondes, isolant instantanément les segments compromis. Cette réactivité exceptionnelle inclut l'isolation réseau automatique, la quarantaine intelligente et la restauration automatisée.</p>
             </div>
 
-            <!-- Appel à l'action -->
-            <div class="text-center py-5 my-5" style="background-color: #bbf7d0; border-radius: 0;">
-                <h2 class="h1 mb-4" style="color: #1f2937; font-weight: 700;">Prêt à sécuriser votre infrastructure ?
-                </h2>
-                <p class="lead mb-4">Rejoignez les organisations qui font confiance à Lunzy Tech pour une protection
-                    complète contre les cybermenaces.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="{% url 'registration' %}" class="btn btn-lg px-4" style="background-color: #10b981; border-color: #10b981; color: white;">
-                        <i class="bi bi-rocket-takeoff me-2"></i>Commencer maintenant
-                    </a>
-                    <a href="#" class="btn btn-outline-success btn-lg px-4" style="color: #10b981; border-color: #10b981;">
-                        <i class="bi bi-question-circle me-2"></i>En savoir plus
-                    </a>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-layers-fill"></i>
                 </div>
+                <h4>Architecture Multicouche Adaptative</h4>
+                <p>Notre approche multicouche combine protection matérielle, logicielle, réseau et applicative dans un écosystème unifié qui s'adapte dynamiquement aux évolutions de votre infrastructure. Cette architecture offre une sécurité endpoint avancée, un filtrage réseau intelligent et un contrôle d'accès granulaire.</p>
             </div>
 
-            <!-- Pied de page -->
-            <div class="text-center text-muted mt-5 pt-4 border-top">
-                <p class="mb-0">© {% now "Y" %} Lunzy Tech. Tous droits réservés.</p>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-cloud-check-fill"></i>
+                </div>
+                <h4>Cloud Sécurisé Distribué</h4>
+                <p>Notre infrastructure cloud distribuée assure une disponibilité maximale tout en maintenant la confidentialité absolue de vos données grâce à un chiffrement de bout en bout. Avec une redondance géographique, un chiffrement end-to-end et une conformité réglementaire complète.</p>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h4>Analytics Avancés en Temps Réel</h4>
+                <p>Nos tableaux de bord intelligents vous offrent une visibilité complète sur l'état de sécurité de votre infrastructure avec des métriques avancées et des recommandations personnalisées. Incluant des dashboards interactifs, des alertes personnalisées et des rapports automatisés.</p>
             </div>
         </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="container">
+                <h2 class="section-title">Nos Résultats Parlent d'Eux-Mêmes</h2>
+                <div class="row">
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">99.99%</span>
+                        <div class="stat-label">Taux de Détection des Menaces</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">&lt;100ms</span>
+                        <div class="stat-label">Temps de Réponse Automatique</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">2500+</span>
+                        <div class="stat-label">Entreprises Protégées Mondialement</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">0</span>
+                        <div class="stat-label">Brèche de Sécurité Réussie</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Process Section -->
+        <h2 class="section-title">Notre Processus de Protection</h2>
+        
+        <div class="process-timeline">
+            <div class="timeline-item">
+                <div class="timeline-number">1</div>
+                <h4>Analyse Complète et Audit de Sécurité</h4>
+                <p>Nous commençons par une évaluation exhaustive de votre infrastructure actuelle, identifiant chaque vulnérabilité potentielle et analysant les flux de données critiques. Notre équipe d'experts effectue des tests de pénétration approfondis et établit un diagnostic complet de votre posture de sécurité actuelle. Cette phase dure généralement 2-4 semaines selon la complexité et inclut un rapport détaillé, une cartographie des risques et un plan d'action basé sur les standards NIST, ISO 27001 et OWASP.</p>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-number">2</div>
+                <h4>Déploiement Intelligent et Intégration</h4>
+                <p>L'installation de nos dispositifs sécurisés s'effectue avec une intégration transparente à votre écosystème IT existant. Nos ingénieurs configurent chaque composant selon vos spécifications exactes, garantissant une transition fluide sans interruption de service. Le processus inclut une phase pilote avec déploiement progressif sur environnement de test, suivi d'une migration avec basculement sans interruption et une formation complète des équipes techniques et utilisateurs finaux.</p>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-number">3</div>
+                <h4>Apprentissage IA et Optimisation</h4>
+                <p>Notre intelligence artificielle entre en phase d'apprentissage, analysant les patterns spécifiques de votre environnement pour optimiser la détection et minimiser les faux positifs. Cette phase d'adaptation permet d'atteindre une précision maximale dans la protection. La période d'apprentissage de 30 jours inclut l'observation et le calibrage, l'ajustement continu des seuils de détection, et une réduction de 95% des faux positifs.</p>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-number">4</div>
+                <h4>Protection Continue et Évolution</h4>
+                <p>Une fois déployée, notre solution assure une surveillance 24/7 avec des mises à jour automatiques et une évolution constante des capacités de protection. Notre équipe de support expert reste disponible en permanence pour toute intervention nécessaire. Cela inclut un SOC 24/7 avec centre opérationnel de sécurité dédié, des mises à jour avec signatures et règles actualisées en temps réel, et un support avec intervention d'urgence en moins de 15 minutes.</p>
+            </div>
+        </div>
+
+        <!-- Industries Section -->
+        <h2 class="section-title">Secteurs d'Activité Protégés</h2>
+        
+        <div class="text-block">
+            <h3>Secteur Financier et Bancaire</h3>
+            <p>Lunzy Tech protège les institutions financières contre les cyberattaques sophistiquées visant les systèmes de paiement, les bases de données clients et les infrastructures de trading. Nos solutions garantissent la conformité aux réglementations strictes du secteur financier tout en maintenant des performances optimales. Nous sécurisons les transactions financières, protégeons les données sensibles des clients et assurons la continuité des services bancaires critiques.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Secteur de la Santé</h3>
+            <p>La protection des données médicales sensibles et des équipements hospitaliers connectés représente un défi majeur que Lunzy Tech relève avec expertise. Nos solutions assurent la confidentialité des dossiers patients tout en permettant l'interopérabilité nécessaire aux soins modernes. Nous sécurisons les dossiers patients, protégeons les équipements médicaux connectés et garantissons la conformité HIPAA et RGPD.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Industrie 4.0 et Manufacturing</h3>
+            <p>Les systèmes de production connectés et les chaînes d'approvisionnement numériques nécessitent une protection spécialisée que seule Lunzy Tech peut fournir. Nous sécurisons les environnements industriels sans compromettre l'efficacité opérationnelle. Notre expertise couvre la protection des systèmes de production connectés, la sécurisation des chaînes d'approvisionnement numériques et la protection des données industrielles critiques.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Secteur Public et Gouvernemental</h3>
+            <p>Les infrastructures critiques nationales bénéficient de nos solutions de cybersécurité les plus avancées. Lunzy Tech travaille en étroite collaboration avec les agences gouvernementales pour protéger les systèmes sensibles et maintenir la sécurité nationale. Nous protégeons les infrastructures critiques nationales, sécurisons les systèmes gouvernementaux sensibles et assurons la continuité des services publics essentiels.</p>
+        </div>
+
+        <!-- Innovation Section -->
+        <h2 class="section-title">Innovation Continue et Recherche</h2>
+        
+        <div class="text-block">
+            <h3>Laboratoire de Recherche et Développement</h3>
+            <p>Notre laboratoire R&D, composé des meilleurs chercheurs en cybersécurité et en ingénierie électronique, travaille sans relâche pour anticiper les menaces de demain. Nous investissons massivement dans la recherche fondamentale et appliquée pour maintenir notre avance technologique.</p>
+            <p>Nos équipes collaborent avec les universités les plus prestigieuses et participent aux conférences internationales de sécurité pour rester à la pointe de l'innovation. Cette approche nous permet de développer des solutions qui ne se contentent pas de répondre aux besoins actuels, mais anticipent les défis futurs.</p>
+        </div>
+
+        <div class="text-block">
+            <h3>Partenariats Stratégiques</h3>
+            <p>Lunzy Tech entretient des partenariats stratégiques avec les leaders technologiques mondiaux, les institutions académiques de renom et les agences de sécurité nationales. Ces collaborations nous permettent d'accéder aux dernières avancées technologiques et de contribuer activement à l'évolution des standards de cybersécurité.</p>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center" style="margin: 60px 0;">
+            <h2 class="section-title">Prêt à Révolutionner Votre Sécurité ?</h2>
+            <p style="font-size: 1.2rem; color: #ffffff; margin-bottom: 30px;">Rejoignez plus de 2500 entreprises qui font confiance à Lunzy Tech pour protéger leurs actifs numériques les plus critiques. Notre solution s'adapte à tous les secteurs : finance, santé, industrie, services publics.</p>
+            <a href="/register/register/" class="btn-custom">
+                <i class="bi bi-rocket-takeoff me-2"></i>Commencer Maintenant
+            </a>
+            <a href="#" class="btn-custom">
+                <i class="bi bi-telephone me-2"></i>Demander une Démo
+            </a>
+        </div>
+
     </div>
-    {% endblock %}
+</div>
+
+<!-- Footer -->
+<footer class="footer-section">
+    <div class="container">
+        <p>&copy; {% now "Y" %} Lunzy Tech. L'avenir de la cybersécurité commence aujourd'hui.</p>
+        <div class="mt-3">
+            <a href="#" class="text-light me-3"><i class="bi bi-linkedin fs-4"></i></a>
+            <a href="#" class="text-light me-3"><i class="bi bi-twitter fs-4"></i></a>
+            <a href="#" class="text-light"><i class="bi bi-envelope fs-4"></i></a>
+        </div>
+    </div>
+</footer>
+{% endblock %}

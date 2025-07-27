@@ -2,233 +2,389 @@
 
 {% block extra_css %}
 <style>
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+
+    .container-fluid {
+        background: transparent !important;
+        padding: 20px;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #10b981;
+        backdrop-filter: blur(10px);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-subtitle {
+        color: #d1d5db;
+        font-size: 1.1rem;
+    }
+
+    /* Action Header */
+    .action-header {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin: 0;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Table Container */
+    .table-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+    }
+
+    /* Table Styles */
     .table {
-        width: 100%;
-        margin-bottom: 1rem;
-        background-color: transparent;
+        background: #000000 !important;
+        border-radius: 15px;
+        overflow: hidden;
+        color: #ffffff;
+        margin-bottom: 0;
     }
-    
+
     .table th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: center;
     }
-    
+
     .table td {
-        vertical-align: middle;
-        border-top: 1px solid #dee2e6;
+        background: #000000 !important;
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        color: #ffffff;
+        text-align: center;
     }
-    
-    .table thead th {
-        border-top: 0;
+
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
     }
-    
+
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    /* Badges */
     .badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, #34d399, #10b981) !important;
+    }
+
+    .bg-secondary {
+        background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        padding: 0.5rem 1.5rem;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Card Styles */
+    .card {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+        background: transparent;
+        border: none;
+        padding: 0 0 1rem 0;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        .action-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #059669, #047857);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">{% if request.GET.tab == 'presences' %}Présences{% else %}Liste des Employés{% endif %}</h5>
-                    <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-success">
-                        <i class="fas fa-plus me-1"></i> Ajouter un employé
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Prénom</th>
-                                    <th>Email</th>
-                                    <th>Téléphone</th>
-                                    <th>Poste</th>
-                                    <th>Dernier pointage</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for profile in profiles %}
-                                    {% if request.GET.tab == 'presences' %}
-                                        {% if profile.statut == 'actif' %}
-                                            <tr>
-                                                <td>{{ profile.user.last_name }}</td>
-                                                <td>{{ profile.user.first_name }}</td>
-                                                <td>{{ profile.user.email }}</td>
-                                                <td>{{ profile.telephone }}</td>
-                                                <td>{{ profile.poste }}</td>
-                                                <td>
-                                                    {% with dernier_pointage=profile.pointage_set.all|first %}
-                                                        {% if dernier_pointage %}
-                                                            {{ dernier_pointage.date }} {{ dernier_pointage.heure }}
-                                                        {% else %}
-                                                            <span class="text-muted">Aucun pointage</span>
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
-                                                        Supprimer
-                                                    </a>
-                                                </td>
-                                            </tr>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <h1 class="dashboard-title">Gestion des Employés</h1>
+        <p class="dashboard-subtitle">Administration et suivi des employés - Lunzy Tech</p>
+    </div>
+
+    <!-- Action Header -->
+    <div class="action-header fade-in">
+        <h2 class="page-title">{% if request.GET.tab == 'presences' %}Présences{% else %}Liste des Employés{% endif %}</h2>
+        <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Ajouter un employé
+        </a>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container fade-in">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        {% if request.GET.tab == 'presences' %}
+                            <th>Nom complet</th>
+                            <th>Matricule</th>
+                            <th>Poste</th>
+                            <th>Statut</th>
+                            <th>Dernier pointage</th>
+                            <th>État présence</th>
+                            <th>Actions</th>
+                        {% else %}
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Poste</th>
+                            <th>Statut</th>
+                            <th>Rôle</th>
+                            <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in profiles %}
+                        {% if request.GET.tab == 'presences' %}
+                            <tr>
+                                <td>{{ profile.user.get_full_name }}</td>
+                                <td>{{ profile.matricule|default:'-' }}</td>
+                                <td>{{ profile.poste|default:'-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ profile.get_statut_badge }}">
+                                        {{ profile.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% with dernier_pointage=profile.pointage_set.all|first %}
+                                        {% if dernier_pointage %}
+                                            {{ dernier_pointage.date|date:"d/m/Y" }} à {{ dernier_pointage.heure|time:"H:i" }}
+                                        {% else %}
+                                            <span class="text-muted">Aucun pointage</span>
                                         {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    {% with dernier_pointage=profile.pointage_set.all|first %}
+                                        {% if dernier_pointage %}
+                                            {% if dernier_pointage.etat == 'present' %}
+                                                <span class="badge bg-success">Présent</span>
+                                            {% elif dernier_pointage.etat == 'absent' %}
+                                                <span class="badge bg-danger">Absent</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">En retard</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Non pointé</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-success" onclick="marquerPresence({{ profile.id }})">
+                                            <i class="fas fa-check"></i> Présent
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="marquerAbsence({{ profile.id }})">
+                                            <i class="fas fa-times"></i> Absent
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td>{{ profile.user.last_name }}</td>
+                                <td>{{ profile.user.first_name }}</td>
+                                <td>{{ profile.user.email }}</td>
+                                <td>{{ profile.telephone }}</td>
+                                <td>{{ profile.poste }}</td>
+                                <td>
+                                    <span class="badge bg-{{ profile.get_statut_badge }}">
+                                        {{ profile.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if profile.role %}
+                                        <span class="badge bg-{% if profile.role.nom == 'admin' or profile.role.nom == 'superadmin' %}primary{% elif profile.role.nom == 'manager' %}info{% else %}secondary{% endif %} px-2 py-1">
+                                            <i class="fas {% if profile.role.nom == 'admin' or profile.role.nom == 'superadmin' %}fa-user-shield{% elif profile.role.nom == 'manager' %}fa-user-tie{% else %}fa-user{% endif %} me-1"></i>
+                                            {{ profile.role.nom }}
+                                        </span>
                                     {% else %}
-                                        <tr>
-                                            <td>{{ profile.user.last_name }}</td>
-                                            <td>{{ profile.user.first_name }}</td>
-                                            <td>{{ profile.user.email }}</td>
-                                            <td>{{ profile.telephone }}</td>
-                                            <td>{{ profile.poste }}</td>
-                                            <td>
-                                                {% if profile.statut %}
-                                                    <span class="badge bg-{{ profile.get_statut_badge }}" style="cursor: default;">{{ profile.get_statut_display }}</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary" style="cursor: default;">Non défini</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modifierEmployeModal{{ profile.id }}">
-                                                    <i class="fas fa-edit me-1"></i> Modifier
-                                                </button>
-                                                <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
-                                                    <i class="fas fa-trash"></i> Supprimer
-                                                </a>
-                                            </td>
-                                        </tr>
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-user me-1"></i> Aucun rôle
+                                        </span>
                                     {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'gestion_employes:modifier_profile' profile.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                        <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-
 {% endblock %}
-
-{% block extra_js %}
-<script>
-    // Gestion de la soumission des formulaires de modification
-    document.addEventListener('DOMContentLoaded', function() {
-        // Gestion de la soumission des formulaires de modification
-        document.querySelectorAll('form[id^="modifierEmployeForm"]').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Désactiver le bouton de soumission et afficher un indicateur de chargement
-                const submitButton = form.querySelector('button[type="submit"]');
-                const originalButtonText = submitButton.innerHTML;
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...';
-                
-                // Cacher les messages d'erreur précédents
-                const errorAlerts = form.querySelectorAll('.alert-danger');
-                errorAlerts.forEach(alert => alert.remove());
-                
-                // Envoyer la requête AJAX
-                fetch(form.action, {
-                    method: 'POST',
-                    body: new FormData(form),
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Afficher un message de succès
-                        alert('Les modifications ont été enregistrées avec succès !');
-                        // Recharger la page pour voir les changements
-                        window.location.reload();
-                    } else {
-                        // Afficher les erreurs
-                        alert('Une erreur est survenue : ' + (data.message || 'Veuillez réessayer.'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Une erreur est survenue lors de l\'envoi du formulaire.');
-                })
-                .finally(() => {
-                    // Réactiver le bouton
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalButtonText;
-                });
-            });
-        });
-    });
-</script>
-{% endblock %}
-
-<!-- Modales de modification -->
-{% for profile in profiles %}
-<div class="modal fade" id="modifierEmployeModal{{ profile.id }}" tabindex="-1" aria-labelledby="modifierEmployeModalLabel{{ profile.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="modifierEmployeModalLabel{{ profile.id }}"><i class="fas fa-user-edit me-2"></i>Modifier l'employé</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="{% url 'gestion_employes:modifier_profile' profile.id %}" id="modifierEmployeForm{{ profile.id }}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="username{{ profile.id }}" class="form-label">Nom d'utilisateur</label>
-                        <input type="text" class="form-control" id="username{{ profile.id }}" name="username" value="{{ profile.user.username }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email{{ profile.id }}" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email{{ profile.id }}" name="email" value="{{ profile.user.email }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name{{ profile.id }}" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="last_name{{ profile.id }}" name="last_name" value="{{ profile.user.last_name }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="first_name{{ profile.id }}" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="first_name{{ profile.id }}" name="first_name" value="{{ profile.user.first_name }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="telephone{{ profile.id }}" class="form-label">Téléphone</label>
-                        <input type="tel" class="form-control" id="telephone{{ profile.id }}" name="telephone" value="{{ profile.telephone|default:'' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="poste{{ profile.id }}" class="form-label">Poste</label>
-                        <input type="text" class="form-control" id="poste{{ profile.id }}" name="poste" value="{{ profile.poste|default:'' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricule{{ profile.id }}" class="form-label">Matricule</label>
-                        <input type="text" class="form-control" id="matricule{{ profile.id }}" name="matricule" value="{{ profile.matricule|default:'' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="statut{{ profile.id }}" class="form-label">Statut</label>
-                        <select class="form-select" id="statut{{ profile.id }}" name="statut">
-                            <option value="actif" {% if profile.statut == 'actif' %}selected{% endif %}>Actif</option>
-                            <option value="inactif" {% if profile.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                            <option value="conge" {% if profile.statut == 'conge' %}selected{% endif %}>Congé</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="modifierEmployeForm{{ profile.id }}" class="btn btn-success">
-                    <i class="fas fa-save me-1"></i>Enregistrer les modifications
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}

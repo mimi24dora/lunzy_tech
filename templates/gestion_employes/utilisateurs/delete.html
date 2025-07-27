@@ -14,7 +14,7 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary">Annuler</a>
+                            <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-secondary">Annuler</a>
                             <button type="submit" class="btn btn-danger">Supprimer</button>
                         </div>
                     </form>

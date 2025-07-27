@@ -1,0 +1,200 @@
+/* Styles pour la page de liste des utilisateurs */
+
+/* Style général de la page */
+body {
+    background-color: #f0fdf4 !important;
+}
+
+/* En-tête de page */
+.page-header {
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Cartes de statistiques */
+.stats-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+.stats-card .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.stats-card .card-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.stats-card .display-6 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+}
+
+/* Couleurs personnalisées pour les cartes */
+.card-total {
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+}
+
+.card-active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.card-inactive {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.card-on-leave {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.card-roles {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+/* Tableau des utilisateurs */
+.users-table {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.users-table .table {
+    margin-bottom: 0;
+}
+
+.users-table .table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.users-table .table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #e9ecef;
+}
+
+/* Badges de statut */
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.badge.bg-success {
+    background-color: #10b981 !important;
+}
+
+.badge.bg-warning {
+    background-color: #f59e0b !important;
+    color: #1f2937 !important;
+}
+
+.badge.bg-danger {
+    background-color: #ef4444 !important;
+}
+
+/* Badges de rôle */
+.role-badge {
+    padding: 0.4em 0.8em;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.role-badge i {
+    font-size: 0.7rem;
+}
+
+/* Boutons d'action */
+.btn-action {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.btn-action i {
+    font-size: 0.9em;
+}
+
+/* Section des rôles */
+.roles-section .card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.roles-section .card:hover {
+    transform: translateY(-2px);
+}
+
+.roles-section .card-body {
+    padding: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 15px;
+    }
+    
+    .users-table {
+        overflow-x: auto;
+    }
+    
+    .btn-action {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Animation de chargement */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
