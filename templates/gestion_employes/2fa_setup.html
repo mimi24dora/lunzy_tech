@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Configuration 2FA{% endblock %}
+
+{% block extra_css %}
+<style>
+body { background: linear-gradient(135deg, #064e3b, #1a1a1a) !important; }
+.card {
+    background: linear-gradient(135deg, #064e3b, #1a1a1a) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 15px !important;
+}
+.card-header {
+    background: linear-gradient(135deg, #064e3b, #000000) !important;
+    color: white !important;
+    border-bottom: 2px solid #10b981 !important;
+}
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #064e3b) !important;
+    border: none !important;
+    color: white !important;
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #1a1a1a, #000000) !important;
+    border: none !important;
+    color: white !important;
+}
+.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+}
+.alert-info {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 2px solid #10b981 !important;
+    color: #10b981 !important;
+}
+.card-body { color: white !important; }
+h5 { color: #10b981 !important; }
+p { color: #d1d5db !important; }
+.container, .container-fluid { background: transparent !important; }
+.row, .col-md-6, .col-md-8 { background: transparent !important; }
+.mb-3 { background: transparent !important; }
+code { background: rgba(0, 0, 0, 0.7) !important; color: #10b981 !important; }
+.text-center { background: transparent !important; }
+.img-fluid { border: 2px solid #10b981 !important; border-radius: 10px !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Configuration de l'authentification à deux facteurs (2FA)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>1. Scannez le QR Code</h5>
+                            <p>Utilisez une application comme Google Authenticator ou Authy pour scanner ce QR code :</p>
+                            <div class="text-center mb-3">
+                                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code 2FA" class="img-fluid">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>2. Clé secrète manuelle</h5>
+                            <p>Si vous ne pouvez pas scanner le QR code, entrez cette clé manuellement :</p>
+                            <div class="alert alert-info">
+                                <code>{{ secret }}</code>
+                            </div>
+                            
+                            <h5>3. Vérification</h5>
+                            <p>Entrez le code à 6 chiffres généré par votre application :</p>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <input type="text" name="token" class="form-control" placeholder="123456" maxlength="6" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">Activer 2FA</button>
+                                <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-secondary">Annuler</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

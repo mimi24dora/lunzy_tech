@@ -1,6 +1,69 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+body { background: linear-gradient(135deg, #064e3b, #1a1a1a) !important; }
+.container { background: transparent !important; }
+.card {
+    background: linear-gradient(135deg, #064e3b, #1a1a1a) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 15px !important;
+    color: white !important;
+}
+.card-body { color: white !important; }
+h2 { color: #10b981 !important; }
+.form-label { color: #10b981 !important; }
+.form-control, .form-select {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+}
+.form-control:focus, .form-select:focus {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+    color: white !important;
+}
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #064e3b) !important;
+    border: none !important;
+    color: white !important;
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #1a1a1a, #000000) !important;
+    border: none !important;
+    color: white !important;
+}
+.d-flex { background: transparent !important; }
+.mb-3, .mb-4 { background: transparent !important; }
+.needs-validation { background: transparent !important; }
+form { background: transparent !important; }
+.container-fluid { background: transparent !important; }
+.mt-4 { background: transparent !important; }
+.justify-content-between { background: transparent !important; }
+.align-items-center { background: transparent !important; }
+select.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+select.form-control option {
+    background: #1a1a1a !important;
+    color: white !important;
+}
+textarea.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+    resize: vertical !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    * {
+        box-sizing: border-box !important;
+    }
+    html, body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        min-height: 100vh !important;
+        font-family: "Inter", sans-serif !important;
+        color: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .container, .container-fluid {
+        background: transparent !important;
+    }
+    h1 {
+        color: #10b981 !important;
+        text-align: center !important;
+        margin-bottom: 2rem !important;
+        font-weight: 700 !important;
+    }
+    .table-responsive {
+        background: rgba(16, 185, 129, 0.1) !important;
+        border: 1px solid #10b981 !important;
+        border-radius: 20px !important;
+        padding: 2rem !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    .table {
+        background: #000000 !important;
+        border-radius: 15px !important;
+        overflow: hidden !important;
+        color: #ffffff !important;
+        margin-bottom: 0 !important;
+    }
+    .table th {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #ffffff !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 1rem !important;
+        text-align: center !important;
+    }
+    .table td {
+        background: #000000 !important;
+        border: none !important;
+        padding: 1rem !important;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1) !important;
+        color: #ffffff !important;
+        text-align: center !important;
+    }
+    .table tbody tr:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+    .table tbody tr:hover td {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+    .badge {
+        padding: 0.5rem 1rem !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+    }
+    .bg-success {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+        color: white !important;
+    }
+    .bg-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        color: white !important;
+    }
+    .btn {
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        margin: 0 0.25rem !important;
+    }
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        color: white !important;
+    }
+    .btn-success:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
+        color: white !important;
+    }
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        color: white !important;
+    }
+    .btn-warning:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3) !important;
+        color: white !important;
+    }
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        color: white !important;
+    }
+    .btn-danger:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3) !important;
+        color: white !important;
+    }
+    .btn-sm {
+        padding: 0.4rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1>Gestion des Utilisateurs</h1>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utilisateur in utilisateurs %}
+                <tr>
+                    <td>{{ utilisateur.get_full_name|default:utilisateur.username }}</td>
+                    <td>{{ utilisateur.username }}</td>
+                    <td>{{ utilisateur.email }}</td>
+                    <td>
+                        {% if utilisateur.is_active %}
+                            <span class="badge bg-success">Actif</span>
+                        {% else %}
+                            <span class="badge bg-warning">En attente d'approbation</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not utilisateur.is_active and is_superadmin %}
+                            <form method="post" action="{% url 'gestion_employes:approve_user' utilisateur.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Approuver</button>
+                            </form>
+                            <form method="post" action="{% url 'gestion_employes:reject_user' utilisateur.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">Refuser</button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}" class="btn btn-sm btn-warning">Éditer</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Aucun utilisateur trouvé</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

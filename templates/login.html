@@ -1,126 +1,230 @@
-{% extends "base.html" %}
-{% block extra_css %}
-<style>
-    body {
-        background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - Gestion Employés</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        font-family: 'Poppins', sans-serif;
-    }
-    .card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-    .card-header {
-        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        color: white !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .login-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        width: 100%;
+        max-width: 450px;
+        margin: 2rem;
+      }
+
+      .brand-logo {
         text-align: center;
-        padding: 1.5rem;
-        border-bottom: none;
-    }
-    .card-header h3 {
-        margin: 0;
-        font-weight: 600;
-        color: white !important;
-    }
-    .form-control {
-        padding: 12px 20px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        transition: all 0.3s;
-    }
-    .form-control:focus {
-        border-color: #10b981;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        margin-bottom: 2rem;
+      }
+
+      .brand-logo i {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+      }
+
+      .brand-title {
+        color: #333;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .brand-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .form-floating {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-control {
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        padding: 1rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        padding: 12px 30px;
+        border-radius: 12px;
+        padding: 1rem 2rem;
         font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        transition: all 0.3s;
-        border-radius: 10px;
-        color: white;
-    }
-    .btn-primary:hover {
+        font-size: 1.1rem;
+        width: 100%;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-login:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4);
-        background: linear-gradient(135deg, #047857 0%, #0d9c6e 100%);
-    }
-    .form-label {
-        font-weight: 500;
-        color: #334155;
-        margin-bottom: 8px;
-    }
-</style>
-{% endblock %}
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
 
-{% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <a href="/" class="d-inline-block mb-4">
-                <i class="fas fa-arrow-left me-2"></i> Retour à l'accueil
-            </a>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center mb-0" style="color: white !important;">Connexion</h3>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="username" class="form-label">Nom d'utilisateur</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Mot de passe</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Afficher le mot de passe">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Se connecter</button>
-                        </div>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p class="mb-0">Pas encore de compte ? <a href="{% url 'register' %}" class="text-primary">S'inscrire ici</a></p>
-                    </div>
-                </div>
-            </div>
+      .divider {
+        text-align: center;
+        margin: 2rem 0;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        display: inline-block;
+        width: 30%;
+        height: 1px;
+        background: #ddd;
+        vertical-align: middle;
+      }
+
+      .divider::before {
+        margin-right: 10px;
+      }
+
+      .divider::after {
+        margin-left: 10px;
+      }
+
+      .register-link {
+        text-align: center;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .register-link:hover {
+        color: #764ba2;
+        text-decoration: none;
+      }
+
+      .alert {
+        border-radius: 12px;
+        border: none;
+        margin-bottom: 1.5rem;
+      }
+
+      .security-badge {
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #667eea;
+        font-size: 0.85rem;
+      }
+
+      .security-badge i {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="brand-logo">
+        <i class="fas fa-users-cog"></i>
+        <h2 class="brand-title">Gestion Employés</h2>
+        <p class="brand-subtitle">LunzyTech - Système de gestion</p>
+      </div>
+
+      {% if messages %} {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        <i
+          class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"
+        ></i>
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="id_username"
+            name="username"
+            placeholder="Nom d'utilisateur"
+            required
+          />
+          <label for="id_username">
+            <i class="fas fa-user me-2"></i>Nom d'utilisateur
+          </label>
         </div>
-    </div>
-</div>
 
-{% block extra_js %}
-<script>
-    // Afficher/masquer le mot de passe
-    document.querySelectorAll('.password-toggle').forEach(button => {
-        button.addEventListener('click', function() {
-            const input = this.previousElementSibling;
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-</script>
-{% endblock %}
-{% endblock %}
+        <div class="form-floating">
+          <input
+            type="password"
+            class="form-control"
+            id="id_password"
+            name="password"
+            placeholder="Mot de passe"
+            required
+          />
+          <label for="id_password">
+            <i class="fas fa-lock me-2"></i>Mot de passe
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-login">
+          <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+        </button>
+      </form>
+
+      <div class="divider">ou</div>
+
+      <div class="text-center">
+        <a href="{% url 'gestion_employes:register' %}" class="register-link">
+          <i class="fas fa-user-plus me-2"></i>Créer un nouveau compte
+        </a>
+      </div>
+
+      <div class="security-badge">
+        <i class="fas fa-shield-alt"></i>
+        Connexion sécurisée avec authentification à deux facteurs disponible
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -335,41 +335,44 @@
     </div>
 
     <!-- Cartes de statistiques -->
-    <div class="stats-grid fade-in">
-        <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title">Total Employés</h5>
-                    <p class="display-6">5</p>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-users card-icon"></i>
+                        <h5 class="card-title">Total Utilisateurs</h5>
+                        <p class="display-6">{{ total_utilisateurs }}</p>
+                    </div>
                 </div>
-                <i class="fas fa-users card-icon"></i>
-            </div>
-        </div>
-        <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title">Employés Actifs</h5>
-                    <p class="display-6">2</p>
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-check-circle card-icon"></i>
+                        <h5 class="card-title">Utilisateurs Actifs</h5>
+                        <p class="display-6">{{ utilisateurs_actifs }}</p>
+                    </div>
                 </div>
-                <i class="fas fa-check-circle card-icon"></i>
-            </div>
-        </div>
-        <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title">Employés Inactifs</h5>
-                    <p class="display-6">1</p>
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-times-circle card-icon"></i>
+                        <h5 class="card-title">Utilisateurs Inactifs</h5>
+                        <p class="display-6">{{ utilisateurs_inactifs }}</p>
+                    </div>
                 </div>
-                <i class="fas fa-times-circle card-icon"></i>
-            </div>
-        </div>
-        <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title">En Congé</h5>
-                    <p class="display-6">2</p>
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-plane-departure card-icon"></i>
+                        <h5 class="card-title">Utilisateurs en Congé</h5>
+                        <p class="display-6">{{ utilisateurs_conge }}</p>
+                    </div>
                 </div>
-                <i class="fas fa-plane-departure card-icon"></i>
+                <div class="col-md-3">
+                    <div class="stats-card fade-in">
+                        <i class="fas fa-user-tag card-icon"></i>
+                        <h5 class="card-title">Nombre de Rôles</h5>
+                        <p class="display-6">{{ roles.count }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -400,140 +403,82 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Utilisateur 1 -->
+                    {% for utilisateur in utilisateurs %}
                     <tr class="animate-fade-in">
-                        <td>Chaaa Chaa</td>
-                        <td>chacha</td>
-                        <td>chacha@gmail.com</td>
+                        <td>{{ utilisateur.get_full_name }}</td>
+                        <td>{{ utilisateur.username }}</td>
+                        <td>{{ utilisateur.email }}</td>
                         <td>
-                            <span class="badge bg-light">
-                                <i class="fas fa-user"></i>
-                                Aucun rôle
-                            </span>
-                        </td>
-                        <td>1111</td>
-                        <td>Réceptionniste</td>
-                        <td><span class="badge bg-warning">Congé</span></td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="/gestion/utilisateurs/1/edit/" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/gestion/utilisateurs/1/delete/" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Utilisateur 2 -->
-                    <tr class="animate-fade-in">
-                        <td>Suuu Suu</td>
-                        <td>superadmin</td>
-                        <td>superadmin@lunzytech.com</td>
-                        <td>
+                            {% if utilisateur.username == 'superadmin' %}
                             <span class="badge bg-primary">
                                 <i class="fas fa-crown"></i>
                                 Super Admin
                             </span>
-                        </td>
-                        <td>1114</td>
-                        <td>Directeur IT</td>
-                        <td><span class="badge bg-warning">Congé</span></td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="/gestion/utilisateurs/10/edit/" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/gestion/utilisateurs/10/delete/" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Utilisateur 3 -->
-                    <tr class="animate-fade-in">
-                        <td>Mooo Moo</td>
-                        <td>mona</td>
-                        <td>mona@gmail.com</td>
-                        <td>
+                            {% elif utilisateur.profile and utilisateur.profile.role %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-user-shield"></i>
+                                {{ utilisateur.profile.role.nom }}
+                            </span>
+                            {% else %}
                             <span class="badge bg-light">
                                 <i class="fas fa-user"></i>
                                 Aucun rôle
                             </span>
+                            {% endif %}
                         </td>
-                        <td>1112</td>
-                        <td>Comptable</td>
-                        <td><span class="badge bg-success">Actif</span></td>
+                        <td>{{ utilisateur.profile.matricule|default:'-' }}</td>
+                        <td>{{ utilisateur.profile.poste|default:'-' }}</td>
                         <td>
-                            <div class="btn-group">
-                                <a href="/gestion/utilisateurs/12/edit/" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/gestion/utilisateurs/12/delete/" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Utilisateur 4 -->
-                    <tr class="animate-fade-in">
-                        <td>Maaa Maa</td>
-                        <td>manu</td>
-                        <td>manu@gmail.com</td>
-                        <td>
-                            <span class="badge bg-light">
-                                <i class="fas fa-user"></i>
-                                Aucun rôle
+                            {% if not utilisateur.is_active %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-clock"></i>
+                                En attente d'approbation
                             </span>
-                        </td>
-                        <td>1119</td>
-                        <td>Directeur Général</td>
-                        <td><span class="badge bg-success">Actif</span></td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="/gestion/utilisateurs/13/edit/" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/gestion/utilisateurs/13/delete/" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Utilisateur 5 -->
-                    <tr class="animate-fade-in">
-                        <td>Kaaa Kaa</td>
-                        <td>kam</td>
-                        <td>kam@gmail.com</td>
-                        <td>
-                            <span class="badge bg-light">
-                                <i class="fas fa-user"></i>
-                                Aucun rôle
+                            {% elif utilisateur.profile %}
+                            <span class="badge bg-success">
+                                Actif
                             </span>
+                            {% else %}
+                            <span class="badge bg-secondary">Non défini</span>
+                            {% endif %}
                         </td>
-                        <td>1214</td>
-                        <td>Comptable</td>
-                        <td><span class="badge bg-danger">Inactif</span></td>
                         <td>
                             <div class="btn-group">
-                                <a href="/gestion/utilisateurs/14/edit/" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/gestion/utilisateurs/14/delete/" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                                {% if not utilisateur.is_active and is_superadmin %}
+                                    <!-- Boutons d'approbation pour les utilisateurs inactifs -->
+                                    <form method="post" action="{% url 'gestion_employes:approve_user' utilisateur.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success" title="Approuver">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'gestion_employes:reject_user' utilisateur.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Refuser" 
+                                               onclick="return confirm('Êtes-vous sûr de vouloir refuser cet utilisateur ?')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <!-- Boutons normaux pour les utilisateurs actifs -->
+                                    <a href="{% url 'gestion_employes:edit_utilisateur' utilisateur.id %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if is_superadmin %}
+                                    <a href="{% url 'gestion_employes:delete_utilisateur' utilisateur.id %}" class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">Aucun utilisateur trouvé</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -543,12 +488,13 @@
     <div class="roles-section fade-in">
         <h5 class="table-title"><i class="fas fa-user-tag me-2"></i>Répartition par Rôle</h5>
         <div class="row">
+            {% for role in roles %}
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <div class="role-card card h-100">
                     <div class="card-body text-center">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 text-white">Super Admin</h6>
-                            <span class="badge bg-primary">1</span>
+                            <h6 class="mb-0 text-white">{{ role.nom }}</h6>
+                            <span class="badge bg-primary">{{ role.utilisateurs.count }}</span>
                         </div>
                         <div class="d-grid gap-2">
                             <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
@@ -556,38 +502,14 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
-                <div class="role-card card h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 text-white">Directeur IT</h6>
-                            <span class="badge bg-success">1</span>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
-                <div class="role-card card h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 text-white">Comptable</h6>
-                            <span class="badge bg-warning">2</span>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-sm btn-success">Voir les membres</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
+            <!-- Utilisateurs sans rôle -->
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <div class="role-card card h-100">
                     <div class="card-body text-center">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0 text-white">Aucun Rôle</h6>
-                            <span class="badge bg-secondary">1</span>
+                            <span class="badge bg-secondary">{{ utilisateurs_sans_role }}</span>
                         </div>
                         <div class="d-grid gap-2">
                             <a href="#" class="btn btn-sm btn-success">Voir les membres</a>

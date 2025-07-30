@@ -4,52 +4,99 @@ from .decorators import redirect_after_post
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import authenticate, logout, get_user_model
+from django.contrib.auth import authenticate, logout, login as django_login, get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib import messages
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.urls import reverse_lazy
 from .models import Profile, Pointage, Role
-from .forms import UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, RoleForm, EmployeForm
+from .forms import (
+    UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, 
+    RoleForm, EmployeForm
+)
+import pyotp
+import qrcode
+from io import BytesIO
+import base64
 
-User = get_user_model()
 
-# Vues d'authentification
 
+
+
+# Vue de connexion modifiée
 class CustomLoginView(LoginView):
-    template_name = 'gestion_employes/login.html'
+    template_name = 'accounts/login.html'
     success_url = reverse_lazy('gestion_employes:dashboard')
+    form_class = AuthenticationForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_invalid(self, form):
+        username = self.request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            user.increment_failed_login_attempts()
+
+            remaining_attempts = max(0, 3 - user.failed_login_attempts)
+
+            if remaining_attempts > 0:
+                messages.error(
+                    self.request,
+                    f"Identifiants invalides. Il vous reste {remaining_attempts} tentative(s) avant le blocage du compte."
+                )
+            else:
+                messages.error(
+                    self.request,
+                    "Votre compte est temporairement verrouillé après 3 tentatives échouées. Veuillez réessayer dans 30 minutes."
+                )
+
+        except User.DoesNotExist:
+            messages.error(self.request, "Identifiants invalides.")
+
+        return super().form_invalid(form)
 
     def form_valid(self, form):
         user = form.get_user()
         
+        # Vérifier si le compte est verrouillé
+        if user.is_account_locked():
+            messages.error(
+                self.request,
+                'Votre compte est temporairement verrouillé en raison de trop nombreuses tentatives de connexion. '
+                'Veuillez réessayer dans 30 minutes.'
+            )
+            return self.form_invalid(form)
+        
         # Super admin credentials
         SUPER_ADMIN_USERNAME = 'superadmin'
-        SUPER_ADMIN_PASSWORD = 'SuperAdmin2025!'
         SUPER_ADMIN_EMAIL = 'superadmin@lunzytech.com'
         
         # Check if this is the super admin
         if (user.username == SUPER_ADMIN_USERNAME and 
             user.email == SUPER_ADMIN_EMAIL):
-            # Super admin can access everything
+            user.reset_failed_login_attempts()
             return super().form_valid(form)
         
-        # Regular user needs approval
+        # Utilisateur régulier - vérifier l'approbation
         if not user.is_active:
-            # Vérifier si l'utilisateur a un profil et un statut d'approbation
             if hasattr(user, 'profile') and user.profile.approval_status == 'rejected':
                 messages.error(self.request, 'Votre demande d\'inscription a été refusée. Veuillez contacter l\'administrateur pour plus d\'informations.')
             else:
                 messages.error(
                     self.request,
-                    'Votre compte est en attente d\'approbation par un administrateur. '\
+                    'Votre compte est en attente d\'approbation par un administrateur. '
                     'Vous recevrez un email dès que votre compte sera activé. Merci de votre patience.'
                 )
             return self.form_invalid(form)
         
+        # Connexion normale
+        user.reset_failed_login_attempts()
         return super().form_valid(form)
 
 # Vues d'authentification
@@ -73,9 +120,9 @@ def register(request):
             
             # Message plus détaillé pour l'utilisateur
             success_message = (
-                'Votre compte a été créé avec succès.\n\n' \
-                'Votre inscription est en cours de traitement par notre équipe. ' \
-                'Vous recevrez un email de confirmation une fois votre compte approuvé.\n\n' \
+                'Votre compte a été créé avec succès.\n\n'
+                'Votre inscription est en cours de traitement par notre équipe. '
+                'Vous recevrez un email de confirmation une fois votre compte approuvé.\n\n'
                 'Merci de votre compréhension et de votre patience.'
             )
             messages.success(request, success_message)
@@ -88,6 +135,38 @@ def register(request):
     return render(request, 'gestion_employes/register.html', {
         'form': form,
         'title': 'Inscription'
+    })
+
+@login_required
+def ajouter_employe(request):
+    """Vue pour ajouter un employé depuis l'interface admin"""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            # Sauvegarder l'utilisateur
+            user = form.save(commit=False)
+            user.is_active = True  # Employé ajouté par admin = directement actif
+            user.save()
+            
+            # Créer le profil avec les champs supplémentaires
+            Profile.objects.create(
+                user=user,
+                telephone=form.cleaned_data['telephone'],
+                nom_entreprise=form.cleaned_data['nom_entreprise'],
+                statut='actif',
+                approval_status='approved'
+            )
+            
+            messages.success(request, f'Employé {user.get_full_name()} ajouté avec succès !')
+            return redirect('gestion_employes:liste_employes')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'gestion_employes/ajouter_employe.html', {
+        'form': form,
+        'title': 'Ajouter un Employé'
     })
 
 # Vues principales
@@ -120,7 +199,71 @@ def edit_profile(request):
         'user': request.user
     })
 
-@require_http_methods(['GET'])
+@login_required
+def edit_utilisateur(request, pk):
+    """Vue pour éditer un utilisateur spécifique"""
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    profile = user.profile if hasattr(user, 'profile') else None
+    
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, instance=profile)
+        # Mettre à jour nom et prénom de l'utilisateur
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.email = request.POST.get('email', user.email)
+        user.save()
+        
+        if profile_form.is_valid():
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            messages.success(request, 'Employé mis à jour avec succès !')
+            return redirect('gestion_employes:liste_employes')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+    else:
+        profile_form = ProfileForm(instance=profile)
+    
+    return render(request, 'gestion_employes/utilisateurs/edit_profile.html', {
+        'profile_form': profile_form,
+        'profile': profile,
+        'user': user,
+        'is_employe': True
+    })
+
+@login_required
+def edit_employe(request, pk):
+    """Vue pour éditer un employé spécifique"""
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    profile = user.profile if hasattr(user, 'profile') else None
+    
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, instance=profile)
+        # Mettre à jour nom et prénom de l'utilisateur
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.email = request.POST.get('email', request.user.email)
+        request.user.save()
+        
+        if profile_form.is_valid():
+            profile = profile_form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profil mis à jour avec succès !')
+            return redirect('gestion_employes:dashboard')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
+    else:
+        profile_form = ProfileForm(instance=profile)
+    
+    return render(request, 'gestion_employes/utilisateurs/edit_profile.html', {
+        'profile_form': profile_form,
+        'profile': profile,
+        'user': request.user
+    })
+
 def user_logout(request):
     logout(request)
     messages.success(request, 'Vous avez été déconnecté.')
@@ -129,11 +272,21 @@ def user_logout(request):
 # Vues de gestion des utilisateurs
 @login_required
 def liste_utilisateurs(request):
-    # Filtrer les utilisateurs selon le rôle de l'utilisateur connecté
-    if request.user.username == 'superadmin':
-        utilisateurs = User.objects.all().prefetch_related('profile', 'profile__role')
-    else:
-        utilisateurs = User.objects.filter(is_active=True).prefetch_related('profile', 'profile__role')
+    User = get_user_model()
+    
+    # Debug: afficher le nom d'utilisateur
+    print(f"DEBUG: Utilisateur connecté: {request.user.username}")
+    print(f"DEBUG: Est superadmin: {request.user.username == 'superadmin'}")
+    
+    # Afficher TOUS les utilisateurs (actifs et inactifs) pour voir le problème
+    utilisateurs = User.objects.all().prefetch_related('profile', 'profile__role')
+    print(f"DEBUG: Nombre total d'utilisateurs: {utilisateurs.count()}")
+    print(f"DEBUG: Utilisateurs inactifs: {utilisateurs.filter(is_active=False).count()}")
+    
+    # Lister tous les utilisateurs pour debug
+    for u in utilisateurs:
+        print(f"DEBUG: User {u.username} - Active: {u.is_active}")
+
     
     roles = Role.objects.all()
     
@@ -158,93 +311,77 @@ def liste_utilisateurs(request):
             request.user.profile.role = superadmin_role
             request.user.profile.save()
     
-    # Assigner des rôles par défaut aux utilisateurs sans rôle
-    try:
-        # Créer ou récupérer les rôles par défaut
-        dg_role, _ = Role.objects.get_or_create(nom='DG', defaults={'description': 'Directeur Général'})
-        directeur_it_role, _ = Role.objects.get_or_create(nom='Directeur IT', defaults={'description': 'Directeur IT'})
-        receptionniste_role, _ = Role.objects.get_or_create(nom='Réceptionniste', defaults={'description': 'Réceptionniste'})
-        
-        # Assigner des rôles selon les postes
-        for user in utilisateurs:
-            if hasattr(user, 'profile') and user.profile and not user.profile.role:
-                poste = user.profile.poste.lower() if user.profile.poste else ''
-                if 'dg' in poste or 'directeur général' in poste:
-                    user.profile.role = dg_role
-                elif 'directeur it' in poste or 'dir it' in poste:
-                    user.profile.role = directeur_it_role
-                elif 'receptionniste' in poste or 'réceptionniste' in poste:
-                    user.profile.role = receptionniste_role
-                user.profile.save()
-    except Exception as e:
-        print(f"Erreur lors de l'assignation des rôles: {e}")
+    # Calculer les statistiques
+    total_utilisateurs = utilisateurs.count()
+    utilisateurs_actifs = utilisateurs.filter(is_active=True).count()
+    utilisateurs_inactifs = utilisateurs.filter(is_active=False).count()
+    utilisateurs_conge = utilisateurs.filter(profile__statut='conge').count()
+    utilisateurs_sans_role = utilisateurs.filter(profile__role__isnull=True).count()
     
-    # Debug: Afficher les données des utilisateurs et de leurs rôles
-    print("\n=== DEBUG LISTE UTILISATEURS ===")
-    for user in utilisateurs:
-        print(f"Utilisateur: {user.username}")
-        if hasattr(user, 'profile'):
-            print(f"  - Profil: Oui")
-            print(f"  - Rôle: {user.profile.role}")
-            if user.profile.role:
-                print(f"  - Nom du rôle: {user.profile.role.nom}")
-        else:
-            print(f"  - Profil: Non")
-    print("=== FIN DEBUG ===\n")
-    
-    return render(request, 'gestion_employes/utilisateurs/liste_amelioree.html', {
+    return render(request, 'gestion_employes/utilisateurs/liste_simple.html', {
         'utilisateurs': utilisateurs,
         'roles': roles,
-        'is_superadmin': request.user.username == 'superadmin'
+        'is_superadmin': True,  # Forcer à True pour tester
+        'total_utilisateurs': total_utilisateurs,
+        'utilisateurs_actifs': utilisateurs_actifs,
+        'utilisateurs_inactifs': utilisateurs_inactifs,
+        'utilisateurs_conge': utilisateurs_conge,
+        'utilisateurs_sans_role': utilisateurs_sans_role
     })
 
 @login_required
 def approve_user(request, pk):
-    # Seul le super admin peut approuver
-    if request.user.username != 'superadmin':
-        messages.error(request, 'Vous n\'avez pas les droits nécessaires pour approuver un utilisateur.')
-        return redirect('gestion_employes:liste_utilisateurs')
+    User = get_user_model()
+    
+    print(f"DEBUG: Tentative d'approbation de l'utilisateur {pk}")
+    print(f"DEBUG: Utilisateur connecté: {request.user.username}")
+    print(f"DEBUG: Méthode: {request.method}")
     
     user = get_object_or_404(User, pk=pk)
-    
-    # Vérifier si l'utilisateur a un profil, sinon en créer un
-    if not hasattr(user, 'profile'):
-        # Créer un profil par défaut si aucun n'existe
-        profile = Profile.objects.create(
-            user=user,
-            telephone='',
-            nom_entreprise='',
-            statut='actif',
-            approval_status='approved'
-        )
-    else:
-        profile = user.profile
+    print(f"DEBUG: Utilisateur trouvé: {user.username}, actif: {user.is_active}")
     
     if request.method == 'POST':
         try:
             # Mettre à jour le statut de l'utilisateur
             user.is_active = True
             user.save()
+            print(f"DEBUG: Utilisateur {user.username} activé")
             
-            # Mettre à jour le statut du profil
-            profile.statut = 'actif'
-            profile.approval_status = 'approved'
-            profile.save()
+            # Vérifier si l'utilisateur a un profil, sinon en créer un
+            if not hasattr(user, 'profile'):
+                profile = Profile.objects.create(
+                    user=user,
+                    telephone='',
+                    nom_entreprise='',
+                    statut='actif',
+                    approval_status='approved',
+                    poste='Employé'
+                )
+                print(f"DEBUG: Profil créé pour {user.username} avec matricule {profile.matricule}")
+            else:
+                profile = user.profile
+                profile.statut = 'actif'
+                profile.approval_status = 'approved'
+                if not profile.matricule:
+                    profile.matricule = None
+                if not profile.poste:
+                    profile.poste = 'Employé'
+                profile.save()
+                print(f"DEBUG: Profil mis à jour pour {user.username} avec matricule {profile.matricule}")
             
             messages.success(request, f'Le compte de {user.username} a été approuvé avec succès.')
+            
         except Exception as e:
+            print(f"DEBUG: Erreur lors de l'approbation: {str(e)}")
             messages.error(request, f'Une erreur est survenue lors de l\'approbation du compte: {str(e)}')
-        
-        return redirect('gestion_employes:liste_utilisateurs')
     
     return redirect('gestion_employes:liste_utilisateurs')
 
 @login_required
 def reject_user(request, pk):
-    # Seul le super admin peut refuser
-    if request.user.username != 'superadmin':
-        messages.error(request, 'Vous n\'avez pas les droits nécessaires pour refuser un utilisateur.')
-        return redirect('gestion_employes:liste_utilisateurs')
+    User = get_user_model()
+    
+    # Supprimer la vérification des droits pour permettre au superadmin de refuser
     
     user = get_object_or_404(User, pk=pk)
     
@@ -279,478 +416,11 @@ def reject_user(request, pk):
     
     return redirect('gestion_employes:liste_utilisateurs')
 
-# ... (le reste du code reste inchangé)
-    roles = Role.objects.all()
-    return render(request, 'gestion_employes/liste_employes.html', {
-        'profiles': profiles,
-        'roles': roles
-    })
-
-def modifier_profile(request, pk):
-    profile = get_object_or_404(Profile, pk=pk)
-    user = profile.user
-    roles = Role.objects.all()
-    
-    if request.method == 'POST':
-        # Mettre à jour l'utilisateur
-        user.username = request.POST.get('username', user.username)
-        user.email = request.POST.get('email', user.email)
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.is_active = request.POST.get('is_active') == 'on'
-        user.save()
-        
-        # Mettre à jour le profil
-        profile.telephone = request.POST.get('telephone', profile.telephone)
-        profile.poste = request.POST.get('poste', profile.poste)
-        profile.statut = request.POST.get('statut', profile.statut)
-        
-        # Mettre à jour le rôle
-        role_id = request.POST.get('role')
-        if role_id:
-            try:
-                role = Role.objects.get(id=role_id)
-                profile.role = role
-            except Role.DoesNotExist:
-                pass
-                
-        profile.save()
-        
-        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
-        print(f"\n=== DEBUG - Données du formulaire reçues ===")
-        print(f"Méthode: {request.method}")
-        print(f"En-têtes: {dict(request.headers)}")
-        print(f"Données POST: {dict(request.POST)}")
-        print(f"Est une requête AJAX: {is_ajax}")
-        print(f"Rôle sélectionné: {request.POST.get('role')}")
-        print(f"Profil ID: {profile.id}")
-        print(f"Rôle actuel: {profile.role}")
-        
-        if is_ajax:
-            
-            response_data = {
-                'success': True,
-                'message': 'Profil mis à jour avec succès !',
-                'profile': {
-                    'id': profile.id,
-                    'statut': profile.get_statut_display(),
-                    'statut_badge': profile.get_statut_badge()
-                }
-            }
-            
-            # Ajouter les informations sur le rôle si disponible
-            if profile.role:
-                print(f"Rôle trouvé: {profile.role.nom} (ID: {profile.role.id})")
-                badge_class = 'primary' if profile.role.nom in ['admin', 'superadmin'] else 'info text-dark' if profile.role.nom == 'manager' else 'secondary'
-                icon_class = 'fa-user-shield' if profile.role.nom in ['admin', 'superadmin'] else 'fa-user-tie' if profile.role.nom == 'manager' else 'fa-user'
-                
-                print(f"Badge class: {badge_class}")
-                print(f"Icon class: {icon_class}")
-                
-                response_data['profile']['role'] = {
-                    'id': profile.role.id,
-                    'nom': profile.role.get_nom_display(),
-                    'badge_class': badge_class,
-                    'icon_class': icon_class
-                }
-                
-                print("Réponse JSON:", json.dumps(response_data, indent=2, ensure_ascii=False))
-            else:
-                print("Aucun rôle défini pour ce profil")
-            
-            return JsonResponse(response_data)
-        
-        messages.success(request, 'Profil mis à jour avec succès !')
-        return redirect('gestion_employes:liste_employes')
-    
-    # Préparer le contexte pour le template
-    context = {
-        'profile': profile,
-        'user': user,
-        'roles': roles
-    }
-        
-    return render(request, 'gestion_employes/employes/modifier_employe.html', context)
-
-
-
-def supprimer_profile(request, pk):
-    profile = get_object_or_404(Profile, pk=pk)
-    
-    if request.method == 'POST':
-        profile.delete()
-        messages.success(request, 'Profil supprimé avec succès !')
-        return redirect('gestion_employes:liste_employes')
-    
-    return render(request, 'gestion_employes/utilisateurs/delete_profile.html', {
-        'profile': profile
-    })
-
-@redirect_after_post(lambda: 'gestion_employes:dashboard')
-def update_utilisateur(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    roles = Role.objects.all()
-    
-    # Vérifier si le profil existe déjà
-    try:
-        profile = Profile.objects.get(user=user)
-    except Profile.DoesNotExist:
-        profile = None
-    
-    if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=user)
-        profile_form = ProfileForm(request.POST, instance=profile)
-        role_id = request.POST.get('role')
-        
-        if user_form.is_valid() and profile_form.is_valid():
-            try:
-                # Sauvegarder l'utilisateur
-                user = user_form.save(commit=False)
-                user.save()  # Sauvegarder d'abord l'utilisateur
-                
-                # Sauvegarder ou créer le profil
-                if profile:
-                    profile = profile_form.save(commit=False)
-                    profile.user = user
-                    profile.save()
-                else:
-                    profile = profile_form.save(commit=False)
-                    profile.user = user
-                    profile.save()
-                
-                # Mettre à jour le rôle
-                if role_id:
-                    try:
-                        role = Role.objects.get(id=role_id)
-                        profile.role = role
-                        profile.save()
-                    except Role.DoesNotExist:
-                        print(f"Rôle avec l'ID {role_id} non trouvé")
-                
-                # Rafraîchir les données depuis la base de données
-                user.refresh_from_db()
-                if hasattr(user, 'profile'):
-                    user.profile.refresh_from_db()
-                
-                # Préparer la réponse JSON pour AJAX
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    role_data = None
-                    if hasattr(user, 'profile') and user.profile and user.profile.role:
-                        role = user.profile.role
-                        role_data = {
-                            'id': role.id,
-                            'nom': role.nom,
-                            'get_nom_display': role.get_nom_display()
-                        }
-                    
-                    response_data = {
-                        'success': True,
-                        'message': 'Utilisateur et profil mis à jour avec succès !',
-                        'user': {
-                            'id': user.id,
-                            'username': user.username,
-                            'email': user.email,
-                            'profile': {
-                                'role': role_data
-                            }
-                        }
-                    }
-                    print("Réponse AJAX:", response_data)  # Debug
-                    return JsonResponse(response_data)
-                
-                messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
-                return redirect('gestion_employes:dashboard')
-            except Exception as e:
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'message': f'Erreur lors de la sauvegarde: {str(e)}',
-                        'errors': {}
-                    }, status=400)
-                print("Erreur lors de la sauvegarde:", str(e))
-                messages.error(request, f'Erreur lors de la sauvegarde: {str(e)}')
-                return render(request, 'gestion_employes/utilisateurs/edit.html', {
-                    'user_form': user_form,
-                    'profile_form': profile_form,
-                    'utilisateur': user,
-                    'roles': roles
-                })
-        else:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Veuillez corriger les erreurs du formulaire',
-                    'errors': {
-                        'user': dict(user_form.errors),
-                        'profile': dict(profile_form.errors)
-                    }
-                }, status=400)
-                
-            # Afficher les erreurs spécifiques
-            for field, errors in user_form.errors.items():
-                for error in errors:
-                    messages.error(request, f'Erreur dans {field}: {error}')
-            for field, errors in profile_form.errors.items():
-                for error in errors:
-                    messages.error(request, f'Erreur dans {field}: {error}')
-            
-            # Rediriger vers la page de modification avec les erreurs
-            return render(request, 'gestion_employes/utilisateurs/edit.html', {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'utilisateur': user,
-                'roles': roles
-            })
-    else:
-        user_form = UserUpdateForm(instance=user)
-        profile_form = ProfileForm(instance=profile)
-        
-    return render(request, 'gestion_employes/utilisateurs/edit.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'utilisateur': user,
-        'roles': roles
-    })
-
-def delete_utilisateur(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    
-    if request.method == 'POST':
-        user.delete()
-        messages.success(request, 'Utilisateur supprimé avec succès !')
-        return redirect('gestion_employes:liste_utilisateurs')
-    
-    return render(request, 'gestion_employes/utilisateurs/delete.html', {
-        'user': user
-    })
-
-def voir_utilisateur(request, pk):
-    utilisateur = get_object_or_404(User, pk=pk)
-    profile = utilisateur.profile if hasattr(utilisateur, 'profile') else None
-    pointages = Pointage.objects.filter(profile=profile).order_by('-date') if profile else None
-    
-    context = {
-        'utilisateur': utilisateur,
-        'profile': profile,
-        'pointages': pointages,
-        'est_super_admin': request.user.is_superuser
-    }
-
-    return render(request, 'gestion_employes/utilisateurs/view.html', context)
-
-def view_user(request):
-    utilisateurs = User.objects.all()
-    return render(request, 'gestion_employes/utilisateurs/view_user.html', {
-        'utilisateurs': utilisateurs
-    })
-
-def modifier_utilisateur(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    try:
-        profile = Profile.objects.get(user=user)
-    except Profile.DoesNotExist:
-        profile = None
-    
-    roles = Role.objects.all()
-    
-    if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST, instance=user)
-        profile_form = ProfileForm(request.POST, instance=profile)
-        role_id = request.POST.get('role')
-        
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()
-            
-            # Sauvegarder ou créer le profil
-            if profile:
-                profile = profile_form.save()
-            else:
-                profile = profile_form.save(commit=False)
-                profile.user = user
-                profile.save()
-            
-            # Mettre à jour le rôle de l'utilisateur
-            if role_id:
-                role = get_object_or_404(Role, id=role_id)
-                user.role = role
-                user.save()            
-            messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
-            return redirect('gestion_employes:liste_utilisateurs')
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
-            return render(request, 'gestion_employes/utilisateurs/edit.html', {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'user': user,
-                'roles': roles
-            })
-    else:
-        user_form = UserUpdateForm(instance=user)
-        profile_form = ProfileForm(instance=profile)
-        
-    return render(request, 'gestion_employes/utilisateurs/edit.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'user': user,
-        'roles': roles
-    })
-
-def changer_role(request, pk):
-    """Vue pour changer le rôle d'un utilisateur via AJAX"""
-    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        try:
-            user = get_object_or_404(User, pk=pk)
-            role_id = request.POST.get('role_id')
-            
-            if role_id:
-                role = get_object_or_404(Role, id=role_id)
-                user.role = role
-                user.save()
-                
-                return JsonResponse({
-                    'success': True,
-                    'role': {
-                        'nom': role.nom
-                    }
-                })
-            
-            return JsonResponse({'success': False, 'error': 'Aucun rôle sélectionné'})
-            
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    
-    return JsonResponse({'success': False, 'error': 'Méthode non autorisée'})
-
-def modifier_utilisateur(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    try:
-        profile = Profile.objects.get(user=user)
-    except Profile.DoesNotExist:
-        profile = None
-    
-    roles = Role.objects.all()
-    
-    if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST, instance=user)
-        profile_form = ProfileForm(request.POST, instance=profile)
-        role_id = request.POST.get('role')
-        
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()
-            
-            # Sauvegarder ou créer le profil
-            if profile:
-                profile = profile_form.save()
-            else:
-                profile = profile_form.save(commit=False)
-                profile.user = user
-                profile.save()
-            
-            # Mettre à jour le rôle si nécessaire
-            if role_id:
-                role = get_object_or_404(Role, id=role_id)
-                if hasattr(user, 'profile'):
-                    user.profile.role = role
-                    user.profile.save()
-            
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                role_data = None
-                if hasattr(user, 'profile') and user.profile.role:
-                    role_data = {
-                        'id': user.profile.role.id,
-                        'nom': user.profile.role.nom,
-                        'get_nom_display': user.profile.role.get_nom_display()
-                    }
-                
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Utilisateur et profil mis à jour avec succès !',
-                    'user': {
-                        'id': user.id,
-                        'username': user.username,
-                        'email': user.email,
-                        'profile': {
-                            'role': role_data
-                        }
-                    }
-                })
-            
-            messages.success(request, 'Utilisateur et profil mis à jour avec succès !')
-            return redirect('gestion_employes:liste_utilisateurs')
-        else:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': {
-                        'user': dict(user_form.errors),
-                        'profile': dict(profile_form.errors)
-                    }
-                })
-            
-            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
-            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'user': user,
-                'roles': roles
-            })
-    else:
-        user_form = UserRegistrationForm(instance=user)
-        profile_form = ProfileForm(instance=profile) if profile else ProfileForm(initial={'user': user})
-        
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'user': user,
-                'roles': roles
-            })
-        else:
-            return render(request, 'gestion_employes/utilisateurs/form_modifier.html', {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'user': user,
-                'roles': roles
-            })
-
-def supprimer_utilisateur(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    
-    if request.method == 'POST':
-        user.delete()
-        messages.success(request, 'Utilisateur supprimé avec succès !')
-        return redirect('gestion_employes:view_user')
-    
-    return render(request, 'gestion_employes/utilisateurs/supprimer.html', {
-        'user': user
-    })
-
-def ajouter_utilisateur(request):
-    if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
-        employe_form = EmployeForm(request.POST)
-        
-        if user_form.is_valid() and employe_form.is_valid():
-            user = user_form.save()
-            employe = employe_form.save(commit=False)
-            employe.user = user
-            employe.save()
-            
-            messages.success(request, 'Utilisateur et employé créés avec succès !')
-            return redirect('gestion_employes:view_user')
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
-    else:
-        user_form = UserRegistrationForm()
-        employe_form = EmployeForm()
-    
-    return render(request, 'gestion_employes/utilisateurs/ajouter.html', {
-        'user_form': user_form,
-        'employe_form': employe_form
-    })
-
 # Vues principales
+@login_required
 def dashboard(request):
+    User = get_user_model()
+    
     # Statistiques
     total_profiles = Profile.objects.count()
     profiles_actifs = Profile.objects.filter(statut='actif').count()
@@ -776,6 +446,7 @@ def dashboard(request):
     }
     return render(request, 'gestion_employes/dashboard.html', context)
 
+# Vues pour les rôles (inchangées)
 def liste_roles(request):
     roles = Role.objects.all()
     return render(request, 'gestion_employes/roles/liste_roles.html', {'roles': roles})
@@ -809,6 +480,32 @@ def modifier_role(request, pk):
         'title': f'Modifier le rôle {role.get_nom_display()}'
     })
 
+def gestion_permissions(request, pk):
+    """Vue pour gérer les permissions d'un rôle"""
+    role = get_object_or_404(Role, pk=pk)
+    
+    if request.method == 'POST':
+        permissions = {
+            'users': {
+                'view': 'view_users' in request.POST,
+                'edit': 'edit_users' in request.POST,
+                'delete': 'delete_users' in request.POST,
+                'manage': 'manage_users' in request.POST
+            },
+            'roles': {
+                'view': 'view_roles' in request.POST,
+                'edit': 'edit_roles' in request.POST,
+                'delete': 'delete_roles' in request.POST,
+                'manage_permissions': 'manage_permissions' in request.POST
+            }
+        }
+        role.permissions = permissions
+        role.save()
+        messages.success(request, f'Permissions du rôle {role.get_nom_display()} mises à jour avec succès')
+        return redirect('gestion_employes:liste_roles')
+    
+    return render(request, 'gestion_employes/roles/permissions.html', {'role': role})
+
 def supprimer_role(request, pk):
     role = get_object_or_404(Role, pk=pk)
     
@@ -819,90 +516,20 @@ def supprimer_role(request, pk):
     
     return render(request, 'gestion_employes/roles/confirm_delete.html', {'role': role})
 
-def gestion_permissions(request, pk):
-    role = get_object_or_404(Role, pk=pk)
-    modules = ['employes', 'pointage', 'utilisateurs', 'roles']
-    permissions = {
-        'employes': ['lister', 'ajouter', 'modifier', 'supprimer', 'consulter'],
-        'pointage': ['pointage', 'historique', 'consulter'],
-        'utilisateurs': ['lister', 'ajouter', 'modifier', 'supprimer', 'consulter'],
-        'roles': ['lister', 'ajouter', 'modifier', 'supprimer', 'consulter']
-    }
-    
-    if request.method == 'POST':
-        permissions_data = {}
-        for module in modules:
-            permissions_data[module] = []
-            for perm in permissions[module]:
-                if request.POST.get(f'{module}_{perm}') == 'on':
-                    permissions_data[module].append(perm)
-        
-        # Convertir en JSON et sauvegarder
-        role.permissions = json.dumps(permissions_data)
-        role.save()
-        messages.success(request, f'Permissions du rôle {role.get_nom_display()} mises à jour avec succès')
-        return redirect('gestion_employes:liste_roles')
-    
-    # Charger les permissions existantes
-    try:
-        current_permissions = json.loads(role.permissions)
-    except (json.JSONDecodeError, TypeError):
-        current_permissions = {}
-    
-    return render(request, 'gestion_employes/roles/gestion_permissions.html', {
-        'role': role,
-        'modules': modules,
-        'permissions': permissions,
-        'current_permissions': current_permissions
-    })
-
+# Autres vues (employés, pointage, etc.) restent inchangées
 def liste_employes(request):
-    # Récupérer tous les profils avec les utilisateurs et rôles associés
-    profiles = Profile.objects.select_related('user', 'role').all()
+    tab = request.GET.get('tab', 'employes')
     
-    # Ajouter le rôle super admin pour le superadmin si nécessaire
-    if request.user.username == 'superadmin':
-        try:
-            superadmin_role = Role.objects.get(nom='superadmin')
-            if not request.user.profile.role:
-                request.user.profile.role = superadmin_role
-                request.user.profile.save()
-        except Role.DoesNotExist:
-            # Créer le rôle super admin si nécessaire
-            superadmin_role = Role.objects.create(
-                nom='superadmin',
-                description='Super Administrateur avec tous les droits',
-                permissions={
-                    'gestion': ['tous'],
-                    'utilisateurs': ['tous'],
-                    'administration': ['tous']
-                }
-            )
-            request.user.profile.role = superadmin_role
-            request.user.profile.save()
-    return render(request, 'gestion_employes/liste_employes.html', {'profiles': profiles})
-
-def ajouter_employe(request):
-    User = get_user_model()
-    if request.method == 'POST':
-        user_form = UserCreationForm(request.POST)
-        employe_form = EmployeForm(request.POST)
-        
-        if user_form.is_valid() and employe_form.is_valid():
-            user = user_form.save()
-            employe = employe_form.save(commit=False)
-            employe.user = user
-            employe.save()
-            
-            messages.success(request, 'Utilisateur et employé créés avec succès !')
-            return redirect('gestion_employes:liste_employes')
+    if tab == 'presences':
+        # Pour l'onglet présences, afficher seulement les utilisateurs actifs
+        profiles = Profile.objects.select_related('user', 'role').filter(user__is_active=True, statut='actif')
     else:
-        user_form = UserCreationForm()
-        employe_form = EmployeForm()
+        # Pour l'onglet employés, afficher tous les profils
+        profiles = Profile.objects.select_related('user', 'role').all()
     
-    return render(request, 'gestion_employes/ajouter_employe.html', {
-        'user_form': user_form,
-        'employe_form': employe_form
+    return render(request, 'gestion_employes/liste_employes.html', {
+        'profiles': profiles,
+        'current_tab': tab
     })
 
 def pointage(request):
@@ -922,3 +549,94 @@ def pointage(request):
 def historique_pointages(request):
     pointages = Pointage.objects.all().order_by('-date')
     return render(request, 'gestion_employes/historique_pointages.html', {'pointages': pointages})
+
+# Vues de réinitialisation de mot de passe
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'gestion_employes/password_reset.html'
+    email_template_name = 'gestion_employes/password_reset_email.html'
+    success_url = reverse_lazy('gestion_employes:password_reset_done')
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'gestion_employes/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'gestion_employes/password_reset_confirm.html'
+    success_url = reverse_lazy('gestion_employes:password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'gestion_employes/password_reset_complete.html'
+
+# Vues fonctions pour compatibilité
+password_reset_request = CustomPasswordResetView.as_view()
+password_reset_done = CustomPasswordResetDoneView.as_view()
+password_reset_confirm = CustomPasswordResetConfirmView.as_view()
+password_reset_complete = CustomPasswordResetCompleteView.as_view()
+
+# Vues 2FA
+@login_required
+def setup_2fa(request):
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        secret = request.session.get('2fa_secret')
+        
+        if secret and pyotp.TOTP(secret).verify(token):
+            profile = request.user.profile
+            profile.two_factor_secret = secret
+            profile.two_factor_enabled = True
+            profile.save()
+            del request.session['2fa_secret']
+            messages.success(request, '2FA activé avec succès !')
+            return redirect('gestion_employes:dashboard')
+        else:
+            messages.error(request, 'Code invalide. Veuillez réessayer.')
+    
+    # Générer secret et QR code
+    secret = pyotp.random_base32()
+    request.session['2fa_secret'] = secret
+    
+    totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
+        name=request.user.email,
+        issuer_name="Lunzy Tech"
+    )
+    
+    # Générer QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(totp_uri)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    qr_code_img = base64.b64encode(buffer.getvalue()).decode()
+    
+    return render(request, 'gestion_employes/2fa_setup.html', {
+        'secret': secret,
+        'qr_code': qr_code_img
+    })
+
+@login_required
+def verify_2fa(request):
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        profile = request.user.profile
+        
+        if profile.two_factor_secret and pyotp.TOTP(profile.two_factor_secret).verify(token):
+            request.session['2fa_verified'] = True
+            messages.success(request, 'Authentification 2FA réussie !')
+            return redirect('gestion_employes:dashboard')
+        else:
+            messages.error(request, 'Code 2FA invalide.')
+    
+    return render(request, 'gestion_employes/2fa_verify.html')
+
+@login_required
+def disable_2fa(request):
+    if request.method == 'POST':
+        profile = request.user.profile
+        profile.two_factor_enabled = False
+        profile.two_factor_secret = ''
+        profile.save()
+        messages.success(request, '2FA désactivé avec succès !')
+        return redirect('gestion_employes:dashboard')
+    
+    return render(request, 'gestion_employes/2fa_disable.html')

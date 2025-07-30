@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vérification 2FA{% endblock %}
+
+{% block extra_css %}
+<style>
+body { background: linear-gradient(135deg, #064e3b, #1a1a1a) !important; }
+.card {
+    background: linear-gradient(135deg, #064e3b, #1a1a1a) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 15px !important;
+}
+.card-header {
+    background: linear-gradient(135deg, #064e3b, #000000) !important;
+    color: white !important;
+    border-bottom: 2px solid #10b981 !important;
+}
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #064e3b) !important;
+    border: none !important;
+    color: white !important;
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #1a1a1a, #000000) !important;
+    border: none !important;
+    color: white !important;
+}
+.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+}
+.card-body { color: white !important; }
+h4 { color: #10b981 !important; }
+p { color: #d1d5db !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Vérification 2FA requise</h4>
+                </div>
+                <div class="card-body">
+                    <p>Entrez le code à 6 chiffres généré par votre application d'authentification :</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" name="token" class="form-control" placeholder="123456" maxlength="6" required autofocus>
+                        </div>
+                        <button type="submit" class="btn btn-success">Vérifier</button>
+                        <a href="{% url 'gestion_employes:logout' %}" class="btn btn-secondary">Annuler</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

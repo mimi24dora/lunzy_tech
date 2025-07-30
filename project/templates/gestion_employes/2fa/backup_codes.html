@@ -1,0 +1,272 @@
+{% extends 'gestion_employes/base.html' %}
+{% load static %}
+
+{% block title %}Codes de récupération 2FA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .backup-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .success-icon {
+        font-size: 4rem;
+        color: #28a745;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .backup-codes-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin: 2rem 0;
+    }
+    
+    .backup-codes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .backup-code {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        font-family: monospace;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #495057;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .backup-code:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+        transform: translateY(-2px);
+    }
+    
+    .backup-code.copied {
+        background: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    
+    .warning-box {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        color: #856404;
+    }
+    
+    .warning-box h5 {
+        color: #856404;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-download {
+        background: #6c757d;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-print {
+        background: #17a2b8;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-continue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        margin-top: 2rem;
+    }
+    
+    .btn-continue:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="backup-container">
+        <div class="text-center">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="text-success mb-3">2FA activé avec succès !</h2>
+            <p class="text-muted">Votre compte est maintenant protégé par l'authentification à deux facteurs</p>
+        </div>
+
+        <div class="backup-codes-container">
+            <h4><i class="fas fa-key text-warning"></i> Codes de récupération</h4>
+            <p class="text-muted">
+                Ces codes vous permettent d'accéder à votre compte si vous perdez votre téléphone. 
+                Chaque code ne peut être utilisé qu'une seule fois.
+            </p>
+            
+            <div class="backup-codes-grid">
+                {% for code in backup_codes %}
+                    <div class="backup-code" onclick="copyCode(this)" title="Cliquer pour copier">
+                        {{ code }}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center">
+                <button class="btn btn-download" onclick="downloadCodes()">
+                    <i class="fas fa-download"></i> Télécharger
+                </button>
+                <button class="btn btn-print" onclick="printCodes()">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <h5><i class="fas fa-exclamation-triangle"></i> Important !</h5>
+            <ul class="mb-0">
+                <li>Sauvegardez ces codes dans un endroit sûr</li>
+                <li>Ne les partagez avec personne</li>
+                <li>Chaque code ne peut être utilisé qu'une seule fois</li>
+                <li>Si vous perdez ces codes, vous devrez désactiver et réactiver le 2FA</li>
+            </ul>
+        </div>
+
+        <button class="btn btn-continue" onclick="window.location.href='{% url 'gestion_employes:dashboard' %}'">
+            <i class="fas fa-arrow-right"></i> Continuer vers le tableau de bord
+        </button>
+    </div>
+</div>
+
+<!-- Modal pour l'impression -->
+<div class="modal fade" id="printModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Codes de récupération 2FA</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="printContent">
+                <h6>Gestion Employés - LunzyTech</h6>
+                <p>Utilisateur: {{ user.get_full_name|default:user.username }}</p>
+                <p>Date de génération: {{ today|date:"d/m/Y à H:i" }}</p>
+                <hr>
+                <h6>Codes de récupération:</h6>
+                <div style="font-family: monospace; font-size: 14px;">
+                    {% for code in backup_codes %}
+                        <div style="margin: 5px 0;">{{ forloop.counter }}. {{ code }}</div>
+                    {% endfor %}
+                </div>
+                <hr>
+                <small>
+                    <strong>IMPORTANT:</strong><br>
+                    - Gardez ces codes en sécurité<br>
+                    - Chaque code ne peut être utilisé qu'une fois<br>
+                    - Ne les partagez avec personne
+                </small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Imprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let copiedCount = 0;
+
+function copyCode(element) {
+    const code = element.textContent.trim();
+    navigator.clipboard.writeText(code).then(() => {
+        element.classList.add('copied');
+        element.innerHTML = '<i class="fas fa-check"></i> Copié';
+        
+        setTimeout(() => {
+            element.classList.remove('copied');
+            element.textContent = code;
+        }, 2000);
+        
+        copiedCount++;
+        if (copiedCount === 1) {
+            showToast('Code copié dans le presse-papier', 'success');
+        }
+    }).catch(() => {
+        showToast('Erreur lors de la copie', 'error');
+    });
+}
+
+function downloadCodes() {
+    const codes = [{% for code in backup_codes %}'{{ code }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    const content = `Codes de récupération 2FA - Gestion Employés LunzyTech
+Utilisateur: {{ user.get_full_name|default:user.username }}
+Date: {{ today|date:"d/m/Y à H:i" }}
+
+Codes de récupération:
+${codes.map((code, index) => `${index + 1}. ${code}`).join('\n')}
+
+IMPORTANT:
+- Gardez ces codes en sécurité
+- Chaque code ne peut être utilisé qu'une fois
+- Ne les partagez avec personne`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'codes_recuperation_2fa.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Codes téléchargés avec succès', 'success');
+}
+
+function printCodes() {
+    const modal = new bootstrap.Modal(document.getElementById('printModal'));
+    modal.show();
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+        ${message}
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

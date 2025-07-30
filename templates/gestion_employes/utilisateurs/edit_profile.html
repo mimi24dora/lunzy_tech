@@ -1,5 +1,82 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+  * {
+    box-sizing: border-box !important;
+  }
+  html, body {
+    background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+    min-height: 100vh !important;
+    font-family: 'Inter', sans-serif !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .container-fluid {
+    background: transparent !important;
+    padding: 20px !important;
+  }
+  .card.card {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid #10b981 !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2) !important;
+  }
+  .card-body {
+    background: rgba(16, 185, 129, 0.1) !important;
+    color: #ffffff !important;
+  }
+  .card-header.card-header {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: white !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+  .card-header h5 {
+    color: #ffffff !important;
+  }
+  .form-control.form-control, .form-select.form-select {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid #10b981 !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+  }
+  .form-control:focus, .form-select:focus {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .btn-success.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 50px !important;
+  }
+  .btn-secondary.btn-secondary {
+    background: rgba(107, 114, 128, 0.8) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 50px !important;
+  }
+  .form-label, label {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+  }
+  .container, .container-fluid {
+    background: transparent !important;
+  }
+  p, span, div {
+    color: inherit !important;
+  }
+  select option {
+    background: #000000 !important;
+    color: #ffffff !important;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -50,7 +127,13 @@
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save me-2"></i>Enregistrer les modifications
                         </button>
+                        {% if from_dashboard %}
+                        <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-secondary ms-2">Annuler</a>
+                        {% elif is_employe %}
                         <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
+                        {% else %}
+                        <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary ms-2">Annuler</a>
+                        {% endif %}
                     </form>
                 </div>
             </div>

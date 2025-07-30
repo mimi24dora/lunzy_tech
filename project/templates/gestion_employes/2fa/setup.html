@@ -1,0 +1,216 @@
+{% extends 'gestion_employes/base.html' %}
+{% load static %}
+
+{% block title %}Configuration 2FA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .setup-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+    
+    .qr-container {
+        text-align: center;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .secret-key {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 1rem;
+        font-family: monospace;
+        font-size: 1.1rem;
+        word-break: break-all;
+        margin: 1rem 0;
+    }
+    
+    .verification-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .code-input {
+        font-size: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.3em;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+    
+    .code-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-verify {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+    }
+    
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .instructions {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="setup-container">
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-shield-alt text-primary"></i> Configuration de l'authentification à deux facteurs</h2>
+            <p class="text-muted">Sécurisez votre compte avec une couche supplémentaire de protection</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step">
+                <div class="step-number">1</div>
+                <span>Scanner le QR Code</span>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Vérifier le code</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h5><i class="fas fa-info-circle text-info"></i> Instructions :</h5>
+            <ol>
+                <li>Téléchargez Google Authenticator, Authy ou une autre application d'authentification sur votre smartphone</li>
+                <li>Scannez le QR code ci-dessous avec votre application</li>
+                <li>Entrez le code à 6 chiffres généré par l'application pour vérifier la configuration</li>
+            </ol>
+        </div>
+
+        <div class="qr-container">
+            <h4><i class="fas fa-qrcode text-primary"></i> QR Code</h4>
+            <p class="text-muted mb-3">Scannez ce code avec votre application d'authentification</p>
+            
+            <img src="data:image/png;base64,{{ qr_code }}" 
+                 alt="QR Code 2FA" 
+                 class="img-fluid" 
+                 style="max-width: 200px;">
+            
+            <div class="mt-3">
+                <small class="text-muted">Impossible de scanner ? Saisissez manuellement cette clé :</small>
+                <div class="secret-key">{{ secret_key }}</div>
+            </div>
+        </div>
+
+        <div class="verification-form">
+            <h4><i class="fas fa-mobile-alt text-success"></i> Vérification</h4>
+            <p class="text-muted">Entrez le code à 6 chiffres de votre application</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <input type="text" 
+                           name="token" 
+                           id="id_token"
+                           class="form-control code-input" 
+                           placeholder="000000"
+                           maxlength="6"
+                           required
+                           autocomplete="off">
+                    {% if form.token.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.token.errors %}
+                                <small><i class="fas fa-exclamation-circle"></i> {{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-verify">
+                    <i class="fas fa-check-circle"></i> Activer le 2FA
+                </button>
+            </form>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Annuler
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('id_token').addEventListener('input', function(e) {
+    // Permettre seulement les chiffres
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Limiter à 6 chiffres
+    if (this.value.length > 6) {
+        this.value = this.value.slice(0, 6);
+    }
+});
+
+// Auto-submit après 6 chiffres
+document.getElementById('id_token').addEventListener('input', function(e) {
+    if (this.value.length === 6) {
+        setTimeout(() => {
+            this.form.submit();
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

@@ -1,6 +1,40 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load permission_filters %}
+
+{% block extra_css %}
+<style>
+body { background: linear-gradient(135deg, #064e3b, #1a1a1a) !important; }
+.container-fluid { background: transparent !important; }
+.card {
+    background: linear-gradient(135deg, #064e3b, #1a1a1a) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 15px !important;
+    color: white !important;
+}
+.card-header {
+    background: linear-gradient(135deg, #064e3b, #000000) !important;
+    color: white !important;
+    border-bottom: 2px solid #10b981 !important;
+}
+.card-body { color: white !important; }
+h5, h6 { color: #10b981 !important; }
+.form-check-label { color: #d1d5db !important; }
+.form-check-input:checked {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+}
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #064e3b) !important;
+    border: none !important;
+    color: white !important;
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #1a1a1a, #000000) !important;
+    border: none !important;
+    color: white !important;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
@@ -8,7 +42,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Permissions du rôle "{{ role.nom }}"</h5>
+                    <h5 class="mb-0">Permissions du rôle "{{ role.get_nom_display }}"</h5>
                     <a href="{% url 'gestion_employes:liste_roles' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
@@ -17,38 +51,72 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="row">
-                            {% for module in modules %}
                             <div class="col-md-6 mb-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h6 class="mb-0">{{ module|title }}</h6>
+                                        <h6 class="mb-0">Gestion des Utilisateurs</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" 
-                                                   id="all_{{ module }}"
-                                                   onchange="toggleModulePermissions('{{ module }}', this.checked)">
-                                            <label class="form-check-label" for="all_{{ module }}">
-                                                Sélectionner/Désélectionner toutes les permissions
+                                            <input class="form-check-input" type="checkbox" id="view_users" name="view_users">
+                                            <label class="form-check-label" for="view_users">
+                                                Voir les utilisateurs
                                             </label>
                                         </div>
-                                        {% for perm in permissions|get_permissions:module %}
-                                        <div class="form-check ms-4">
-                                            <input class="form-check-input module-perm" 
-                                                   type="checkbox" 
-                                                   id="perm_{{ module }}_{{ perm }}"
-                                                   name="permissions"
-                                                   value="{{ module }}.{{ perm }}"
-                                                   {% if perm in role.permissions|get_permissions:module %}checked{% endif %}>
-                                            <label class="form-check-label" for="perm_{{ module }}_{{ perm }}">
-                                                {{ perm|title }}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="edit_users" name="edit_users">
+                                            <label class="form-check-label" for="edit_users">
+                                                Modifier les utilisateurs
                                             </label>
                                         </div>
-                                        {% endfor %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="delete_users" name="delete_users">
+                                            <label class="form-check-label" for="delete_users">
+                                                Supprimer les utilisateurs
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="manage_users" name="manage_users">
+                                            <label class="form-check-label" for="manage_users">
+                                                Gérer les utilisateurs
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Gestion des Rôles</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="view_roles" name="view_roles">
+                                            <label class="form-check-label" for="view_roles">
+                                                Voir les rôles
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="edit_roles" name="edit_roles">
+                                            <label class="form-check-label" for="edit_roles">
+                                                Modifier les rôles
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="delete_roles" name="delete_roles">
+                                            <label class="form-check-label" for="delete_roles">
+                                                Supprimer les rôles
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="manage_permissions" name="manage_permissions">
+                                            <label class="form-check-label" for="manage_permissions">
+                                                Gérer les permissions
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="mt-4">
                             <button type="submit" class="btn btn-success">

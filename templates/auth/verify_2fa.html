@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Vérification 2FA</h3>
+                </div>
+                <div class="card-body">
+                    <p>Entrez le code de votre application d'authentification :</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" class="form-control text-center" 
+                                   name="token" placeholder="123456" 
+                                   maxlength="6" required autofocus>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Vérifier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-submit après 6 chiffres
+document.querySelector('input[name="token"]').addEventListener('input', function(e) {
+    if (e.target.value.length === 6) {
+        e.target.form.submit();
+    }
+});
+</script>
+{% endblock %}

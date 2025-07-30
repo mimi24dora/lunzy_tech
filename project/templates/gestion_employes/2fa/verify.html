@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification 2FA - Gestion Employés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .verify-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+            text-align: center;
+        }
+        
+        .verify-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .verify-title {
+            color: #333;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .verify-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .code-input {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 0.5em;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid #e1e5e9;
+            margin-bottom: 1rem;
+            background: white;
+            width: 100%;
+        }
+        
+        .code-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .backup-input {
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 0.2em;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid #e1e5e9;
+            margin-bottom: 1rem;
+            background: white;
+            width: 100%;
+        }
+        
+        .backup-input:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+            outline: none;
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .backup-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .backup-toggle {
+            color: #856404;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .backup-toggle:hover {
+            color: #533202;
+            text-decoration: underline;
+        }
+        
+        .user-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: #1565c0;
+        }
+        
+        .timer {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-icon">
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+        
+        <h2 class="verify-title">Vérification 2FA</h2>
+        <p class="verify-subtitle">Entrez le code de votre application d'authentification</p>
+        
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            Connecté en tant que : <strong>{{ user.get_full_name|default:user.username }}</strong>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="verifyForm">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="mb-3" id="tokenSection">
+                <label for="id_token" class="form-label">
+                    <i class="fas fa-shield-alt"></i> Code d'authentification
+                </label>
+                <input type="text" 
+                       name="token" 
+                       id="id_token"
+                       class="code-input" 
+                       placeholder="000000"
+                       maxlength="6"
+                       autocomplete="off">
+                {% if form.token.errors %}
+                    <div class="text-danger mt-1">
+                        {% for error in form.token.errors %}
+                            <small><i class="fas fa-exclamation-circle"></i> {{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-verify" id="verifyBtn">
+                <i class="fas fa-check-circle"></i> Vérifier
+            </button>
+        </form>
+
+        <div class="backup-section">
+            <a href="#" class="backup-toggle" onclick="toggleBackup()">
+                <i class="fas fa-key"></i> Utiliser un code de récupération
+            </a>
+            
+            <div id="backupSection" style="display: none; margin-top: 1rem;">
+                <input type="text" 
+                       name="backup_code" 
+                       id="id_backup_code"
+                       class="backup-input" 
+                       placeholder="0000-0000"
+                       maxlength="9"
+                       form="verifyForm">
+                <small class="text-muted d-block">
+                    Utilisez l'un de vos codes de récupération si vous n'avez pas accès à votre téléphone
+                </small>
+            </div>
+        </div>
+
+        <div class="timer">
+            <i class="fas fa-clock"></i>
+            Le code change toutes les 30 secondes
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'gestion_employes:login' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Retour à la connexion
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-focus sur le champ de saisie
+        document.getElementById('id_token').focus();
+        
+        // Permettre seulement les chiffres dans le code
+        document.getElementById('id_token').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6);
+            }
+            
+            // Auto-submit après 6 chiffres
+            if (this.value.length === 6) {
+                setTimeout(() => {
+                    document.getElementById('verifyForm').submit();
+                }, 300);
+            }
+        });
+        
+        // Formater le code de récupération
+        document.getElementById('id_backup_code').addEventListener('input', function(e) {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value.length > 4) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 8);
+            }
+            this.value = value;
+        });
+        
+        function toggleBackup() {
+            const backupSection = document.getElementById('backupSection');
+            const tokenSection = document.getElementById('tokenSection');
+            const tokenInput = document.getElementById('id_token');
+            const backupInput = document.getElementById('id_backup_code');
+            
+            if (backupSection.style.display === 'none') {
+                backupSection.style.display = 'block';
+                tokenSection.style.display = 'none';
+                tokenInput.required = false;
+                backupInput.required = true;
+                backupInput.focus();
+            } else {
+                backupSection.style.display = 'none';
+                tokenSection.style.display = 'block';
+                tokenInput.required = true;
+                backupInput.required = false;
+                tokenInput.focus();
+            }
+        }
+        
+        // Compteur visuel pour les 30 secondes
+        function updateTimer() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const remaining = 30 - (seconds % 30);
+            
+            const timerElement = document.querySelector('.timer');
+            if (remaining <= 5) {
+                timerElement.style.color = '#dc3545';
+                timerElement.innerHTML = `<i class="fas fa-clock"></i> Code expire dans ${remaining}s`;
+            } else {
+                timerElement.style.color = '#666';
+                timerElement.innerHTML = `<i class="fas fa-clock"></i> Le code change toutes les 30 secondes`;
+            }
+        }
+        
+        // Mettre à jour le timer chaque seconde
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>

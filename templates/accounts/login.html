@@ -1,133 +1,193 @@
 {% extends "base.html" %}
-
 {% block extra_css %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
-  body {
-    background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
+  * {
+    box-sizing: border-box !important;
   }
-  .card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+  html, body {
+    background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+    min-height: 100vh !important;
+    font-family: "Inter", sans-serif !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .card-header {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  .container, .container-fluid {
+    background: transparent !important;
+  }
+  .card.card {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid #10b981 !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2) !important;
+  }
+  .card-header.card-header {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
     color: white !important;
-    text-align: center;
-    padding: 1.5rem;
-    border-bottom: none;
+    text-align: center !important;
+    padding: 1.5rem !important;
+    border-bottom: none !important;
+    border-radius: 20px 20px 0 0 !important;
   }
-  .card-header h3 {
-    margin: 0;
-    font-weight: 600;
+  .card-body {
+    background: rgba(16, 185, 129, 0.1) !important;
+    color: #ffffff !important;
   }
-  .form-control {
-    padding: 12px 20px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    transition: all 0.3s;
-    height: auto;
+  .form-control.form-control {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid #10b981 !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
   }
   .form-control:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+    color: #ffffff !important;
   }
-  .btn-primary {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    border: none;
-    padding: 12px 30px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    border-radius: 10px;
-    color: white;
+  .form-label, label {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+  }
+  .input-group-text.input-group-text {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border: 1px solid #10b981 !important;
+    color: #ffffff !important;
+  }
+  .btn-primary.btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border: none !important;
+    border-radius: 50px !important;
+    font-weight: 600 !important;
+    color: white !important;
   }
   .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4);
-    background: linear-gradient(135deg, #047857 0%, #0d9c6e 100%);
-  }
-  .form-label {
-    font-weight: 500;
-    color: #334155;
-    margin-bottom: 8px;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
   }
   .home-link {
-    position: fixed;
-    top: 24px;
-    left: 24px;
-    font-size: 1.5rem;
-    color: #10b981;
-    background: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    text-decoration: none;
+    position: fixed !important;
+    top: 24px !important;
+    left: 24px !important;
+    font-size: 1.5rem !important;
+    color: #10b981 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #10b981 !important;
+    text-decoration: none !important;
+    backdrop-filter: blur(10px) !important;
   }
   .home-link:hover {
-    color: #047857;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    color: #34d399 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3) !important;
+  }
+  a {
+    color: #10b981 !important;
+  }
+  a:hover {
+    color: #34d399 !important;
+  }
+  p, span, div {
+    color: inherit !important;
+  }
+  .alert {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border: 1px solid #10b981 !important;
+    color: #ffffff !important;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<a href="/" class="home-link" title="Retour à l'accueil" data-bs-toggle="tooltip" data-bs-placement="right">
-    <i class="fas fa-home"></i>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<a
+  href="/"
+  class="home-link"
+  title="Retour à l'accueil"
+  data-bs-toggle="tooltip"
+  data-bs-placement="right"
+>
+  <i class="fas fa-home"></i>
 </a>
+
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center mb-0" style="color: white !important;">Connexion</h3>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="username" class="form-label">Nom d'utilisateur</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Mot de passe</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Afficher le mot de passe">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Se connecter</button>
-                        </div>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p class="mb-0">
-                            <a href="{% url 'gestion_employes:password_reset' %}">Mot de passe oublié ?</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-center mb-0" style="color: white !important">
+            Connexion
+          </h3>
         </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'gestion_employes:login' %}">
+            {% csrf_token %} {{ form.non_field_errors }}
+            <div class="mb-4">
+              <label for="id_username" class="form-label"
+                >Nom d'utilisateur</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-user"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="id_username"
+                  name="username"
+                  required
+                />
+              </div>
+              {{ form.username.errors }}
+            </div>
+            <div class="mb-4">
+              <label for="id_password" class="form-label">Mot de passe</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-lock"></i
+                ></span>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="id_password"
+                  name="password"
+                  required
+                />
+              </div>
+              {{ form.password.errors }}
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Se connecter
+              </button>
+            </div>
+          </form>
+          <div class="text-center mt-4">
+            <p class="mb-0">
+              <a href="{% url 'gestion_employes:password_reset' %}"
+                >Mot de passe oublié ?</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

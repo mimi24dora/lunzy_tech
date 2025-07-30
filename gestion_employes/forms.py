@@ -1,119 +1,143 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Profile, Pointage, Role
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import get_user_model
+from .models import Profile, Role, Pointage
 
-class EmployeForm(forms.ModelForm):
-    def clean_telephone(self):
-        telephone = self.cleaned_data.get('telephone', '')
-        if not telephone.isdigit():
-            raise forms.ValidationError('Le numéro doit contenir uniquement des chiffres.')
-        if len(telephone) != 10:
-            raise forms.ValidationError('Le numéro doit contenir exactement 10 chiffres.')
-        return telephone
-
-    class Meta:
-        model = Profile
-        fields = ['matricule', 'telephone', 'poste', 'statut', 'role']
-        widgets = {
-            'telephone': forms.TextInput(attrs={
-                'maxlength': '10',
-                'pattern': '\\d{10}',
-                'inputmode': 'numeric',
-                'placeholder': 'Ex: 0612345678',
-                'class': 'form-control',
-            }),
-            'statut': forms.Select(attrs={'class': 'form-select'}),
-            'role': forms.Select(attrs={'class': 'form-select'}),
-        }
+User = get_user_model()
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
         'class': 'form-control',
-        'placeholder': 'votre@email.com'
+        'placeholder': 'Entrez votre email'
     }))
     first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Votre prénom'
+        'placeholder': 'Prénom'
     }))
     last_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Votre nom'
+        'placeholder': 'Nom'
     }))
-    telephone = forms.CharField(
-        max_length=20,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 0612345678',
-            'pattern': '\d{10}',
-            'inputmode': 'numeric',
-            'maxlength': '10'
-        }),
-        help_text="Format: 10 chiffres sans espace ni caractère spécial"
-    )
-    nom_entreprise = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Le nom de votre entreprise'
-        }),
-        help_text="Le nom de l'entreprise pour laquelle vous travaillez"
-    )
+    telephone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Numéro de téléphone'
+    }))
+    nom_entreprise = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Nom de l\'entreprise'
+    }))
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'telephone', 'nom_entreprise', 'password1', 'password2']
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choisissez un nom d\'utilisateur'}),
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom d\'utilisateur'
+            })
         }
-    
-    def clean_telephone(self):
-        telephone = self.cleaned_data.get('telephone', '')
-        if not telephone.isdigit():
-            raise forms.ValidationError('Le numéro doit contenir uniquement des chiffres.')
-        if len(telephone) != 10:
-            raise forms.ValidationError('Le numéro doit contenir exactement 10 chiffres.')
-        return telephone
 
-class UserLoginForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    password = forms.CharField(widget=forms.PasswordInput)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Mot de passe'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirmez le mot de passe'
+        })
+
+class TwoFactorSetupForm(forms.Form):
+    token = forms.CharField(
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control text-center',
+            'placeholder': '000000',
+            'maxlength': '6',
+            'style': 'font-size: 1.5em; letter-spacing: 0.5em;'
+        }),
+        label="Code de vérification"
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_token(self):
+        token = self.cleaned_data.get('token')
+        if not self.user.verify_2fa_token(token):
+            raise forms.ValidationError("Code invalide. Veuillez réessayer.")
+        return token
+
+class TwoFactorVerifyForm(forms.Form):
+    token = forms.CharField(
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control text-center',
+            'placeholder': '000000',
+            'maxlength': '6',
+            'style': 'font-size: 1.5em; letter-spacing: 0.5em;',
+            'autocomplete': 'off'
+        }),
+        label="Code de vérification"
+    )
+    
+    backup_code = forms.CharField(
+        max_length=9,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control text-center',
+            'placeholder': '0000-0000',
+            'style': 'font-size: 1.2em; letter-spacing: 0.2em;'
+        }),
+        label="Code de récupération"
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        token = cleaned_data.get('token')
+        backup_code = cleaned_data.get('backup_code')
+
+        if not token and not backup_code:
+            raise forms.ValidationError("Veuillez entrer un code de vérification ou un code de récupération.")
+
+        if token and not self.user.verify_2fa_token(token):
+            if backup_code and not self.user.verify_backup_code(backup_code):
+                raise forms.ValidationError("Code invalide. Veuillez réessayer.")
+        
+        return cleaned_data
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['matricule', 'telephone', 'poste', 'statut', 'role']
+        fields = ['telephone', 'nom_entreprise', 'adresse', 'date_embauche', 'poste', 'statut', 'role']
         widgets = {
-            'statut': forms.Select(attrs={'class': 'form-select'}),
-            'role': forms.Select(attrs={'class': 'form-select'}),
-        }
-
-class PointageForm(forms.ModelForm):
-    TYPE_CHOICES = [
-        ('ENTREE', 'Entrée'),
-        ('SORTIE', 'Sortie'),
-    ]
-    
-    type = forms.ChoiceField(choices=TYPE_CHOICES, widget=forms.RadioSelect)
-    
-    class Meta:
-        model = Pointage
-        fields = ['profile', 'type']
-        widgets = {
-            'profile': forms.Select(attrs={'class': 'form-select'}),
+            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'nom_entreprise': forms.TextInput(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_embauche': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'poste': forms.TextInput(attrs={'class': 'form-control'}),
+            'statut': forms.Select(attrs={'class': 'form-control'}),
+            'role': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_active']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'})
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class RoleForm(forms.ModelForm):
@@ -121,6 +145,31 @@ class RoleForm(forms.ModelForm):
         model = Role
         fields = ['nom', 'description']
         widgets = {
-            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'nom': forms.Select(choices=Role.TYPE_CHOICES, attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+class EmployeForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['telephone', 'nom_entreprise', 'adresse', 'date_embauche', 'poste', 'statut', 'role']
+        widgets = {
+            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'nom_entreprise': forms.TextInput(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_embauche': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'poste': forms.TextInput(attrs={'class': 'form-control'}),
+            'statut': forms.Select(attrs={'class': 'form-control'}),
+            'role': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class PointageForm(forms.ModelForm):
+    class Meta:
+        model = Pointage
+        fields = ['profile', 'heure_entree', 'heure_sortie', 'remarques']
+        widgets = {
+            'profile': forms.Select(attrs={'class': 'form-control'}),
+            'heure_entree': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'heure_sortie': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'remarques': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

@@ -1,0 +1,22 @@
+Collecting pyotp
+  Downloading pyotp-2.9.0-py3-none-any.whl.metadata (9.8 kB)
+Collecting qrcode
+  Downloading qrcode-8.2-py3-none-any.whl.metadata (17 kB)
+Collecting Pillow
+  Downloading pillow-11.3.0-cp312-cp312-win_amd64.whl.metadata (9.2 kB)
+Collecting django-crispy-forms
+  Using cached django_crispy_forms-2.4-py3-none-any.whl.metadata (5.2 kB)
+Collecting colorama (from qrcode)
+  Using cached colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Requirement already satisfied: django>=4.2 in c:\users\cedric kinanga\documents\joyce\projet l3\lunzy_tech\env\lib\site-packages (from django-crispy-forms) (5.2.3)
+Requirement already satisfied: asgiref>=3.8.1 in c:\users\cedric kinanga\documents\joyce\projet l3\lunzy_tech\env\lib\site-packages (from django>=4.2->django-crispy-forms) (3.8.1)
+Requirement already satisfied: sqlparse>=0.3.1 in c:\users\cedric kinanga\documents\joyce\projet l3\lunzy_tech\env\lib\site-packages (from django>=4.2->django-crispy-forms) (0.5.3)
+Requirement already satisfied: tzdata in c:\users\cedric kinanga\documents\joyce\projet l3\lunzy_tech\env\lib\site-packages (from django>=4.2->django-crispy-forms) (2025.2)
+Downloading pyotp-2.9.0-py3-none-any.whl (13 kB)
+Downloading qrcode-8.2-py3-none-any.whl (45 kB)
+Downloading pillow-11.3.0-cp312-cp312-win_amd64.whl (7.0 MB)
+   ---------------------------------------- 7.0/7.0 MB 184.5 kB/s eta 0:00:00
+Using cached django_crispy_forms-2.4-py3-none-any.whl (31 kB)
+Using cached colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Installing collected packages: pyotp, Pillow, colorama, qrcode, django-crispy-forms
+Successfully installed Pillow-11.3.0 colorama-0.4.6 django-crispy-forms-2.4 pyotp-2.9.0 qrcode-8.2

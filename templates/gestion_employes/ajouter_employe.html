@@ -1,103 +1,129 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+body { background: linear-gradient(135deg, #064e3b, #1a1a1a) !important; }
+.container { background: transparent !important; }
+.card {
+    background: linear-gradient(135deg, #064e3b, #1a1a1a) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 15px !important;
+    color: white !important;
+}
+.card-header {
+    background: linear-gradient(135deg, #064e3b, #000000) !important;
+    color: white !important;
+    border-bottom: 2px solid #10b981 !important;
+}
+.card-body { color: white !important; }
+h3 { color: #10b981 !important; }
+.form-label { color: #10b981 !important; }
+.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: white !important;
+}
+.form-control:focus {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+    color: white !important;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #064e3b) !important;
+    border: none !important;
+    color: white !important;
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #1a1a1a, #000000) !important;
+    border: none !important;
+    color: white !important;
+}
+.input-group-text {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #10b981 !important;
+    color: #10b981 !important;
+}
+.row, .col-md-6, .col-lg-8, .col-md-10 { background: transparent !important; }
+.mb-4, .d-grid, .mt-4 { background: transparent !important; }
+.container-fluid { background: transparent !important; }
+.py-5 { background: transparent !important; }
+.justify-content-center { background: transparent !important; }
+.p-4 { background: transparent !important; }
+.text-center { background: transparent !important; }
+.input-group { background: transparent !important; }
+form { background: transparent !important; }
+div { background: transparent !important; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8 col-md-10">
             <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Ajouter un employé</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Ajouter un Employé</h3>
+                    <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
                 </div>
-                <div class="card-body">
-                    <form method="post">
+                <div class="card-body p-4">
+                    <form method="POST">
                         {% csrf_token %}
-                        <h6>Informations de connexion</h6>
-                        <div class="mb-3">
-    {{ user_form.username.label_tag }}
-    {{ user_form.username }}
-    {% if user_form.username.errors %}
-        <div class="text-danger small">{{ user_form.username.errors }}</div>
-    {% endif %}
-</div>
-<div class="mb-3">
-    {{ user_form.email.label_tag }}
-    {{ user_form.email }}
-    {% if user_form.email.errors %}
-        <div class="text-danger small">{{ user_form.email.errors }}</div>
-    {% endif %}
-</div>
-<div class="mb-3">
-    {{ user_form.last_name.label_tag }}
-    {{ user_form.last_name }}
-    {% if user_form.last_name.errors %}
-        <div class="text-danger small">{{ user_form.last_name.errors }}</div>
-    {% endif %}
-</div>
-<div class="mb-3">
-    {{ user_form.first_name.label_tag }}
-    {{ user_form.first_name }}
-    {% if user_form.first_name.errors %}
-        <div class="text-danger small">{{ user_form.first_name.errors }}</div>
-    {% endif %}
-</div>
-<div class="mb-3">
-    {{ user_form.password1.label_tag }}
-    {{ user_form.password1 }}
-    {% if user_form.password1.errors %}
-        <div class="text-danger small">{{ user_form.password1.errors }}</div>
-    {% endif %}
-</div>
-<div class="mb-3">
-    {{ user_form.password2.label_tag }}
-    {{ user_form.password2 }}
-    {% if user_form.password2.errors %}
-        <div class="text-danger small">{{ user_form.password2.errors }}</div>
-    {% endif %}
-</div>
-{# Fin des champs explicites #}
-{# SUPPRIMER la boucle user_form ci-dessous #}
-                            <div class="mb-3">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
+                        <div class="mb-4">
+                            <label for="id_username" class="form-label">Nom d'utilisateur</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="id_username" name="username" required>
                             </div>
-                        <hr>
-                        <h6>Informations sur l'employé</h6>
-                        {% for field in employe_form %}
-                            <div class="mb-3">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
+                        </div>
+                        <div class="mb-4">
+                            <label for="id_email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="id_email" name="email" required>
                             </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-success">Enregistrer</button>
-                        <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="id_first_name" class="form-label">Prénom</label>
+                                <input type="text" class="form-control" id="id_first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="id_last_name" class="form-label">Nom</label>
+                                <input type="text" class="form-control" id="id_last_name" name="last_name" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="id_telephone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="id_telephone" name="telephone" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="id_nom_entreprise" class="form-label">Entreprise</label>
+                                <input type="text" class="form-control" id="id_nom_entreprise" name="nom_entreprise" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="id_password1" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control" id="id_password1" name="password1" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="id_password2" class="form-label">Confirmer</label>
+                                <input type="password" class="form-control" id="id_password2" name="password2" required>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary py-2">
+                                <i class="fas fa-user-plus me-2"></i>Ajouter l'employé
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Validation du formulaire
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
-});
-</script>
 {% endblock %}

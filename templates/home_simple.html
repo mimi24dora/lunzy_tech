@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  .container-fluid {
+    background: transparent !important;
+    padding: 20px;
+  }
+
+  .welcome-card {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    margin: 50px auto;
+    max-width: 600px;
+  }
+
+  .welcome-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .welcome-subtitle {
+    color: #d1d5db;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn-custom {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-card">
+  <h1 class="welcome-title">Bienvenue sur Lunzy Tech</h1>
+  <p class="welcome-subtitle">
+    Plateforme de gestion d'employés et de cybersécurité avancée
+  </p>
+  <p style="color: #d1d5db; margin-bottom: 2rem;">
+    Connectez-vous pour accéder à votre espace de travail sécurisé
+  </p>
+  <a href="{% url 'gestion_employes:login' %}" class="btn-custom">
+    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+  </a>
+</div>
+{% endblock %}

@@ -1,5 +1,12 @@
 from django.contrib import admin
 from .models import Profile, Pointage
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
+
+admin.site.site_header = "LunzyTech Administration"
+admin.site.site_title = "LunzyTech Admin"
+admin.site.register(CustomUser, UserAdmin)
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
