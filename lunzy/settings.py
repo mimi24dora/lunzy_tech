@@ -18,11 +18,6 @@ LOGIN_URL = '/gestion/login/'
 
 # --- APPLIS DJANGO + PERSO ---
 INSTALLED_APPS = [
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'two_factor',
-    'django_otp.plugins.otp_static',
-    'phonenumber_field',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,7 +39,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'gestion_employes.middleware.AdminApprovalMiddleware',
-    'django_otp.middleware.OTPMiddleware',
 ]
 
 ROOT_URLCONF = 'lunzy.urls'

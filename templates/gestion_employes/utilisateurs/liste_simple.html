@@ -125,6 +125,7 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Statut</th>
+                    <th>Verrouillage</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -139,6 +140,13 @@
                             <span class="badge bg-success">Actif</span>
                         {% else %}
                             <span class="badge bg-warning">En attente d'approbation</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if utilisateur.is_account_locked %}
+                            <span class="badge bg-danger">Bloqué {{ utilisateur.get_lock_time_remaining }}min</span>
+                        {% else %}
+                            <span class="badge bg-success">Débloqué</span>
                         {% endif %}
                     </td>
                     <td>
@@ -158,7 +166,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5">Aucun utilisateur trouvé</td>
+                    <td colspan="6">Aucun utilisateur trouvé</td>
                 </tr>
                 {% endfor %}
             </tbody>

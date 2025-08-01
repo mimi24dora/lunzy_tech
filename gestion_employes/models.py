@@ -106,8 +106,8 @@ class CustomUser(AbstractUser):
     def increment_failed_login_attempts(self):
         """Incrémente les tentatives de connexion échouées"""
         self.failed_login_attempts += 1
-        if self.failed_login_attempts >= 5:
-            self.account_locked_until = timezone.now() + timezone.timedelta(minutes=30)
+        if self.failed_login_attempts >= 3:
+            self.account_locked_until = timezone.now() + timezone.timedelta(minutes=20)
         self.save()
     
     def is_account_locked(self):
@@ -118,6 +118,13 @@ class CustomUser(AbstractUser):
             else:
                 self.reset_failed_login_attempts()
         return False
+    
+    def get_lock_time_remaining(self):
+        """Retourne le temps restant de verrouillage en minutes"""
+        if self.account_locked_until and timezone.now() < self.account_locked_until:
+            remaining = self.account_locked_until - timezone.now()
+            return int(remaining.total_seconds() / 60)
+        return 0
 
 
 class Role(models.Model):
@@ -214,9 +221,9 @@ class Profile(models.Model):
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
     
     # Champs 2FA/OTP
-    two_factor_enabled = models.BooleanField(default=True)  # OTP obligatoire
+    two_factor_enabled = models.BooleanField(default=False)  # 2FA désactivée par défaut
     two_factor_secret = models.CharField(max_length=32, blank=True, null=True)
-    otp_required = models.BooleanField(default=True)  # OTP requis à chaque connexion
+    otp_required = models.BooleanField(default=False)  # OTP désactivé par défaut
     
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"

@@ -38,13 +38,12 @@ class CustomLoginView(LoginView):
         User = get_user_model()
         try:
             user = User.objects.get(username=username)
-            if hasattr(user, 'increment_failed_login_attempts'):
-                user.increment_failed_login_attempts()
-                remaining_attempts = max(0, 3 - user.failed_login_attempts)
-                if remaining_attempts > 0:
-                    messages.error(self.request, f"Identifiants invalides. Il vous reste {remaining_attempts} tentative(s).")
-                else:
-                    messages.error(self.request, "Compte temporairement verrouillé.")
+            user.increment_failed_login_attempts()
+            remaining_attempts = max(0, 3 - user.failed_login_attempts)
+            if remaining_attempts > 0:
+                messages.error(self.request, f"Identifiants invalides. Il vous reste {remaining_attempts} tentative(s).")
+            else:
+                messages.error(self.request, "Compte temporairement verrouillé.")
         except User.DoesNotExist:
             messages.error(self.request, "Identifiants invalides.")
         return super().form_invalid(form)
@@ -53,8 +52,8 @@ class CustomLoginView(LoginView):
         user = form.get_user()
         
         # Vérifier verrouillage compte
-        if hasattr(user, 'is_account_locked') and user.is_account_locked():
-            messages.error(self.request, 'Compte temporairement verrouillé.')
+        if user.is_account_locked():
+            messages.error(self.request, 'Compte temporairement verrouillé pour 20 minutes.')
             return self.form_invalid(form)
         
         # Vérifier approbation utilisateur
@@ -65,14 +64,9 @@ class CustomLoginView(LoginView):
                 messages.error(self.request, 'Compte en attente d\'approbation.')
             return self.form_invalid(form)
         
-        # Stocker l'utilisateur en session pour l'OTP
-        self.request.session['pending_user_id'] = user.id
-        
-        if hasattr(user, 'reset_failed_login_attempts'):
-            user.reset_failed_login_attempts()
-        
-        # Rediriger vers l'OTP au lieu de connecter directement
-        return redirect('gestion_employes:login_otp')
+        # Réinitialiser les tentatives échouées après connexion réussie
+        user.reset_failed_login_attempts()
+        return super().form_valid(form)
 
 # Vues d'authentification
 def register(request):
@@ -575,9 +569,10 @@ def setup_2fa(request):
             profile = request.user.profile
             profile.two_factor_secret = secret
             profile.two_factor_enabled = True
+            profile.otp_required = True
             profile.save()
             del request.session['2fa_secret']
-            messages.success(request, '2FA activé avec succès !')
+            messages.success(request, '2FA activé avec succès ! Vous devrez utiliser un code OTP à chaque connexion.')
             return redirect('gestion_employes:dashboard')
         else:
             messages.error(request, 'Code invalide. Veuillez réessayer.')
@@ -626,9 +621,9 @@ def disable_2fa(request):
     if request.method == 'POST':
         profile = request.user.profile
         profile.two_factor_enabled = False
-        profile.two_factor_secret = ''
+        profile.otp_required = False
         profile.save()
-        messages.success(request, '2FA désactivé avec succès !')
+        messages.success(request, '2FA désactivé avec succès ! Vous n\'aurez plus besoin de code OTP à la prochaine connexion.')
         return redirect('gestion_employes:dashboard')
     
     return render(request, 'gestion_employes/2fa_disable.html')
@@ -651,6 +646,14 @@ def login_otp(request):
         messages.error(request, 'Erreur de session. Veuillez vous reconnecter.')
         return redirect('gestion_employes:login')
     
+    # Vérifier si l'utilisateur a désactivé la 2FA
+    if not profile.two_factor_enabled or not profile.otp_required:
+        # Connexion directe sans OTP
+        django_login(request, user)
+        request.session.pop('pending_user_id', None)
+        messages.success(request, 'Connexion réussie !')
+        return redirect('gestion_employes:dashboard')
+    
     # Générer le secret OTP si nécessaire
     if not profile.two_factor_secret:
         profile.two_factor_secret = pyotp.random_base32()
@@ -660,6 +663,12 @@ def login_otp(request):
         otp_code = request.POST.get('otp_code', '').strip()
         
         if otp_code and profile.verify_2fa_token(otp_code):
+            # Marquer la 2FA comme activée après première connexion réussie
+            if not profile.two_factor_enabled:
+                profile.two_factor_enabled = True
+                # Ne pas activer otp_required automatiquement - laisser le choix à l'utilisateur
+                profile.save()
+            
             # Connexion réussie
             django_login(request, user)
             request.session.pop('pending_user_id', None)
