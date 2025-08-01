@@ -322,6 +322,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="row g-4">
+                {% if request.user.profile.role.nom != 'EMPLOYE' %}
                 <div class="col-md-3">
                     <div class="stats-card fade-in">
                         <i class="fas fa-users card-icon"></i>
@@ -329,6 +330,7 @@
                         <p class="display-6">{{ total_profiles }}</p>
                     </div>
                 </div>
+                {% endif %}
                 <div class="col-md-3">
                     <div class="stats-card fade-in">
                         <i class="fas fa-check-circle card-icon"></i>
@@ -343,6 +345,7 @@
                         <p class="display-6">{{ profiles_inactifs }}</p>
                     </div>
                 </div>
+                {% if request.user.profile.role.nom != 'EMPLOYE' %}
                 <div class="col-md-3">
                     <div class="stats-card fade-in">
                         <i class="fas fa-plane-departure card-icon"></i>
@@ -357,11 +360,13 @@
                         <p class="display-6">{{ nombre_roles }}</p>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Statistiques sur les rôles -->
+    {% if request.user.profile.role.nom != 'EMPLOYE' %}
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="section-card fade-in">
@@ -385,6 +390,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Derniers Pointages -->
     <div class="row mb-4">
@@ -406,6 +412,7 @@
     </div>
 
     <!-- Liste des utilisateurs -->
+    {% if request.user.username == 'superadmin' or request.user.username == 'chakam' or request.user.profile.role.nom == 'DIRECTEUR_IT' %}
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="section-card fade-in">
@@ -440,45 +447,20 @@
                                         </span>
                                         {% elif utilisateur.profile and utilisateur.profile.role %}
                                         {% with role=utilisateur.profile.role %}
-                                        {% if role.nom == 'admin' or role.nom == 'superadmin' %}
+                                        {% if role.nom == 'superadmin' %}
                                         <span class="badge bg-primary px-2 py-1">
                                             <i class="fas fa-user-shield me-1"></i>
-                                            {{ role.nom|title }}
+                                            Super Admin
                                         </span>
-                                        {% elif role.nom == 'manager' %}
-                                        <span class="badge bg-info px-2 py-1">
-                                            <i class="fas fa-user-tie me-1"></i>
-                                            {{ role.nom|title }}
-                                        </span>
-                                        {% elif role.nom == 'rh' %}
-                                        <span class="badge bg-success px-2 py-1">
-                                            <i class="fas fa-users me-1"></i>
-                                            {{ role.nom|title }}
-                                        </span>
-                                        {% elif role.nom == 'DG' %}
-                                        <span class="badge bg-primary px-2 py-1">
-                                            <i class="fas fa-crown me-1"></i>
-                                            {{ role.nom }}
-                                        </span>
-                                        {% elif role.nom == 'Directeur IT' %}
+                                        {% elif role.nom == 'DIRECTEUR_IT' %}
                                         <span class="badge bg-info px-2 py-1">
                                             <i class="fas fa-laptop-code me-1"></i>
-                                            {{ role.nom }}
-                                        </span>
-                                        {% elif role.nom == 'Réceptionniste' %}
-                                        <span class="badge bg-success px-2 py-1">
-                                            <i class="fas fa-headset me-1"></i>
-                                            {{ role.nom }}
-                                        </span>
-                                        {% elif role.nom == 'Ouvrier' %}
-                                        <span class="badge bg-secondary px-2 py-1">
-                                            <i class="fas fa-hard-hat me-1"></i>
-                                            {{ role.nom }}
+                                            Directeur IT
                                         </span>
                                         {% else %}
                                         <span class="badge bg-secondary px-2 py-1">
                                             <i class="fas fa-user me-1"></i>
-                                            {{ role.nom }}
+                                            {{ role.get_nom_display }}
                                         </span>
                                         {% endif %}
                                         {% endwith %}
@@ -518,6 +500,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 </div>
 </div>

@@ -9,11 +9,12 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # --- MODELE UTILISATEUR PERSONNALISÉ ---
 AUTH_USER_MODEL = 'gestion_employes.CustomUser'
+AUTH_USER_MODEL = 'gestion_employes.CustomUser'
+
 
 # --- REDIRECTION AUTH ---
-LOGIN_URL = 'gestion_employes:login'
-LOGOUT_REDIRECT_URL = 'gestion_employes:login'
-LOGIN_REDIRECT_URL = 'gestion_employes:dashboard'
+LOGOUT_REDIRECT_URL = '/admin/login/'
+LOGIN_URL = '/gestion/login/'
 
 # --- APPLIS DJANGO + PERSO ---
 INSTALLED_APPS = [
@@ -36,7 +37,6 @@ INSTALLED_APPS = [
 # --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'gestion_employes.middleware_ids.IDSMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -131,6 +131,12 @@ MESSAGE_TAGS = {
 
 # --- AUTO FIELD ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- CSRF CONFIG ---
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # --- LOGGING IDS ---
 LOGGING = {

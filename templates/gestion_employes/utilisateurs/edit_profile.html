@@ -127,12 +127,10 @@
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save me-2"></i>Enregistrer les modifications
                         </button>
-                        {% if from_dashboard %}
+                        {% if request.user.profile.role.nom == 'EMPLOYE' %}
                         <a href="{% url 'gestion_employes:dashboard' %}" class="btn btn-secondary ms-2">Annuler</a>
-                        {% elif is_employe %}
-                        <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
                         {% else %}
-                        <a href="{% url 'gestion_employes:liste_utilisateurs' %}" class="btn btn-secondary ms-2">Annuler</a>
+                        <a href="{% url 'gestion_employes:liste_employes' %}" class="btn btn-secondary ms-2">Annuler</a>
                         {% endif %}
                     </form>
                 </div>

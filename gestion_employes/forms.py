@@ -145,7 +145,7 @@ class RoleForm(forms.ModelForm):
         model = Role
         fields = ['nom', 'description']
         widgets = {
-            'nom': forms.Select(choices=Role.TYPE_CHOICES, attrs={'class': 'form-control'}),
+            'nom': forms.Select(choices=Role.ROLE_CHOICES, attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 

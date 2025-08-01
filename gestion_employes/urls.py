@@ -2,21 +2,20 @@ from django.urls import path, include
 from . import views
 from .views_login import custom_login
 
-
-
 app_name = 'gestion_employes'
 
 urlpatterns = [
-    # Authentification
+    # Authentification personnalisée
     path('', custom_login, name='login'),
-    path('login/', custom_login, name='login'),
+    path('login/', custom_login, name='custom_login'),
     path('register/', views.register, name='register'),
     path('logout/', views.user_logout, name='logout'),
 
-    # 2FA
+    # 2FA et OTP
     path('2fa/setup/', views.setup_2fa, name='setup_2fa'),
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
     path('2fa/disable/', views.disable_2fa, name='disable_2fa'),
+    path('login/otp/', views.login_otp, name='login_otp'),
 
     # Réinitialisation mot de passe
     path('password-reset/', views.password_reset_request, name='password_reset'),

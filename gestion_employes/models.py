@@ -121,53 +121,58 @@ class CustomUser(AbstractUser):
 
 
 class Role(models.Model):
-    ADMIN = 'admin'
-    MANAGER = 'manager'
-    RH = 'rh'
-    EMPLOYE = 'employe'
-    
-    TYPE_CHOICES = [
+    """Rôles pour l'application de gestion des employés"""
+
+    ROLE_CHOICES = [
         ('superadmin', 'Super Administrateur'),
-        (ADMIN, 'Administrateur'),
-        (MANAGER, 'Manager'),
-        (RH, 'Ressources Humaines'),
-        (EMPLOYE, 'Employé'),
+        ('DIRECTEUR_IT', 'Directeur IT'),
+        ('RECEPTIONNISTE', 'Réceptionniste'),
+        ('EMPLOYE', 'Employé'),
     ]
-    
-    nom = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-    permissions = models.JSONField(default=dict)
+
+    nom = models.CharField(
+        max_length=30,
+        choices=ROLE_CHOICES,
+        unique=True,
+        verbose_name="Nom du rôle"
+    )
+    description = models.TextField(blank=True, verbose_name="Description")
+    permissions = models.ManyToManyField(
+        'auth.Permission',
+        blank=True,
+        verbose_name="Permissions liées"
+    )
+
     date_creation = models.DateTimeField(default=timezone.now)
     date_modification = models.DateTimeField(default=timezone.now)
-    
+
+    class Meta:
+        verbose_name = "Rôle"
+        verbose_name_plural = "Rôles"
+        ordering = ['nom']
+
     def __str__(self):
-        return self.nom
+        return self.get_nom_display()
     
     def get_nom_display(self):
-        """Renvoie le nom complet du rôle"""
-        return dict(self.TYPE_CHOICES).get(self.nom, self.nom)
+        return dict(self.ROLE_CHOICES).get(self.nom, self.nom)
     
-    class Meta:
-        verbose_name = 'Rôle'
-        verbose_name_plural = 'Rôles'
-        ordering = ['nom']
-    
-    def get_permissions_display(self):
-        """Renvoie une représentation lisible des permissions"""
-        try:
-            permissions = self.permissions if isinstance(self.permissions, dict) else json.loads(self.permissions)
-            permissions_display = []
-            for module, perms in permissions.items():
-                if isinstance(perms, dict):
-                    for perm, enabled in perms.items():
-                        if enabled:  # Seulement si la permission est activée
-                            permissions_display.append(f'{module.capitalize()}: {perm.capitalize()}')
-                else:
-                    for perm in perms:
-                        permissions_display.append(f'{module.capitalize()}: {perm.capitalize()}')
-            return ', '.join(permissions_display) if permissions_display else 'Aucune permission'
-        except (json.JSONDecodeError, AttributeError, TypeError):
-            return 'Aucune permission'
+    def sync_permissions_with_group(self):
+        """Synchronise les permissions avec le groupe Django"""
+        from django.contrib.auth.models import Group
+        
+        if self.nom == 'DIRECTEUR_IT':
+            try:
+                group = Group.objects.get(name='directeur IT')
+                self.permissions.set(group.permissions.all())
+            except Group.DoesNotExist:
+                pass
+        elif self.nom == 'RECEPTIONNISTE':
+            try:
+                group = Group.objects.get(name='receptionniste')
+                self.permissions.set(group.permissions.all())
+            except Group.DoesNotExist:
+                pass
 
 
 class Profile(models.Model):
@@ -208,9 +213,10 @@ class Profile(models.Model):
     )
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
     
-    # Champs 2FA
-    two_factor_enabled = models.BooleanField(default=False)
+    # Champs 2FA/OTP
+    two_factor_enabled = models.BooleanField(default=True)  # OTP obligatoire
     two_factor_secret = models.CharField(max_length=32, blank=True, null=True)
+    otp_required = models.BooleanField(default=True)  # OTP requis à chaque connexion
     
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -256,19 +262,78 @@ class Profile(models.Model):
                 except Role.DoesNotExist:
                     superadmin_role = Role.objects.create(
                         nom='superadmin',
-                        description='Super Administrateur avec tous les droits',
-                        permissions={
-                            'gestion': ['tous'],
-                            'utilisateurs': ['tous'],
-                            'administration': ['tous']
-                        }
+                        description='Super Administrateur avec tous les droits'
                     )
                     self.role = superadmin_role
         
         super().save(*args, **kwargs)
+        
+        # Assigner l'utilisateur au groupe Django correspondant et droits admin
+        if self.role:
+            from django.contrib.auth.models import Group
+            if self.role.nom == 'DIRECTEUR_IT':
+                # Donner les droits de staff et superuser aux directeurs IT
+                self.user.is_staff = True
+                self.user.is_superuser = True
+                self.user.save()
+                try:
+                    group = Group.objects.get(name='directeur IT')
+                    self.user.groups.add(group)
+                except Group.DoesNotExist:
+                    pass
+            elif self.role.nom == 'RECEPTIONNISTE':
+                try:
+                    group = Group.objects.get(name='receptionniste')
+                    self.user.groups.add(group)
+                except Group.DoesNotExist:
+                    pass
     
     def get_approval_status_display(self):
         return dict(self.APPROVAL_STATUS_CHOICES).get(self.approval_status, 'Non défini')
+    
+    def can_edit(self):
+        """Vérifie si l'utilisateur peut modifier"""
+        if not self.role:
+            return False
+        return self.role.nom in ['superadmin', 'DIRECTEUR_IT']
+    
+    def can_delete(self):
+        """Vérifie si l'utilisateur peut supprimer"""
+        if not self.role:
+            return False
+        return self.role.nom in ['superadmin', 'DIRECTEUR_IT']
+    
+    def is_read_only(self):
+        """Vérifie si l'utilisateur est en lecture seule"""
+        if not self.role:
+            return True
+        return self.role.nom in ['RECEPTIONNISTE', 'EMPLOYE']
+    
+    def is_employee(self):
+        """Vérifie si l'utilisateur est un employé simple"""
+        return self.role and self.role.nom == 'EMPLOYE'
+    
+    def is_admin(self):
+        """Vérifie si l'utilisateur a des droits d'admin (superadmin ou directeur IT)"""
+        return (self.user.username in ['superadmin', 'chakam'] or 
+                (self.role and self.role.nom in ['superadmin', 'DIRECTEUR_IT']))
+    
+    def get_2fa_uri(self):
+        """Génère l'URI pour l'authentification 2FA"""
+        import pyotp
+        return pyotp.totp.TOTP(self.two_factor_secret).provisioning_uri(
+            name=self.user.email,
+            issuer_name="Lunzy Tech"
+        )
+    
+    def verify_2fa_token(self, token):
+        """Vérifie le token 2FA"""
+        if not self.two_factor_secret:
+            return False
+        
+        import pyotp
+        totp = pyotp.TOTP(self.two_factor_secret)
+        return totp.verify(token, valid_window=1)
 
 
 class Pointage(models.Model):

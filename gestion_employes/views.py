@@ -4,6 +4,7 @@ from .decorators import redirect_after_post
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import authenticate, logout, login as django_login, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
@@ -18,86 +19,60 @@ from .forms import (
     UserRegistrationForm, ProfileForm, PointageForm, UserUpdateForm, 
     RoleForm, EmployeForm
 )
+from django.db import models
+from django.conf import settings
 import pyotp
 import qrcode
 from io import BytesIO
 import base64
 
 
-
-
-
-# Vue de connexion modifiée
+# Vue de connexion personnalisée pour l'application
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     success_url = reverse_lazy('gestion_employes:dashboard')
     form_class = AuthenticationForm
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
     def form_invalid(self, form):
         username = self.request.POST.get('username')
+        User = get_user_model()
         try:
             user = User.objects.get(username=username)
-            user.increment_failed_login_attempts()
-
-            remaining_attempts = max(0, 3 - user.failed_login_attempts)
-
-            if remaining_attempts > 0:
-                messages.error(
-                    self.request,
-                    f"Identifiants invalides. Il vous reste {remaining_attempts} tentative(s) avant le blocage du compte."
-                )
-            else:
-                messages.error(
-                    self.request,
-                    "Votre compte est temporairement verrouillé après 3 tentatives échouées. Veuillez réessayer dans 30 minutes."
-                )
-
+            if hasattr(user, 'increment_failed_login_attempts'):
+                user.increment_failed_login_attempts()
+                remaining_attempts = max(0, 3 - user.failed_login_attempts)
+                if remaining_attempts > 0:
+                    messages.error(self.request, f"Identifiants invalides. Il vous reste {remaining_attempts} tentative(s).")
+                else:
+                    messages.error(self.request, "Compte temporairement verrouillé.")
         except User.DoesNotExist:
             messages.error(self.request, "Identifiants invalides.")
-
         return super().form_invalid(form)
 
     def form_valid(self, form):
         user = form.get_user()
         
-        # Vérifier si le compte est verrouillé
-        if user.is_account_locked():
-            messages.error(
-                self.request,
-                'Votre compte est temporairement verrouillé en raison de trop nombreuses tentatives de connexion. '
-                'Veuillez réessayer dans 30 minutes.'
-            )
+        # Vérifier verrouillage compte
+        if hasattr(user, 'is_account_locked') and user.is_account_locked():
+            messages.error(self.request, 'Compte temporairement verrouillé.')
             return self.form_invalid(form)
         
-        # Super admin credentials
-        SUPER_ADMIN_USERNAME = 'superadmin'
-        SUPER_ADMIN_EMAIL = 'superadmin@lunzytech.com'
-        
-        # Check if this is the super admin
-        if (user.username == SUPER_ADMIN_USERNAME and 
-            user.email == SUPER_ADMIN_EMAIL):
-            user.reset_failed_login_attempts()
-            return super().form_valid(form)
-        
-        # Utilisateur régulier - vérifier l'approbation
+        # Vérifier approbation utilisateur
         if not user.is_active:
             if hasattr(user, 'profile') and user.profile.approval_status == 'rejected':
-                messages.error(self.request, 'Votre demande d\'inscription a été refusée. Veuillez contacter l\'administrateur pour plus d\'informations.')
+                messages.error(self.request, 'Inscription refusée.')
             else:
-                messages.error(
-                    self.request,
-                    'Votre compte est en attente d\'approbation par un administrateur. '
-                    'Vous recevrez un email dès que votre compte sera activé. Merci de votre patience.'
-                )
+                messages.error(self.request, 'Compte en attente d\'approbation.')
             return self.form_invalid(form)
         
-        # Connexion normale
-        user.reset_failed_login_attempts()
-        return super().form_valid(form)
+        # Stocker l'utilisateur en session pour l'OTP
+        self.request.session['pending_user_id'] = user.id
+        
+        if hasattr(user, 'reset_failed_login_attempts'):
+            user.reset_failed_login_attempts()
+        
+        # Rediriger vers l'OTP au lieu de connecter directement
+        return redirect('gestion_employes:login_otp')
 
 # Vues d'authentification
 def register(request):
@@ -171,6 +146,7 @@ def ajouter_employe(request):
 
 # Vues principales
 @login_required
+@csrf_protect
 def edit_profile(request):
     profile = request.user.profile if hasattr(request.user, 'profile') else None
     
@@ -200,11 +176,16 @@ def edit_profile(request):
     })
 
 @login_required
+@csrf_protect
 def edit_utilisateur(request, pk):
     """Vue pour éditer un utilisateur spécifique"""
     User = get_user_model()
-    user = get_object_or_404(User, pk=pk)
-    profile = user.profile if hasattr(user, 'profile') else None
+    try:
+        user = get_object_or_404(User, pk=pk)
+        profile = user.profile if hasattr(user, 'profile') else None
+    except:
+        messages.error(request, f'Utilisateur avec l\'ID {pk} introuvable.')
+        return redirect('gestion_employes:liste_employes')
     
     if request.method == 'POST':
         profile_form = ProfileForm(request.POST, instance=profile)
@@ -264,6 +245,9 @@ def edit_employe(request, pk):
         'user': request.user
     })
 
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def user_logout(request):
     logout(request)
     messages.success(request, 'Vous avez été déconnecté.')
@@ -272,6 +256,14 @@ def user_logout(request):
 # Vues de gestion des utilisateurs
 @login_required
 def liste_utilisateurs(request):
+    # Vérifier les permissions d'accès
+    if (request.user.username not in ['superadmin', 'chakam'] and 
+        hasattr(request.user, 'profile') and 
+        request.user.profile.role and 
+        request.user.profile.role.nom == 'RECEPTIONNISTE'):
+        messages.error(request, 'Accès non autorisé à cette section.')
+        return redirect('gestion_employes:dashboard')
+    
     User = get_user_model()
     
     # Debug: afficher le nom d'utilisateur
@@ -640,3 +632,60 @@ def disable_2fa(request):
         return redirect('gestion_employes:dashboard')
     
     return render(request, 'gestion_employes/2fa_disable.html')
+
+def login_otp(request):
+    """Vue pour l'authentification OTP obligatoire"""
+    print(f"DEBUG: Accès à login_otp")
+    print(f"DEBUG: Session keys: {list(request.session.keys())}")
+    
+    if 'pending_user_id' not in request.session:
+        print(f"DEBUG: Pas de pending_user_id en session")
+        messages.error(request, 'Session expirée. Veuillez vous reconnecter.')
+        return redirect('gestion_employes:login')
+    
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=request.session['pending_user_id'])
+        profile = user.profile
+    except (User.DoesNotExist, AttributeError):
+        messages.error(request, 'Erreur de session. Veuillez vous reconnecter.')
+        return redirect('gestion_employes:login')
+    
+    # Générer le secret OTP si nécessaire
+    if not profile.two_factor_secret:
+        profile.two_factor_secret = pyotp.random_base32()
+        profile.save()
+    
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if otp_code and profile.verify_2fa_token(otp_code):
+            # Connexion réussie
+            django_login(request, user)
+            request.session.pop('pending_user_id', None)
+            messages.success(request, 'Connexion réussie !')
+            return redirect('gestion_employes:dashboard')
+        else:
+            messages.error(request, 'Code OTP invalide. Vérifiez votre application d\'authentification.')
+    
+    # Générer le QR code (taille réduite)
+    totp_uri = pyotp.totp.TOTP(profile.two_factor_secret).provisioning_uri(
+        name=user.email or user.username,
+        issuer_name="Lunzy Tech"
+    )
+    
+    qr = qrcode.QRCode(version=1, box_size=6, border=2)
+    qr.add_data(totp_uri)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    qr_code = base64.b64encode(buffer.getvalue()).decode()
+    
+    return render(request, 'gestion_employes/login_otp.html', {
+        'show_qr': True,
+        'qr_code': qr_code,
+        'secret': profile.two_factor_secret,
+        'user_email': user.email or user.username
+    })

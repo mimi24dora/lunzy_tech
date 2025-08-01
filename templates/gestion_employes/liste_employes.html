@@ -267,9 +267,11 @@
     <!-- Action Header -->
     <div class="action-header fade-in">
         <h2 class="page-title">{% if request.GET.tab == 'presences' %}Présences{% else %}Liste des Employés{% endif %}</h2>
+        {% if request.user.username == 'superadmin' or request.user.username == 'chakam' or request.user.profile.role.nom == 'DIRECTEUR_IT' %}
         <a href="{% url 'gestion_employes:ajouter_employe' %}" class="btn btn-success">
             <i class="fas fa-plus me-1"></i> Ajouter un employé
         </a>
+        {% endif %}
     </div>
 
     <!-- Table Container -->
@@ -335,6 +337,7 @@
                                     {% endwith %}
                                 </td>
                                 <td>
+                                    {% if request.user.username == 'superadmin' or request.user.username == 'chakam' or request.user.profile.role.nom == 'DIRECTEUR_IT' %}
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-success" onclick="marquerPresence({{ profile.id }})">
                                             <i class="fas fa-check"></i> Présent
@@ -343,6 +346,9 @@
                                             <i class="fas fa-times"></i> Absent
                                         </button>
                                     </div>
+                                    {% else %}
+                                    <span class="text-muted">Lecture seule</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% else %}
@@ -358,26 +364,51 @@
                                     </span>
                                 </td>
                                 <td>
-                                    {% if profile.role %}
-                                        <span class="badge bg-{% if profile.role.nom == 'admin' or profile.role.nom == 'superadmin' %}primary{% elif profile.role.nom == 'manager' %}info{% else %}secondary{% endif %} px-2 py-1">
-                                            <i class="fas {% if profile.role.nom == 'admin' or profile.role.nom == 'superadmin' %}fa-user-shield{% elif profile.role.nom == 'manager' %}fa-user-tie{% else %}fa-user{% endif %} me-1"></i>
-                                            {{ profile.role.nom }}
+                                    {% if profile.user.username == 'chakam' or profile.user.username == 'superadmin' %}
+                                        <span class="badge bg-primary px-2 py-1">
+                                            <i class="fas fa-crown me-1"></i> Super Admin
                                         </span>
+                                    {% elif profile.role %}
+                                        {% if profile.role.nom == 'superadmin' %}
+                                        <span class="badge bg-primary px-2 py-1">
+                                            <i class="fas fa-crown me-1"></i> Super Admin
+                                        </span>
+                                        {% elif profile.role.nom == 'DIRECTEUR_IT' %}
+                                        <span class="badge bg-info px-2 py-1">
+                                            <i class="fas fa-laptop-code me-1"></i> Directeur IT
+                                        </span>
+                                        {% elif profile.role.nom == 'RECEPTIONNISTE' %}
+                                        <span class="badge bg-warning px-2 py-1">
+                                            <i class="fas fa-desk me-1"></i> Réceptionniste
+                                        </span>
+                                        {% elif profile.role.nom == 'EMPLOYE' %}
+                                        <span class="badge bg-success px-2 py-1">
+                                            <i class="fas fa-user-tie me-1"></i> Employé
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary px-2 py-1">
+                                            <i class="fas fa-user me-1"></i> {{ profile.role.get_nom_display }}
+                                        </span>
+                                        {% endif %}
                                     {% else %}
-                                        <span class="badge bg-secondary">
+                                        <span class="badge bg-secondary px-2 py-1">
                                             <i class="fas fa-user me-1"></i> Aucun rôle
                                         </span>
                                     {% endif %}
                                 </td>
                                 <td>
+                                    {% if request.user.username == 'superadmin' or request.user.username == 'chakam' or request.user.profile.role.nom == 'DIRECTEUR_IT' %}
                                     <div class="btn-group">
-                                        <a href="{% url 'gestion_employes:modifier_profile' profile.id %}" class="btn btn-sm btn-warning">
+                                        <a href="{% url 'gestion_employes:modifier_profile' profile.user.id %}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i> Modifier
                                         </a>
-                                        <a href="{% url 'gestion_employes:supprimer_profile' profile.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
+                                        <a href="{% url 'gestion_employes:supprimer_profile' profile.user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </a>
                                     </div>
+                                    {% else %}
+                                    <span class="text-muted">Lecture seule</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endif %}

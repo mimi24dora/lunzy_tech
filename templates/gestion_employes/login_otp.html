@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1a1a 100%) !important;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+
+    .otp-container {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        max-width: 500px;
+        margin: 2rem auto;
+    }
+
+    .form-control {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid #10b981 !important;
+        color: #ffffff !important;
+        border-radius: 10px !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        border: none !important;
+        border-radius: 50px !important;
+    }
+
+    .qr-code {
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .qr-code img {
+        border: 2px solid #10b981;
+        border-radius: 10px;
+        padding: 8px;
+        background: white;
+        max-width: 200px;
+        height: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="otp-container">
+        <h3 class="text-center mb-4" style="color: #10b981;">Authentification OTP</h3>
+        
+        <div class="qr-code">
+            <p class="mb-3">Scannez ce QR code avec votre application d'authentification (Google Authenticator, Authy, etc.) :</p>
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="mb-3">
+            <p class="mt-2"><small><strong>Secret manuel :</strong> {{ secret }}</small></p>
+            <p class="mt-2"><small><strong>Compte :</strong> {{ user_email }}</small></p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="otp_code" class="form-label">Code OTP (6 chiffres)</label>
+                <input type="text" class="form-control" id="otp_code" name="otp_code" maxlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Vérifier</button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'gestion_employes:logout' %}" class="text-muted">Se déconnecter</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
